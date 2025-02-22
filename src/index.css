@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.ql-editor strong {
+    font-weight: bold !important;
+}
+
+input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: gray;
+}
