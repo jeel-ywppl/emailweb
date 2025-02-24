@@ -6,13 +6,15 @@ import Trash from "./pages/Trash";
 import Home from "./pages/Home";
 import Tables from "./pages/Tables";
 import Domain from "./pages/Domain";
-import DomainTable from "./pages/DomainTable.jsx";
+import DomainTable from "./pages/CompanyData.jsx";
 import {SiAwwwards} from "react-icons/si";
 import {IoMailUnreadOutline} from "react-icons/io5";
 import {GoStar} from "react-icons/go";
+import { TbBuildingBank } from "react-icons/tb";
 import {BsSendCheck} from "react-icons/bs";
 import {CgTrash} from "react-icons/cg";
 import AccountSettings from "./pages/AccountSettings";
+import DnsSetting from "./pages/DnsSetting.jsx";
 import EmailView from "./componets/EmailView";
 
 const icon = {
@@ -45,8 +47,8 @@ export const routes = [
                 roles: ["admin"],
             },
             {
-                icon: <SiAwwwards {...icon} />,
-                name: "domain table",
+                icon: <TbBuildingBank {...icon} />,
+                name: "company",
                 path: "/domaintable",
                 element: <DomainTable />,
                 roles: ["admin"],
@@ -87,6 +89,11 @@ export const routes = [
             {
                 path: "/accountsettings",
                 element: <AccountSettings />,
+                roles: ["admin", "user"],
+            },
+            {
+                path: "/dnssetting",
+                element: <DnsSetting />,
                 roles: ["admin", "user"],
             },
         ],

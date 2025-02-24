@@ -1,12 +1,11 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import {
     Navbar,
     Typography,
     Button,
     IconButton,
-    Breadcrumbs,
     Avatar,
 } from "@material-tailwind/react";
 import { UserCircleIcon, Cog6ToothIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
@@ -17,13 +16,14 @@ import { useDispatch } from "react-redux";
 import { logoutUserFromLoacal } from "../store/auth/authSlice";
 
 const DashboardNavbar = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate()
     const [controller, dis] = useMaterialTailwindController();
     const { fixedNavbar, openSidenav } = controller;
     const { pathname } = useLocation();
-    const [layout, page] = pathname.split("/").filter((el) => el !== "");
+    const [ page] = pathname.split("/").filter((el) => el !== "");
     const { accessToken, user: authUser } = useAppSelector((state) => state.auth);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const dispatch = useDispatch();
 
     const handleLogout = () => {
         dispatch(logoutUserFromLoacal());
@@ -58,20 +58,6 @@ const DashboardNavbar = () => {
                         )}
                     </IconButton>
                     <div className="flex flex-col">
-                        <Breadcrumbs className={`bg-transparent p-0 transition-all ${fixedNavbar ? "mt-1" : ""}`}>
-                            <Link to={`/${layout}`}>
-                                <Typography
-                                    variant="small"
-                                    color="blue-gray"
-                                    className="font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100"
-                                >
-                                    {layout}
-                                </Typography>
-                            </Link>
-                            <Typography variant="small" color="blue-gray" className="font-normal">
-                                {page}
-                            </Typography>
-                        </Breadcrumbs>
                         <Typography variant="h6" color="blue-gray" className="font-semibold">
                             {page}
                         </Typography>
@@ -132,11 +118,9 @@ const DashboardNavbar = () => {
                             </IconButton>
                         </Link>
                     )}
-                    <Link to="/dashboard/accountsettings">
-                        <IconButton variant="text" color="blue-gray">
+                        <IconButton variant="text" color="blue-gray" onClick={() => navigate("/dashboard/accountsettings")}>
                             <Cog6ToothIcon className="h-8 w-8 text-blue-gray-500" />
                         </IconButton>
-                    </Link>
                 </div>
             </div>
         </Navbar>

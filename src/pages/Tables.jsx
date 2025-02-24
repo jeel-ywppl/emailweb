@@ -97,7 +97,7 @@ const Tables = () => {
                 <CardHeader
                     variant="gradient"
                     color="gray"
-                    className="mb-8 p-6 flex items-center gap-4"
+                    className="mb-8 p-6 flex items-center gap-4 justify-between"
                 >
                     <Typography variant="h6" color="white">
                         Users Table
@@ -105,10 +105,10 @@ const Tables = () => {
 
                     <button
                         onClick={openModal}
-                        className="bg-white hover:shadow-xl text-dark text-xl rounded px-1 py-1 hover:text-white hover:bg-primary1 transition-all duration-300 border border-primary1"
+                        className="flex items-center gap-3 border rounded-md font-medium py-1.5 px-2.5 "
                         title="Register new user"
                     >
-                        <HiOutlinePlus />
+                        Add New User<HiOutlinePlus />
                     </button>
                 </CardHeader>
                 <CardBody className="overflow-auto px-0 pt-0 pb-2">
@@ -258,4 +258,4 @@ const Tables = () => {
     );
 };
 
-export default Tables;
+export default Tables;  
