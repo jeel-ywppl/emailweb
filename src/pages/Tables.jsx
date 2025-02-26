@@ -4,12 +4,12 @@ import EditUserModal from "../model/EditUserModal";
 import {Pencil, Trash2} from "lucide-react";
 import {useAppDispatch, useAppSelector} from "../store";
 import {setCurrentPage, setLimit, setSkip} from "../store/user/userSlice";
-import {findSubDomainWithoutFilter} from "../store/subDomain";
 import {Box, TablePagination} from "@mui/material";
 import {findUser} from "../store/user";
 import DeleteUserModal from "../model/DeleteUserModal";
 import {HiOutlinePlus} from "react-icons/hi";
 import RegisterNewUser from "../model/RegisterNewUser";
+import { findDomainWithoutFilter } from "../store/Domain";
 
 const Tables = () => {
     const dispatch = useAppDispatch();
@@ -26,7 +26,7 @@ const Tables = () => {
     );
 
     useEffect(() => {
-        dispatch(findSubDomainWithoutFilter());
+        dispatch(findDomainWithoutFilter());
     }, [dispatch]);
 
     useEffect(() => {
@@ -221,7 +221,7 @@ const Tables = () => {
                 </CardBody>
                 <Box sx={{position: "relative"}}>
                     <TablePagination
-                        rowsPerPageOptions={[5, 10, 15, 20, 40, 80]}
+                        rowsPerPageOptions={[2, 5, 10, 15, 20, 40, 80]}
                         component="div"
                         count={totalRecords}
                         rowsPerPage={limit}

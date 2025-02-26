@@ -1,12 +1,12 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {findSubDomain, findSubDomainWithoutFilter} from "./index";
+import { createSlice } from "@reduxjs/toolkit";
+import { findCompany, findCompanyWithoutFilter } from ".";
 
 const initialState = {
     data: [],
     noFilterData: [],
     skip: 0,
-    limit: 12,
-    totalRecords: 0,
+    limit: 10,
+    totalRecords: 1,
     currentPage: 0,
     status: "idle",
     isError: false,
@@ -15,8 +15,8 @@ const initialState = {
     errorMessage: "",
 };
 
-const subDomainSlice = createSlice({
-    name: "subDomain",
+const companySlice = createSlice({
+    name: "Company",
     initialState,
     reducers: {
         setLimit: (state, action) => {
@@ -36,36 +36,39 @@ const subDomainSlice = createSlice({
         reset: () => initialState,
     },
     extraReducers: (builder) => {
-        builder.addCase(findSubDomain.pending, (state) => {
+        builder.addCase(findCompany.pending, (state) => {
             state.isLoading = true;
-            state.isError = true;
+            state.isError = false; 
             state.status = "pending";
         });
-        builder.addCase(findSubDomain.fulfilled, (state, action) => {
+        builder.addCase(findCompany.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.data = action.payload?.data;
-            state.totalRecords = action.payload?.totalProducts;
+            state.isError = false; 
+            state.data = action.payload.data;
+            state.totalRecords = action.payload.pagination.totalData;
+            state.currentPage = action.payload.pagination.pageNumber;
+            state.limit = action.payload.pagination.pageSize; 
+            console.log("Companies fetched successfully:", action.payload.data);
             state.status = "success";
         });
-        builder.addCase(findSubDomain.rejected, (state) => {
+        builder.addCase(findCompany.rejected, (state) => {
             state.isLoading = false;
             state.isError = true;
             state.status = "fail";
         });
 
-        builder.addCase(findSubDomainWithoutFilter.pending, (state) => {
+        builder.addCase(findCompanyWithoutFilter.pending, (state) => {
             state.isLoading = true;
-            state.isError = true;
+            state.isError = false; 
             state.status = "pending";
         });
-        builder.addCase(findSubDomainWithoutFilter.fulfilled, (state, action) => {
+        builder.addCase(findCompanyWithoutFilter.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.noFilterData = action.payload?.data;
-            console.log(action.payload?.data)
-            state.totalRecords = action.payload?.data?.length;
+            state.noFilterData = action.payload.data; 
+            state.totalRecords = action.payload.data.length; 
             state.status = "success";
         });
-        builder.addCase(findSubDomainWithoutFilter.rejected, (state) => {
+        builder.addCase(findCompanyWithoutFilter.rejected, (state) => {
             state.isLoading = false;
             state.isError = true;
             state.status = "fail";
@@ -73,5 +76,5 @@ const subDomainSlice = createSlice({
     },
 });
 
-export const {setCurrentPage, setLimit, setSkip, setStatus} = subDomainSlice.actions;
-export default subDomainSlice.reducer;
+export const { setCurrentPage, setLimit, setSkip, setStatus } = companySlice.actions;
+export default companySlice.reducer;

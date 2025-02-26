@@ -1,5 +1,6 @@
 import {useEffect} from "react";
 import PropTypes from "prop-types";
+import {useAppDispatch} from "../store";
 import {
     Dialog,
     DialogHeader,
@@ -9,9 +10,13 @@ import {
     Button,
 } from "@material-tailwind/react";
 import {useFormik} from "formik";
+import {toast} from "react-toastify";
 import {companyValidationSchema} from "../validation/companyValidationScheama";
+import {createCompany, editCompany, findCompany} from "../store/company";
 
-const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}) => {
+const CompanyModal = ({open, handleOpen, editIndex, initialValues}) => {
+    const dispatch = useAppDispatch();
+
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === "Escape") {
@@ -31,26 +36,44 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
         values,
         errors,
         touched,
+        isSubmitting,
         resetForm,
     } = useFormik({
-        initialValues: {
-            name: initialValues?.name || "",
-            address: initialValues?.address || "",
-            phone: initialValues?.phone || "",
-            industry: initialValues?.industry || "",
-            state: initialValues?.state || "",
-            city: initialValues?.city || "",
-            country: initialValues?.country || "",
-            email: initialValues?.email || "",
-            pin_code: initialValues?.pin_code || "",
-            active_status: initialValues?.active_status || "",
-        },
+        initialValues,
         enableReinitialize: true,
         validationSchema: companyValidationSchema,
-        onSubmit: async (values, formikHelpers) => {
-            await handleSubmit(values, formikHelpers); 
-            resetForm();
-            handleOpen();
+        onSubmit: async (values, {setSubmitting, setFieldError}) => {
+            try {
+                if (editIndex !== null) {
+                    if (!initialValues._id) {
+                        toast.error("Company ID is missing!");
+                        return;
+                    }
+                    const response = await dispatch(
+                        editCompany({id: initialValues._id, updatedData: values}),
+                    ).unwrap();
+
+                    if (response?.success) {
+                        await dispatch(findCompany());
+                    } else {
+                        setFieldError("general", response?.message || "Failed to update company.");
+                    }
+                } else {
+                    const response = await dispatch(createCompany(values)).unwrap();
+                    if (response?.success) {
+                        await dispatch(findCompany());
+                        toast.success("Company created successfully!");
+                    } else {
+                        setFieldError("general", response?.message || "Failed to create company.");
+                    }
+                }
+                handleOpen();
+                resetForm();
+            } catch (error) {
+                toast.error(error || "Something went wrong!");
+            } finally {
+                setSubmitting(false);
+            }
         },
     });
 
@@ -61,7 +84,6 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
             </DialogHeader>
             <DialogBody>
                 <form onSubmit={formikSubmit} className="space-y-4">
-                    {/* Company Name */}
                     <div>
                         <Input
                             label="Company Name"
@@ -74,8 +96,6 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
                             <p className="text-red-500 text-xs">{errors.name}</p>
                         )}
                     </div>
-
-                    {/* Address */}
                     <div>
                         <Input
                             label="Address"
@@ -88,13 +108,11 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
                             <p className="text-red-500 text-xs">{errors.address}</p>
                         )}
                     </div>
-
-                    {/* Phone Number */}
                     <div>
                         <Input
                             label="Phone Number"
                             name="phone"
-                            type="number"
+                            type="tel"
                             value={values.phone}
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -103,8 +121,6 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
                             <p className="text-red-500 text-xs">{errors.phone}</p>
                         )}
                     </div>
-
-                    {/* Industry */}
                     <div>
                         <Input
                             label="Industry"
@@ -117,8 +133,6 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
                             <p className="text-red-500 text-xs">{errors.industry}</p>
                         )}
                     </div>
-
-                    {/* State */}
                     <div>
                         <Input
                             label="State"
@@ -131,8 +145,6 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
                             <p className="text-red-500 text-xs">{errors.state}</p>
                         )}
                     </div>
-
-                    {/* City */}
                     <div>
                         <Input
                             label="City"
@@ -145,8 +157,6 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
                             <p className="text-red-500 text-xs">{errors.city}</p>
                         )}
                     </div>
-
-                    {/* Country */}
                     <div>
                         <Input
                             label="Country"
@@ -159,8 +169,6 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
                             <p className="text-red-500 text-xs">{errors.country}</p>
                         )}
                     </div>
-
-                    {/* Email */}
                     <div>
                         <Input
                             label="Email"
@@ -174,8 +182,6 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
                             <p className="text-red-500 text-xs">{errors.email}</p>
                         )}
                     </div>
-
-                    {/* Pin Code */}
                     <div>
                         <Input
                             label="Pin Code"
@@ -189,14 +195,19 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
                             <p className="text-red-500 text-xs">{errors.pin_code}</p>
                         )}
                     </div>
-
-                    {/* Active Status */}
                     <div>
                         <label className="text-sm font-medium">Active Status</label>
                         <select
                             name="active_status"
                             value={values.active_status}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                handleChange({
+                                    target: {
+                                        name: e.target.name,
+                                        value: e.target.value === "true",
+                                    },
+                                });
+                            }}
                             onBlur={handleBlur}
                             className="p-2 border rounded-lg w-full"
                         >
@@ -208,14 +219,16 @@ const CompanyModal = ({open, handleOpen, handleSubmit, editIndex, initialValues}
                             <p className="text-red-500 text-xs">{errors.active_status}</p>
                         )}
                     </div>
-
-                    {/* Modal Actions */}
                     <DialogFooter>
                         <Button variant="text" color="red" onClick={handleOpen} className="mr-2">
                             Cancel
                         </Button>
-                        <Button type="submit" color="primary">
-                            {editIndex !== null ? "Update" : "Submit"}
+                        <Button type="submit" color="primary" disabled={isSubmitting}>
+                            {isSubmitting
+                                ? "Processing..."
+                                : editIndex !== null
+                                ? "Update"
+                                : "Submit"}
                         </Button>
                     </DialogFooter>
                 </form>
@@ -230,6 +243,7 @@ CompanyModal.propTypes = {
     handleSubmit: PropTypes.func.isRequired,
     editIndex: PropTypes.number,
     initialValues: PropTypes.shape({
+        _id: PropTypes.string,
         name: PropTypes.string,
         address: PropTypes.string,
         phone: PropTypes.string,

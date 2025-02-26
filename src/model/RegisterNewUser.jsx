@@ -2,11 +2,10 @@ import {useFormik} from "formik";
 import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "../store/index";
-import {findSubDomainWithoutFilter} from "../store/subDomain";
 import {registrationValidationSchema} from "../validation/registrationValidationSchema";
-import {toast} from "react-toastify";
 import {createUser} from "../store/user";
 import {EyeIcon, EyeOffIcon} from "lucide-react";
+import { findDomainWithoutFilter } from "../store/Domain";
 
 const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
     const dispatch = useAppDispatch();
@@ -14,7 +13,7 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
     const {noFilterData} = useAppSelector((state) => state.subDomain);
 
     useEffect(() => {
-        dispatch(findSubDomainWithoutFilter());
+        dispatch(findDomainWithoutFilter());
     }, [dispatch]);
 
     const {
@@ -41,7 +40,7 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
         validationSchema: registrationValidationSchema,
         onSubmit: async (values, {setSubmitting, setFieldError}) => {
             try {
-                const fullEmail = `${values.email}${values.sub_domain}`;
+                // const fullEmail = `${values.email}${values.sub_domain}`;
                 const userData = {...values, role_id: 2};
                 const response = await dispatch(createUser(userData));
                 resetForm();
@@ -54,7 +53,6 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                     );
                 }
             } catch {
-                toast.error("An error occurred while submitting the form.");
                 setFieldError("email", "Submission failed. Try again.");
             } finally {
                 setSubmitting(false);

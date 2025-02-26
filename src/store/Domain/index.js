@@ -1,8 +1,8 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
-    import {api} from "../../utils/api";
+import {api} from "../../utils/api";
 import {toast} from "react-toastify";
 
-export const findSubDomain = createAsyncThunk(
+export const findDomain = createAsyncThunk(
     "subDomain/findSubDomain",
     async (values, {rejectWithValue}) => {
         try {
@@ -17,7 +17,7 @@ export const findSubDomain = createAsyncThunk(
     },
 );
 
-export const findSubDomainWithoutFilter = createAsyncThunk(
+export const findDomainWithoutFilter = createAsyncThunk(
     "subDomain/findSubDomainWithoutFilter",
     async (_, {rejectWithValue}) => {
         try {
@@ -30,7 +30,7 @@ export const findSubDomainWithoutFilter = createAsyncThunk(
     },
 );
 
-export const getSubDomain = createAsyncThunk(
+export const getDomain = createAsyncThunk(
     "subDomain/getSubDomain",
     async (id, {rejectWithValue}) => {
         try {
@@ -43,7 +43,7 @@ export const getSubDomain = createAsyncThunk(
     },
 );
 
-export const createSubDomain = createAsyncThunk(
+export const createDomain = createAsyncThunk(
     "subDomain/createSubDomain",
     async (values, {rejectWithValue}) => {
         try {
@@ -56,7 +56,7 @@ export const createSubDomain = createAsyncThunk(
     },
 );
 
-export const deleteSubDomain = createAsyncThunk(
+export const deleteDomain = createAsyncThunk(
     "subDomain/deleteSubDomain",
     async (id, {rejectWithValue}) => {
         try {

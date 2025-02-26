@@ -1,16 +1,18 @@
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import {useDispatch, useSelector} from "react-redux";
 import authReducer from "./auth/authSlice";
-import subDomainReducer from "./subDomain/subDomainSlice";
+import domainReducer from "./Domain/domainSlice";
 import userReducer from "./user/userSlice";
 import emailReducer from "./email/emailSlice";
+import companyReducer from "./company/companySlice"
 
 
 const reducers = {
     auth: authReducer,
-    subDomain: subDomainReducer,
+    subDomain: domainReducer,
     user: userReducer,
     email: emailReducer,
+    company: companyReducer,
 };
 
 export const rootReducer = combineReducers(reducers);

@@ -7,9 +7,9 @@ export const registrationValidationSchema = Yup.object().shape({
     lname: Yup.string()
         .required("Last name is required")
         .min(1, "Last name must be at least 2 characters long"),
-        email: Yup.string()
-        .matches(/^[a-zA-Z0-9._%+-]+$/, 'Invalid email format')
-        .required('Email is required'),
+    // email: Yup.string()
+    //     .matches(/^[a-zA-Z0-9._%+-]+$/, "Invalid email format")
+    //     .required("Email is required"),
     sub_domain: Yup.string().required("Subdomain is required"),
     phone_number: Yup.string()
         .required("Phone number is required")

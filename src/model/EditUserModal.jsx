@@ -11,9 +11,9 @@ import {
 import {EyeIcon, EyeOffIcon} from "lucide-react";
 import {useFormik} from "formik";
 import {useAppDispatch, useAppSelector} from "../store";
-import {findSubDomainWithoutFilter} from "../store/subDomain";
 import {editUser} from "../store/user";
 import {editUserValidationSchema} from "../validation/editUserValidationSchema";
+import { findDomainWithoutFilter } from "../store/Domain";
 
 const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) => {
     const dispatch = useAppDispatch();
@@ -33,7 +33,7 @@ const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) =
     }, [setIsEditModalOpen]);
 
     useEffect(() => {
-        dispatch(findSubDomainWithoutFilter());
+        dispatch(findDomainWithoutFilter());
     }, [dispatch]);
 
     const {
