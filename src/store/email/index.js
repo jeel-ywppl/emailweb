@@ -31,3 +31,17 @@ export const getSinglMail = createAsyncThunk(
         }
     },
 );
+
+export const sendMail = createAsyncThunk(
+    "email/sendMail",
+    async (mailData, { rejectWithValue }) => {
+        try {
+            const response = await api.post('/api/v1/mail/send', mailData);
+            toast.success("Email sent successfully!");
+            return response?.data;
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Failed to send email");
+            return rejectWithValue(error?.response?.data?.message);
+        }
+    }
+);

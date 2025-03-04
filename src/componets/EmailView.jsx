@@ -123,23 +123,22 @@ const EmailView = () => {
                             <div className="flex flex-wrap gap-3 mt-2">
                                 {email?.attachments.map((file, index) => {
                                     console.log(
-                                        "Preview Image Clicked:",
-                                        `${config.BASE_URL}${file?.file_path}`,
+                                        `Preview Image Clicked: ${config.BASE_URL}/${file?.file_path}`,
                                     );
                                     return (
                                         <div key={index} className="border p-2 rounded-lg">
-                                            {file?.file_type?.startsWith("image/") ? (
+                                            {file?.file_type ? (
                                                 <img
-                                                    src={`${config.BASE_URL}${file?.file_path}`}
+                                                    src={
+                                                        file?.file_path.startsWith("http")
+                                                            ? file?.file_path
+                                                            : `${config.BASE_URL}/${file?.file_path}`
+                                                    }
                                                     alt={file?.original_name}
                                                     className="w-24 h-24 object-cover rounded cursor-pointer"
                                                     onClick={() => {
-                                                        console.log(
-                                                            "Preview Image Clicked:",
-                                                            `${config.BASE_URL}${file?.file_path}`,
-                                                        );
                                                         setPreviewImage(
-                                                            `${config.BASE_URL}${file?.file_path}`,
+                                                            `${config.BASE_URL}/${file?.file_path}`,
                                                         );
                                                     }}
                                                 />

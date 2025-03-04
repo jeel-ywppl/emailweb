@@ -58,7 +58,6 @@ const emailSlice = createSlice({
         builder.addCase(getSinglMail.fulfilled, (state, action) => {
             state.isLoading = false;
             state.selectedEmail = action.payload;
-            console.log(action.payload, "++++++++selectedEmail")
         })
         builder.addCase(getSinglMail.rejected, (state, action) => {
             state.isLoading = false;

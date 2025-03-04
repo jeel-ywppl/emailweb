@@ -74,7 +74,7 @@ const DashboardNavbar = () => {
                                             alt={authUser?.fname}
                                             size="md"
                                             variant="rounded"
-                                            className="rounded-lg shadow-lg shadow-blue-gray-500/40"
+                                            className="rounded-full shadow-lg shadow-blue-gray-500/40"
                                         />
                                     ) : (
                                         <div className="w-8 h-8 flex items-center justify-center rounded-lg shadow-lg shadow-blue-gray-500/40 bg-gray-200">

@@ -6,53 +6,75 @@ import RecipientInput from "../componets/ComposeEmail/RecipientInput";
 import SubjectInput from "../componets/ComposeEmail/SubjectInput";
 import TextEditor from "../componets/ComposeEmail/TextEditor";
 import AttachmentInput from "../componets/ComposeEmail/AttachmentInput";
+import {FiMaximize, FiMinimize2} from "react-icons/fi";
+import {useAppDispatch, useAppSelector} from "../store";
+import {sendMail} from "../store/email";
 
-const ComposeEmailModal = ({isOpen, onClose, onSend}) => {
+const ComposeEmailModal = ({isOpen, onClose}) => {
+    const dispatch = useAppDispatch();
+    const isLoading = useAppSelector((state) => state.email.isLoading);
     const [recipients, setRecipients] = useState([]);
     const [ccRecipients, setCcRecipients] = useState([]);
     const [bccRecipients, setBccRecipients] = useState([]);
     const [subject, setSubject] = useState("");
     const [body, setBody] = useState("");
     const [attachments, setAttachments] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [showCc, setShowCc] = useState(false);
     const [showBcc, setShowBcc] = useState(false);
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
     const handleSend = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            const newEmail = {
-                to: recipients,
-                cc: ccRecipients,
-                bcc: bccRecipients,
-                subject,
-                body,
-                attachments,
-            };
-            onSend(newEmail);
+        const newEmail = {
+            to: ["jeel.ywppl@gmail.com"], 
+            cc: ["cc@example.com"],
+            bcc: ["bcc@example.com"],
+            subject,
+            body,
+            attachments:[],
+        };
 
-            // Reset form fields
-            setRecipients([]);
-            setCcRecipients([]);
-            setBccRecipients([]);
-            setSubject("");
-            setBody("");
-            setAttachments([]);
-            setShowCc(false);
-            setShowBcc(false);
-            setIsLoading(false);
-            onClose();
-        }, 500);
+        console.log("Email payload:", newEmail);
+
+        dispatch(sendMail(newEmail))
+            .unwrap()
+            .then(() => {
+                setRecipients([]);
+                setCcRecipients([]);
+                setBccRecipients([]);
+                setSubject("");
+                setBody("");
+                setAttachments([]);
+                setShowCc(false);
+                setShowBcc(false);
+                onClose();
+            })
+            .catch((error) => {
+                console.error("Failed to send email:", error);
+            });
+    };
+
+    const toggleFullScreen = () => {
+        setIsFullScreen((prev) => !prev);
     };
 
     return (
         <Dialog
             open={isOpen}
             handler={onClose}
-            className="block my-auto rounded-lg space-y-2 shadow-xl p-4 w-full max-w-full sm:max-w-2xl lg:max-w-3xl xl:max-w-4xl h-full md:h-[82%] lg:h-[82%]  xl:h-[80%] overflow-y-auto  scrollbar-thin scrollbar-thumb-scrollbarThumb scrollbar-track-scrollbarTrack">
+            className={`block my-auto rounded-lg space-y-2 shadow-xl p-4 w-full ${
+                isFullScreen ? "h-full w-screen" : "sm:max-w-2xl lg:max-w-3xl xl:max-w-4xl"
+            } overflow-y-auto scrollbar-thin scrollbar-thumb-scrollbarThumb scrollbar-track-scrollbarTrack`}
+        >
             <div className="flex justify-between items-center border-b pb-2">
-                <div className="text-lg font-semibold text-gray-700">New Message</div>
+                <div className="text-lg font-semibold text-gray-700">Compose New Mail</div>
                 <div className="flex items-center space-x-2">
+                    <IconButton variant="text" onClick={toggleFullScreen}>
+                        {isFullScreen ? (
+                            <FiMinimize2 className="h-5 w-5 text-gray-600" />
+                        ) : (
+                            <FiMaximize className="h-5 w-5 text-gray-600" />
+                        )}
+                    </IconButton>
                     <IconButton variant="text" onClick={onClose}>
                         <XMarkIcon className="h-5 w-5 text-gray-600" />
                     </IconButton>
@@ -115,7 +137,7 @@ const ComposeEmailModal = ({isOpen, onClose, onSend}) => {
                         </button>
                     </div>
                 )}
-                <SubjectInput subject={subject} setSubject={setSubject} className="" />
+                <SubjectInput subject={subject} setSubject={setSubject} />
                 <TextEditor setBody={setBody} body={body} />
                 <AttachmentInput attachments={attachments} setAttachments={setAttachments} />
             </div>
@@ -140,7 +162,6 @@ const ComposeEmailModal = ({isOpen, onClose, onSend}) => {
 ComposeEmailModal.propTypes = {
     isOpen: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    onSend: PropTypes.func.isRequired,
 };
 
 export default ComposeEmailModal;

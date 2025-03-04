@@ -96,8 +96,8 @@ const Profile = () => {
                                 email: user?.email || "",
                                 country: user?.country || "",
                                 designation: user?.designation || "",
-                                bio: "",
-                                avatar: null,
+                                bio: user?.bio || "",
+                                avatar: user?.avatar || null,
                             }}
                             validationSchema={validationSchema}
                             onSubmit={handleSubmit}
