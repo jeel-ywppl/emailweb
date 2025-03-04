@@ -25,12 +25,12 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
 
     const handleSend = () => {
         const newEmail = {
-            to: ["jeel.ywppl@gmail.com"], 
-            cc: ["cc@example.com"],
-            bcc: ["bcc@example.com"],
+            recipient_emails_to: ["jeel.ywppl@gmail.com"], 
+            recipient_emails_cc: ["cc@example.com"],
+            recipient_emails_bcc: ["bcc@example.com"],
             subject,
             body,
-            attachments:[],
+            files:[],
         };
 
         console.log("Email payload:", newEmail);
