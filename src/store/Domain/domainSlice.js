@@ -5,8 +5,8 @@ const initialState = {
     data: [],
     noFilterData: [],
     skip: 0,
-    limit: 12,
-    totalRecords: 0,
+    limit: 10,
+    totalRecords: 1,
     currentPage: 0,
     status: "idle",
     isError: false,
@@ -16,7 +16,7 @@ const initialState = {
 };
 
 const domainSlice = createSlice({
-    name: "Domain",
+    name: "domain",
     initialState,
     reducers: {
         setLimit: (state, action) => {
@@ -44,7 +44,9 @@ const domainSlice = createSlice({
         builder.addCase(findDomain.fulfilled, (state, action) => {
             state.isLoading = false;
             state.data = action.payload?.data;
-            state.totalRecords = action.payload?.totalProducts;
+            state.totalRecords = action.payload?.pagination?.totalData 
+            state.currentPage = action.payload?.pagination?.pageNumber
+            state.limit = action.payload?.pagination?.pageSize
             state.status = "success";
         });
         builder.addCase(findDomain.rejected, (state) => {
@@ -61,7 +63,6 @@ const domainSlice = createSlice({
         builder.addCase(findDomainWithoutFilter.fulfilled, (state, action) => {
             state.isLoading = false;
             state.noFilterData = action.payload?.data;
-            console.log(action.payload?.data)
             state.totalRecords = action.payload?.data?.length;
             state.status = "success";
         });

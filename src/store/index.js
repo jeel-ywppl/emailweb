@@ -9,7 +9,7 @@ import companyReducer from "./company/companySlice"
 
 const reducers = {
     auth: authReducer,
-    subDomain: domainReducer,
+    domain: domainReducer,
     user: userReducer,
     email: emailReducer,
     company: companyReducer,

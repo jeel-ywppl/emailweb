@@ -161,7 +161,6 @@ const DataTable = () => {
                                             <TableCell className="flex space-x-2 justify-center items-center flex-nowrap">
                                                 <Button
                                                     size="sm"
-                                                    onClick={() => handleView(index)}
                                                     className="text-black bg-transparent"
                                                 >
                                                     <AiTwotoneEye className="w-4 h-4" />

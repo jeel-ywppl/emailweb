@@ -5,12 +5,14 @@ import {useAppDispatch, useAppSelector} from "../store/index";
 import {registrationValidationSchema} from "../validation/registrationValidationSchema";
 import {createUser} from "../store/user";
 import {EyeIcon, EyeOffIcon} from "lucide-react";
-import { findDomainWithoutFilter } from "../store/Domain";
+import {findDomainWithoutFilter} from "../store/Domain";
+import { Option, Select } from "@material-tailwind/react";
 
 const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
     const dispatch = useAppDispatch();
     const [showPassword, setShowPassword] = useState(false);
-    const {noFilterData} = useAppSelector((state) => state.subDomain);
+    const [role, setRole] = useState("User");
+    const {noFilterData} = useAppSelector((state) => state.domain);
 
     useEffect(() => {
         dispatch(findDomainWithoutFilter());
@@ -31,7 +33,7 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
             fname: "",
             lname: "",
             email: "",
-            sub_domain: "",
+            domain_id: "",
             phone_number: "",
             recovery_email: "",
             password: "",
@@ -40,8 +42,8 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
         validationSchema: registrationValidationSchema,
         onSubmit: async (values, {setSubmitting, setFieldError}) => {
             try {
-                // const fullEmail = `${values.email}${values.sub_domain}`;
-                const userData = {...values, role_id: 2};
+                // const fullEmail = `${values.email}${values.domain_id}`;
+                const userData = {...values, role_id: role === "Admin" ? 1 : 2 };
                 const response = await dispatch(createUser(userData));
                 resetForm();
                 if (response?.payload?.arg) {
@@ -167,14 +169,14 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                                             placeholder="Enter email (e.g., example123)"
                                         />
                                         <select
-                                            name="sub_domain"
-                                            value={values.sub_domain}
+                                            name="domain_id"
+                                            value={values.domain_id}
                                             onChange={(e) =>
-                                                setFieldValue("sub_domain", e.target.value)
+                                                setFieldValue("domain_id", e.target.value)
                                             }
                                             onBlur={handleBlur}
                                             className={`text-gray-800 bg-white border border-gray-300 text-sm py-2.5 px-4 rounded-r-md ${
-                                                touched.sub_domain && errors.sub_domain
+                                                touched.domain_id && errors.domain_id
                                                     ? "border-red-500"
                                                     : ""
                                             }`}
@@ -216,6 +218,17 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                                             {errors.phone_number}
                                         </div>
                                     )}
+                                </div>
+                                <div>
+                                    <label className="text-gray-600 text-sm mb-1 block">Role</label>
+                                    <Select
+                                        value={role}
+                                        onChange={(value) => setRole(value)}
+                                        className="w-full"
+                                    >
+                                        <Option value="User">User</Option>
+                                        <Option value="Admin">Admin</Option>
+                                    </Select>
                                 </div>
                                 <div>
                                     <label className="text-gray-600 text-sm mb-1 block">

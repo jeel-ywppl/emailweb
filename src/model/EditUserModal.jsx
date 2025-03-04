@@ -18,7 +18,7 @@ import { findDomainWithoutFilter } from "../store/Domain";
 const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) => {
     const dispatch = useAppDispatch();
     const [showPassword, setShowPassword] = useState(false);
-    const {noFilterData} = useAppSelector((state) => state.subDomain);
+    const {noFilterData} = useAppSelector((state) => state.domain);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -49,7 +49,7 @@ const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) =
         initialValues: {
             password: user?.password || "",
             email: user?.email || "",
-            sub_domain: user?.sub_domain || "",
+            domain_id: user?.domain_id || "",
             recovery_email: user?.recovery_email || "",
             phone_number: user?.phone_number || "",
         },
@@ -107,8 +107,8 @@ const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) =
                             placeholder="Enter email"
                         />
                         <select
-                            name="sub_domain"
-                            value={values.sub_domain}
+                            name="domain_id"
+                            value={values.domain_id}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             className="text-gray-800 bg-white border border-gray-300 text-sm py-2.5 px-4 rounded-r-md"
@@ -124,8 +124,8 @@ const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) =
                     {touched.email && errors.email && (
                         <p className="text-red-500 text-xs">{errors.email}</p>
                     )}
-                    {touched.sub_domain && errors.sub_domain && (
-                        <p className="text-red-500 text-xs">{errors.sub_domain}</p>
+                    {touched.domain_id && errors.domain_id && (
+                        <p className="text-red-500 text-xs">{errors.domain_id}</p>
                     )}
                     <Input
                         label="Recovery Email"
@@ -176,7 +176,7 @@ EditUserModal.propTypes = {
         fname: PropTypes.string,
         email: PropTypes.string,
         password: PropTypes.string,
-        sub_domain: PropTypes.string,
+        domain_id: PropTypes.string,
         recovery_email: PropTypes.string,
         phone_number: PropTypes.string,
     }),

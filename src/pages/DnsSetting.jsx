@@ -1,218 +1,332 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {useAppDispatch} from "../store";
+import {useFormik} from "formik";
 import {
-    Select,
-    MenuItem,
-    TextField,
-    TableContainer,
+    Icon,
+    Paper,
     Table,
+    TableBody,
+    TableCell,
+    TableContainer,
     TableHead,
     TableRow,
-    TableCell,
-    TableBody,
-    Paper,
-    Box,
-    Card,
 } from "@mui/material";
-import {Button} from "@material-tailwind/react";
+import {Button, Card, Input, Option, Select, Typography} from "@material-tailwind/react";
 import {BiEditAlt} from "react-icons/bi";
-import {AiTwotoneDelete} from "react-icons/ai";
+import {deleteDomain, getDomainById, updateDomain} from "../store/Domain";
+import {toast} from "react-toastify";
+import {useParams} from "react-router-dom";
+import {dnsValidationSchema} from "../validation/dnsValidationScheama";
+import {Trash2} from "lucide-react";
+import ConfirmDeleteDomainModal from "../model/ConfirmDeleteDomainModal";
 
 const recordTypes = ["A", "MX", "AAAA", "CNAME", "TXT"];
 
 const DnsSetting = () => {
+    const dispatch = useAppDispatch();
+    const {id} = useParams();
+    const [dnsSetting, setDnsSetting] = useState();
     const [records, setRecords] = useState([]);
-    const [editingIndex, setEditingIndex] = useState(null);
-    const [newRecord, setNewRecord] = useState({
-        type: "A",
-        recordName: "",
-        name: "",
-        priority: "",
-        pointsTo: "",
-        content: "",
-        ttl: "",
-    });
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedDomainId, setSelectedDomainId] = useState(null);
+    const [editingRecord, setEditingRecord] = useState(null);
 
-    const handleAddRecord = () => {
-        if (editingIndex !== null) {
-            const updatedRecords = [...records];
-            updatedRecords[editingIndex] = newRecord;
-            setRecords(updatedRecords);
-            setEditingIndex(null);
-        } else {
-            setRecords([...records, newRecord]);
-        }
-        setNewRecord({
-            type: "A",
-            recordName: "",
-            name: "",
-            priority: "",
-            content: "",
-            ttl: "",
-            pointsTo: "",
+    useEffect(() => {
+        const fetchDnsSetting = async () => {
+            const response = await dispatch(getDomainById({_id: id}));
+            if (response?.payload) {
+                setDnsSetting(response?.payload?.data);
+                setRecords(response?.payload?.data?.dns_records || []);
+            }
+        };
+        fetchDnsSetting();
+    }, [id, dispatch]);
+
+    const {handleChange, setFieldValue, handleBlur, resetForm, handleSubmit, isSubmitting, values} =
+        useFormik({
+            initialValues: {
+                type: "A",
+                record_name: "",
+                name: "",
+                priority: "",
+                mailserver: "",
+                target: "",
+                txtvalue: "",
+                pointsTo: "",
+                ttl: "",
+            },
+            validationSchema: dnsValidationSchema,
+            onSubmit: async (values, {setSubmitting}) => {
+                try {
+                    const payload = {
+                        dns_records: {
+                            record_name: values.record_name,
+                            type: values.type,
+                            name: values.name,
+                            priority: values.priority || 0,
+                            content:
+                                values.content ||
+                                (values.type === "A" || values.type === "AAAA"
+                                    ? values.pointsTo
+                                    : values.type === "MX"
+                                    ? values.mailserver
+                                    : values.type === "CNAME"
+                                    ? values.target
+                                    : values.type === "TXT"
+                                    ? values.txtvalue
+                                    : values.content),
+                            ttl: values.ttl,
+                        },
+                    };
+                    if (editingRecord) {
+                        payload.dns_id = editingRecord._id;
+                    }
+                    const response = await dispatch(
+                        updateDomain({domainId: id, records: payload}),
+                    ).unwrap();
+                    if (response && response?.success) {
+                        toast.success("DNS record updated successfully");
+                        resetForm();
+                        const dnsResponse = await dispatch(getDomainById({_id: id}));
+                        if (dnsResponse?.payload) {
+                            setDnsSetting(dnsResponse.payload.data);
+                            setRecords(dnsResponse.payload.data?.dns_records || []);
+                        }
+                    } else {
+                        toast.error(response?.message || "Failed to update DNS record.");
+                    }
+                } catch (error) {
+                    toast.error(error?.message || "An error occurred while updating.");
+                } finally {
+                    setSubmitting(false);
+                }
+            },
         });
+
+    const handleDeleteClick = (recordId) => {
+        setSelectedDomainId(recordId);
+        setDeleteModalOpen(true);
     };
 
-    const handleEditRecord = (index) => {
-        setNewRecord(records[index]);
-        setEditingIndex(index);
+    const handleConfirmDelete = async () => {
+        if (selectedDomainId) {
+            try {
+                const payload = {
+                    id: id,
+                    dns_id: selectedDomainId,
+                };
+                const response = await dispatch(deleteDomain(payload)).unwrap();
+                toast.success(response?.message || "DNS record deleted successfully!");
+                const dnsResponse = await dispatch(getDomainById({_id: id}));
+                if (dnsResponse?.payload) {
+                    setDnsSetting(dnsResponse.payload.data);
+                    setRecords(dnsResponse.payload.data?.dns_records || []);
+                }
+            } catch (error) {
+                console.error("Delete Error:", error);
+                toast.error(error);
+            } finally {
+                setDeleteModalOpen(false);
+                setSelectedDomainId(null);
+            }
+        }
     };
 
-    const handleDeleteRecord = (index) => {
-        setRecords(records.filter((_, i) => i !== index));
-    };
-
-    const handleSubmit = () => {
-        console.log("Submitting:", {records});
-        // API call to submit records
+    const handleEditClick = (record) => {
+        setEditingRecord(record); // Set the record being edited
+        setFieldValue("record_name", record.record_name);
+        setFieldValue("type", record.type);
+        setFieldValue("name", record.name);
+        setFieldValue("priority", record.priority);
+        setFieldValue("mailserver", record.mailserver);
+        setFieldValue("target", record.target);
+        setFieldValue("txtvalue", record.txtvalue);
+        setFieldValue("pointsTo", record.pointsTo);
+        setFieldValue("ttl", record.ttl);
     };
 
     return (
         <div className="w-full p-6 space-y-6">
+            <Card className="p-4 border border-gray-300 space-y-4">
+                <h2 className="text-lg font-semibold">Domain Details</h2>
+                <div className="p-4 flex flex-col md:flex-row md:items-center gap-4">
+                    <div className="w-full md:w-1/2">
+                        <div className="flex items-center gap-3">
+                            <Typography variant="h6" color="blue-gray">
+                                Domain Name:
+                            </Typography>
+                            <Typography>{dnsSetting?.domain_name}</Typography>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <Typography variant="h6" color="blue-gray">
+                                Company:
+                            </Typography>
+                            <Typography>{dnsSetting?.company_id?.name}</Typography>
+                        </div>
+                    </div>
+
+                    <div className="w-full md:w-1/2">
+                        <div className="flex items-center gap-3">
+                            <Typography variant="h6" color="blue-gray">
+                                Expiration Date:
+                            </Typography>
+                            <Typography>
+                                {dnsSetting?.expiration_date
+                                    ? dnsSetting.expiration_date.split("T")[0]
+                                    : "N/A"}
+                            </Typography>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <Typography variant="h6" color="blue-gray">
+                                Status:
+                            </Typography>
+                            <Typography color={dnsSetting?.active_status ? "green" : "red"}>
+                                {dnsSetting?.active_status ? "Active" : "Inactive"}
+                            </Typography>
+                        </div>
+                    </div>
+                </div>
+            </Card>
             <Card className="p-6 border border-gray-300 space-y-4">
-                <Box className="flex items-center flex-wrap gap-4">
-                    <TextField
-                        className="w-full sm:w-56"
-                        label="Custom Record Name"
-                        value={newRecord.recordName}
-                        onChange={(e) => setNewRecord({...newRecord, recordName: e.target.value})}
-                    />
-                    <Select
-                        className="w-full sm:w-48"
-                        value={newRecord.type}
-                        onChange={(e) => setNewRecord({...newRecord, type: e.target.value})}
-                    >
-                        {recordTypes.map((type) => (
-                            <MenuItem key={type} value={type}>
-                                {type}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                    <TextField
-                        className="w-full sm:w-56"
-                        label="Name"
-                        value={newRecord.name}
-                        onChange={(e) => setNewRecord({...newRecord, name: e.target.value})}
-                    />
-                    {newRecord.type === "MX" && (
-                        <TextField
-                            className="w-full sm:w-48"
-                            label="Priority"
-                            value={newRecord.priority}
-                            onChange={(e) => setNewRecord({...newRecord, priority: e.target.value})}
+                <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <Input
+                            label="Custom Record Name"
+                            name="record_name"
+                            value={values.record_name}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
                         />
-                    )}
-                    {newRecord.type === "MX" && (
-                        <TextField
-                            className="w-full sm:w-56"
-                            label="Mail Server"
-                            value={newRecord.mailserver}
-                            onChange={(e) =>
-                                setNewRecord({...newRecord, mailserver: e.target.value})
-                            }
+                        <Select
+                            name="type"
+                            value={values.type}
+                            onChange={(value) => {
+                                setFieldValue("type", value);
+                                setFieldValue("record_name", values.record_name || value);
+                            }}
+                        >
+                            {recordTypes.map((type) => (
+                                <Option key={type} value={type}>
+                                    {type}
+                                </Option>
+                            ))}
+                        </Select>
+                        <Input
+                            label="Name"
+                            name="name"
+                            value={values.name}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
                         />
-                    )}
-                    {newRecord.type === "CNAME" && (
-                        <TextField
-                            className="w-full sm:w-56"
-                            label="Target"
-                            value={newRecord.target}
-                            onChange={(e) => setNewRecord({...newRecord, target: e.target.value})}
+                        {values.type === "MX" && (
+                            <Input
+                                label="Priority"
+                                name="priority"
+                                value={values.priority}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                            />
+                        )}
+                        {values.type === "MX" && (
+                            <Input
+                                label="Mail Server"
+                                name="mailserver"
+                                value={values.mailserver}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                            />
+                        )}
+                        {values.type === "CNAME" && (
+                            <Input
+                                label="Target"
+                                name="target"
+                                value={values.target}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                            />
+                        )}
+                        {values.type === "TXT" && (
+                            <Input
+                                label="TXT Value"
+                                name="txtvalue"
+                                value={values.txtvalue}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                            />
+                        )}
+                        {(values.type === "A" || values.type === "AAAA") && (
+                            <Input
+                                label="Points to"
+                                name="pointsTo"
+                                value={values.pointsTo}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                            />
+                        )}
+                        <Input
+                            label="TTL"
+                            name="ttl"
+                            value={values.ttl}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
                         />
-                    )}
-                    {newRecord.type === "TXT" && (
-                        <TextField
-                            className="w-full sm:w-72"
-                            label="TXT Value"
-                            value={newRecord.txtvalue}
-                            onChange={(e) => setNewRecord({...newRecord, txtvalue: e.target.value})}
-                        />
-                    )}
-                    {(newRecord.type === "A" || newRecord.type === "AAAA") && (
-                        <TextField
-                            className="w-full sm:w-56"
-                            label="Points to"
-                            value={newRecord.pointsTo}
-                            onChange={(e) => setNewRecord({...newRecord, pointsTo: e.target.value})}
-                        />
-                    )}
-                    <TextField
-                        className="w-full sm:w-48"
-                        label="TTL"
-                        value={newRecord.ttl}
-                        onChange={(e) => setNewRecord({...newRecord, ttl: e.target.value})}
-                    />
-                    <div className="flex justify-end">
                         <Button
-                            className=""
+                            type="submit"
                             variant="contained"
                             color="primary"
-                            onClick={handleAddRecord}
+                            disabled={isSubmitting}
                         >
-                            {editingIndex !== null ? "Update Record" : "Add Record"}
+                            {isSubmitting ? "Submitting..." : "Add Record"}
                         </Button>
                     </div>
-                </Box>
+                </form>
             </Card>
-
-            {/* Records Table */}
             <div className="w-full max-w-full overflow-auto">
                 <TableContainer component={Paper} className="shadow-md border border-gray-300">
-                    <Table className="min-w-max">
+                    <Table>
                         <TableHead>
                             <TableRow className="bg-gray-200">
-                                <TableCell className="font-semibold w-28">Custom Name</TableCell>
-                                <TableCell className="font-semibold w-28">Type</TableCell>
-                                <TableCell className="font-semibold w-44">Name</TableCell>
-                                <TableCell className="font-semibold w-32">Priority</TableCell>
-                                <TableCell className="font-semibold w-[550px] break-all whitespace-normal">
-                                    Content
-                                </TableCell>
-                                <TableCell className="font-semibold w-32">TTL</TableCell>
-                                <TableCell className="font-semibold w-40 text-center">
-                                    Actions
-                                </TableCell>
+                                <TableCell>Custom Name</TableCell>
+                                <TableCell>Type</TableCell>
+                                <TableCell>Name</TableCell>
+                                <TableCell>Priority</TableCell>
+                                <TableCell>Content</TableCell>
+                                <TableCell>TTL</TableCell>
+                                <TableCell>Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {records.map((record, index) => (
-                                <TableRow key={index} className="hover:bg-gray-100">
-                                    <TableCell className="break-all whitespace-normal">
-                                        {record.recordName || record.type}
+                                <TableRow key={index}>
+                                    <TableCell>{record?.record_name || record?.type}</TableCell>
+                                    <TableCell>{record?.type}</TableCell>
+                                    <TableCell>{record?.name}</TableCell>
+                                    <TableCell>{record?.priority || "0"}</TableCell>
+                                    <TableCell>
+                                        {record?.content}
+                                        {record?.type === "A" || record?.type === "AAAA"
+                                            ? record?.pointsTo
+                                            : record?.type === "MX"
+                                            ? record?.mailserver
+                                            : record?.type === "CNAME"
+                                            ? record?.target
+                                            : record?.type === "TXT"
+                                            ? record?.txtvalue
+                                            : record?.content}
                                     </TableCell>
-                                    <TableCell>{record.type}</TableCell>
-                                    <TableCell className="break-all whitespace-normal">
-                                        {record.name}
-                                    </TableCell>
-                                    <TableCell>{record.priority || "0"}</TableCell>
-                                    <TableCell className="w-[550px] break-all whitespace-normal">
-                                        {record.type === "A" || record.type === "AAAA"
-                                            ? record.pointsTo
-                                            : record.type === "MX"
-                                            ? record.mailserver
-                                            : record.type === "CNAME"
-                                            ? record.target
-                                            : record.type === "TXT"
-                                            ? record.txtvalue
-                                            : record.content}
-                                    </TableCell>
-                                    <TableCell>{record.ttl}</TableCell>
-                                    <TableCell className="flex justify-center space-x-2 truncate">
-                                        <Button
-                                            size="small"
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={() => handleEditRecord(index)}
-                                        >
+                                    <TableCell>{record?.ttl}</TableCell>
+                                    <TableCell className="flex-nowrap gap-2">
+                                        <Icon onClick={() => handleEditClick(record)}>
                                             <BiEditAlt />
-                                        </Button>
-                                        <Button
-                                            size="small"
-                                            variant="contained"
-                                            color="secondary"
-                                            onClick={() => handleDeleteRecord(index)}
+                                        </Icon>
+                                        <Icon
+                                            color="red"
+                                            size="sm"
+                                            onClick={() => handleDeleteClick(record?._id)}
+                                            className="m-1.5 cursor-pointer text-red-500"
                                         >
-                                            <AiTwotoneDelete />
-                                        </Button>
+                                            <Trash2 size={"20px"} strokeWidth={2} />
+                                        </Icon>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -220,10 +334,13 @@ const DnsSetting = () => {
                     </Table>
                 </TableContainer>
             </div>
-
-            <Button variant="contained" color="success" onClick={handleSubmit}>
-                Submit
-            </Button>
+            <ConfirmDeleteDomainModal
+                open={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Delete Domain"
+                message="Are you sure you want to delete this domain? This action cannot be undone."
+            />
         </div>
     );
 };

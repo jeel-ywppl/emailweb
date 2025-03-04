@@ -5,6 +5,7 @@ import {FaRegStar, FaStar, FaEllipsisV} from "react-icons/fa";
 import {MdOutlineCheckBoxOutlineBlank, MdOutlineCheckBox} from "react-icons/md";
 import {Archive, Clock, Mail, Tag, Trash} from "lucide-react";
 import {Link} from "react-router-dom";
+import { config } from "../utils/util";
 
 const Emaillist = ({
     emailList,
@@ -39,17 +40,6 @@ const Emaillist = ({
 
     const toggleMenu = (emailId) => {
         setOpenMenuEmailId((prevId) => (prevId === emailId ? null : emailId));
-    };
-
-    const getSenderInitials = (fname) => {
-        if (!fname) {
-            return "";
-        }
-
-        const nameParts = fname.split(" ");
-        const firstInitial = nameParts[0]?.charAt(0).toUpperCase() || "";
-        const lastInitial = nameParts[1]?.charAt(0).toUpperCase() || "";
-        return firstInitial + lastInitial;
     };
 
     const handleStarToggle = (emailId) => {
@@ -168,13 +158,16 @@ const Emaillist = ({
                             <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center">
                                 {email?.profilePic ? (
                                     <img
-                                        src={email?.profilePic}
-                                        alt={email?.sender_email}
+                                        src={
+                                            email?.avatar.startsWith("http")
+                                                ? email?.avatar
+                                                : `${config.BASE_URL}/${email?.avatar}`
+                                        }
                                         className="w-12 h-12 rounded-full object-cover"
                                     />
                                 ) : (
                                     <span className="text-white font-semibold text-xl">
-                                        {getSenderInitials(email?.sender_email)}
+                                        {email?.sender_email?.charAt(0).toUpperCase()}
                                     </span>
                                 )}
                             </div>

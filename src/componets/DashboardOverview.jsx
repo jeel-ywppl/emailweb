@@ -7,15 +7,8 @@ import {
   Avatar,
   Tooltip,
   Progress,
-  IconButton,
-  Menu,
-  MenuHandler,
-  MenuList,
-  MenuItem,
 } from "@material-tailwind/react";
 import {
-  CheckCircleIcon,
-  EllipsisVerticalIcon,
   ArrowUpIcon,
 } from "@heroicons/react/24/solid";
 import { ordersOverviewData, projectsTableData } from "../constant";
@@ -33,17 +26,17 @@ const DashboardOverview = () => {
         >
           <div>
             <Typography variant="h6" color="blue-gray" className="mb-1">
-              Projects
+              Companies
             </Typography>
-            <Typography
+            {/* <Typography
               variant="small"
               className="flex items-center gap-1 font-normal text-blue-gray-600"
             >
               <CheckCircleIcon strokeWidth={3} className="h-4 w-4 text-blue-gray-200" />
               <strong>30 done</strong> this month
-            </Typography>
+            </Typography> */}
           </div>
-          <Menu placement="left-start">
+          {/* <Menu placement="left-start">
             <MenuHandler>
               <IconButton size="sm" variant="text" color="blue-gray">
                 <EllipsisVerticalIcon
@@ -58,7 +51,7 @@ const DashboardOverview = () => {
               <MenuItem>Another Action</MenuItem>
               <MenuItem>Something else here</MenuItem>
             </MenuList>
-          </Menu>
+          </Menu> */}
         </CardHeader>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
           <table className="w-full min-w-[640px] table-auto">

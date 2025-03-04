@@ -58,7 +58,7 @@ const App = () => {
                             user?.role_id?.role_name === "user" ? (
                                 <Navigate to="/dashboard/inbox" replace />
                             ) : (
-                                <Navigate to="/dashboard/inbox" replace />
+                                <Navigate to="/dashboard/home" replace />
                             )
                         ) : (
                             <SignIn />

@@ -14,8 +14,9 @@ import { TbBuildingBank } from "react-icons/tb";
 import {BsSendCheck} from "react-icons/bs";
 import {CgTrash} from "react-icons/cg";
 import AccountSettings from "./pages/AccountSettings";
-import DnsSetting from "./pages/DnsSetting.jsx";
+import DnsSetting from "./pages/DnsSetting";
 import EmailView from "./componets/EmailView";
+import Profile from "./pages/Profile";
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -92,7 +93,12 @@ export const routes = [
                 roles: ["admin", "user"],
             },
             {
-                path: "/dnssetting",
+                path: "/profile",
+                element: <Profile />,
+                roles: ["admin", "user"],
+            },
+            {
+                path: "/domain/:id",
                 element: <DnsSetting />,
                 roles: ["admin", "user"],
             },

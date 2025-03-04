@@ -48,7 +48,7 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues}) => {
                     if (!initialValues._id) {
                         toast.error("Company ID is missing!");
                         return;
-                    }
+                    }   
                     const response = await dispatch(
                         editCompany({id: initialValues._id, updatedData: values}),
                     ).unwrap();

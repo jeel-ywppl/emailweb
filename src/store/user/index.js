@@ -6,7 +6,7 @@ export const findUser = createAsyncThunk("user/findUser", async (values, {reject
     try {
         const response = await api.get(
             `/api/v1/user/get/all/?page=${values?.page || 1}&limit=${values?.limit || 10}&role_id=${
-                values?.role_id || 2
+                values?.role_id || ""
             }&active_status=${true}`,
         );
         return response?.data;

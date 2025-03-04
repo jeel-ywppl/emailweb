@@ -10,7 +10,7 @@ export const registrationValidationSchema = Yup.object().shape({
     // email: Yup.string()
     //     .matches(/^[a-zA-Z0-9._%+-]+$/, "Invalid email format")
     //     .required("Email is required"),
-    sub_domain: Yup.string().required("Subdomain is required"),
+    domain_id: Yup.string().required("Subdomain is required"),
     phone_number: Yup.string()
         .required("Phone number is required")
         .matches(/^[0-9]+$/, "Phone number must be digits only")

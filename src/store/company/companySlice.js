@@ -16,7 +16,7 @@ const initialState = {
 };
 
 const companySlice = createSlice({
-    name: "Company",
+    name: "company",
     initialState,
     reducers: {
         setLimit: (state, action) => {

@@ -1,28 +1,23 @@
-import { useState } from "react";
+import {useState} from "react";
 import PropTypes from "prop-types";
-import { useLocation, Link, useNavigate } from "react-router-dom";
-import {
-    Navbar,
-    Typography,
-    Button,
-    IconButton,
-    Avatar,
-} from "@material-tailwind/react";
-import { UserCircleIcon, Cog6ToothIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
-import { useMaterialTailwindController, setOpenSidenav } from "../context/index";
-import { useAppSelector } from "../store";
+import {useLocation, Link, useNavigate} from "react-router-dom";
+import {Navbar, Typography, Button, IconButton, Avatar} from "@material-tailwind/react";
+import {UserCircleIcon, Cog6ToothIcon, Bars3Icon, XMarkIcon} from "@heroicons/react/24/solid";
+import {useMaterialTailwindController, setOpenSidenav} from "../context/index";
+import {useAppSelector} from "../store";
 import NavUserModal from "../model/NavUserModal";
-import { useDispatch } from "react-redux";
-import { logoutUserFromLoacal } from "../store/auth/authSlice";
+import {useDispatch} from "react-redux";
+import {logoutUserFromLoacal} from "../store/auth/authSlice";
+import {config} from "../utils/util";
 
 const DashboardNavbar = () => {
     const dispatch = useDispatch();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [controller, dis] = useMaterialTailwindController();
-    const { fixedNavbar, openSidenav } = controller;
-    const { pathname } = useLocation();
-    const [ page] = pathname.split("/").filter((el) => el !== "");
-    const { accessToken, user: authUser } = useAppSelector((state) => state.auth);
+    const {fixedNavbar, openSidenav} = controller;
+    const {pathname} = useLocation();
+    const [page] = pathname.split("/").filter((el) => el !== "");
+    const {accessToken, user: authUser} = useAppSelector((state) => state.auth);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleLogout = () => {
@@ -33,16 +28,14 @@ const DashboardNavbar = () => {
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => setIsModalOpen(false);
 
-    const getInitials = (fname, lname) => {
-        const firstInitial = fname?.charAt(0).toUpperCase() || "";
-        const lastInitial = lname?.charAt(0).toUpperCase() || "";
-        return firstInitial + lastInitial;
-    };
-
     const handleToggleSidenav = () => setOpenSidenav(dis, !openSidenav);
 
     return (
-        <Navbar className="rounded-xl transition-all w-full px-4 md:px-6 lg:px-8" fullWidth blurred={fixedNavbar}>
+        <Navbar
+            className="rounded-xl transition-all w-full px-4 md:px-6 lg:px-8"
+            fullWidth
+            blurred={fixedNavbar}
+        >
             <div className="flex justify-between items-center w-full">
                 <div className="flex items-center gap-3">
                     <IconButton
@@ -70,19 +63,28 @@ const DashboardNavbar = () => {
                                 className="flex items-center gap-2 cursor-pointer"
                                 onClick={handleOpenModal}
                             >
-                                {authUser.avatar ? (
-                                    <Avatar
-                                        src={authUser.avatar}
-                                        alt="User Avatar"
-                                        size="lg"
-                                        variant="circular"
-                                        className="h-8 w-8 rounded-full"
-                                    />
-                                ) : (
-                                    <span className="h-10 w-10 rounded-full bg-blue-gray-500 flex items-center justify-center text-white font-bold text-lg ">
-                                        {getInitials(authUser?.fname, authUser?.lname)}
-                                    </span>
-                                )}
+                                <div className="relative">
+                                    {authUser?.avatar ? (
+                                        <Avatar
+                                            src={
+                                                authUser?.avatar.startsWith("http")
+                                                    ? authUser?.avatar
+                                                    : `${config.BASE_URL}/${authUser?.avatar}`
+                                            }
+                                            alt={authUser?.fname}
+                                            size="md"
+                                            variant="rounded"
+                                            className="rounded-lg shadow-lg shadow-blue-gray-500/40"
+                                        />
+                                    ) : (
+                                        <div className="w-8 h-8 flex items-center justify-center rounded-lg shadow-lg shadow-blue-gray-500/40 bg-gray-200">
+                                            <Typography variant="h6" color="blue-gray">
+                                                {authUser?.fname?.charAt(0).toUpperCase()}
+                                                {authUser?.lname?.charAt(0).toUpperCase()}
+                                            </Typography>
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="hidden md:flex flex-col">
                                     <Typography
                                         variant="small"
@@ -109,7 +111,11 @@ const DashboardNavbar = () => {
                         </div>
                     ) : (
                         <Link to="/auth/sign-in" className="flex items-center gap-2">
-                            <Button variant="text" color="blue-gray" className="hidden xl:flex normal-case">
+                            <Button
+                                variant="text"
+                                color="blue-gray"
+                                className="hidden xl:flex normal-case"
+                            >
                                 <UserCircleIcon className="h-10 w-10 text-blue-gray-500" />
                                 Sign In
                             </Button>
@@ -118,9 +124,13 @@ const DashboardNavbar = () => {
                             </IconButton>
                         </Link>
                     )}
-                        <IconButton variant="text" color="blue-gray" onClick={() => navigate("/dashboard/accountsettings")}>
-                            <Cog6ToothIcon className="h-8 w-8 text-blue-gray-500" />
-                        </IconButton>
+                    <IconButton
+                        variant="text"
+                        color="blue-gray"
+                        onClick={() => navigate("/dashboard/accountsettings")}
+                    >
+                        <Cog6ToothIcon className="h-8 w-8 text-blue-gray-500" />
+                    </IconButton>
                 </div>
             </div>
         </Navbar>
