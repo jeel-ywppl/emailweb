@@ -8,7 +8,7 @@ const RecipientInput = ({label, recipients, setRecipients}) => {
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && inputValue.trim()) {
-            setRecipients([...recipients, inputValue.trim()]);
+            setRecipients([...recipients, {email: inputValue.trim()}]); 
             setInputValue("");
             setBackspaceCount(0);
         }

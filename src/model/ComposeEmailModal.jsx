@@ -23,17 +23,39 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
     const [showBcc, setShowBcc] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
 
+    const extractEmails = (recipientsArray) =>
+        recipientsArray
+            .map((r) => (typeof r === "object" && r.email ? r.email : r))
+            .filter((email) => typeof email === "string" && email.trim() !== "");
+
     const handleSend = () => {
+        const recipientEmailsTo = extractEmails(recipients);
+        const recipientEmailsCc = extractEmails(ccRecipients);
+        const recipientEmailsBcc = extractEmails(bccRecipients);
+
+        console.log("Extracted To:", recipientEmailsTo);
+        console.log("Extracted CC:", recipientEmailsCc);
+        console.log("Extracted BCC:", recipientEmailsBcc);
+
+        if (
+            recipientEmailsTo.length === 0 &&
+            recipientEmailsCc.length === 0 &&
+            recipientEmailsBcc.length === 0
+        ) {
+            console.error("At least one recipient is required.");
+            return;
+        }
+
         const newEmail = {
-            recipient_emails_to: ["jeel.ywppl@gmail.com"], 
-            recipient_emails_cc: ["cc@example.com"],
-            recipient_emails_bcc: ["bcc@example.com"],
+            recipient_emails_to: recipientEmailsTo,
+            recipient_emails_cc: recipientEmailsCc,
+            recipient_emails_bcc: recipientEmailsBcc,
             subject,
             body,
-            files:[],
+            files: attachments,
         };
 
-        console.log("Email payload:", newEmail);
+        console.log("Final Email Payload:", newEmail);
 
         dispatch(sendMail(newEmail))
             .unwrap()
@@ -85,10 +107,12 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
                 <div className="flex justify-center items-center">
                     <RecipientInput
                         label="To"
-                        recipients={recipients}
+                        recipients={recipients.map((r) =>
+                            typeof r === "object" && r.email ? r.email : r,
+                        )}
                         setRecipients={setRecipients}
                     />
-                    <div className="flex space-x-2 ">
+                    <div className="flex space-x-2">
                         {!showCc && (
                             <button
                                 className="text-blue-600 hover:text-blue-800 text-sm"
@@ -108,10 +132,12 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
                     </div>
                 </div>
                 {showCc && (
-                    <div className="flex justify-between items-center ">
+                    <div className="flex justify-between items-center">
                         <RecipientInput
                             label="CC"
-                            recipients={ccRecipients}
+                            recipients={ccRecipients.map((r) =>
+                                typeof r === "object" && r.email ? r.email : r,
+                            )}
                             setRecipients={setCcRecipients}
                         />
                         <button
@@ -126,7 +152,9 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
                     <div className="flex justify-between items-center">
                         <RecipientInput
                             label="BCC"
-                            recipients={bccRecipients}
+                            recipients={bccRecipients.map((r) =>
+                                typeof r === "object" && r.email ? r.email : r,
+                            )}
                             setRecipients={setBccRecipients}
                         />
                         <button
