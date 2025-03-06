@@ -180,12 +180,10 @@ const Emaillist = ({
                                 {email?.sender_email}
                             </p>
                         </div>
-
                         <div className="relative flex items-center gap-3">
                             <p className="text-xs text-gray-400">
                                 {email?.updatedAt ? email?.updatedAt.split("T")[0] : ""}
                             </p>
-
                             <button
                                 className=" p-2.5 border"
                                 onClick={(e) => {
@@ -195,8 +193,6 @@ const Emaillist = ({
                             >
                                 <FaEllipsisV className="text-gray-500 cursor-pointer" size={16} />
                             </button>
-
-                            {/* Dropdown Menu */}
                             <div
                                 ref={menuRef}
                                 className={`absolute right-1 top-4 mt-2 bg-white border rounded-md shadow-lg w-44 z-50 transition-transform duration-200 ease-in-out ${

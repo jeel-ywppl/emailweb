@@ -1,23 +1,29 @@
-import {Routes, Route} from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import routes from "../routes";
 import Sidenav from "../layout/Sidenav";
 import DashboardNavbar from "../layout/dashboard-navbar";
-import {useAppSelector} from "../store";
+import { useAppSelector, useAppDispatch } from "../store";
+import { logoutUserFromLoacal } from "../store/auth/authSlice";
 
 export function Dashboard() {
-    const {user} = useAppSelector((state) => state.auth);
+    const { user } = useAppSelector((state) => state.auth);
+    const dispatch = useAppDispatch();
+
+    const onLogout = () => {
+        dispatch(logoutUserFromLoacal()); 
+    };
 
     return (
         <div className="min-h-screen bg-blue-gray-50/50">
             <Sidenav routes={routes} />
             <div className="p-4 xl:ml-[16rem]">
-                <DashboardNavbar />
+                <DashboardNavbar onLogout={onLogout} />
                 <Routes>
                     {routes.map(
-                        ({layout, pages}) =>
+                        ({ layout, pages }) =>
                             layout === "dashboard" &&
                             pages.map(
-                                ({path, element, roles}) =>
+                                ({ path, element, roles }) =>
                                     roles &&
                                     roles.includes(user?.role_id?.role_name) && (
                                         <Route key={path} exact path={path} element={element} />

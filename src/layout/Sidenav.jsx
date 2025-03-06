@@ -2,11 +2,11 @@ import PropTypes from "prop-types";
 import {Link, NavLink} from "react-router-dom";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 import {Button, IconButton, Typography} from "@material-tailwind/react";
-import {useMaterialTailwindController, setOpenSidenav} from "@/context";
 import {useEffect, useRef} from "react";
 import {useAppSelector} from "../store";
+import {setOpenSidenav, useMaterialTailwindController} from "../context";
 
-export function Sidenav({routes}) {
+const Sidenav = ({routes}) => {
     const [controller, dispatch] = useMaterialTailwindController();
     const {sidenavColor, sidenavType, openSidenav} = controller;
     const sidenavRef = useRef(null);
@@ -64,7 +64,7 @@ export function Sidenav({routes}) {
                             <li className="mx-3.5 mt-4 mb-2">
                                 <Typography
                                     variant="small"
-                                    color={sidenavType === "white"}
+                                    color={sidenavType === "white" ? "blue-gray" : "white"}
                                     className="font-black uppercase opacity-75"
                                 >
                                     {title}
@@ -82,9 +82,7 @@ export function Sidenav({routes}) {
                                                     <Button
                                                         variant={isActive ? "gradient" : "text"}
                                                         color={
-                                                            isActive
-                                                                ? sidenavColor
-                                                                : sidenavType === "white"
+                                                            isActive ? sidenavColor : "#192230"
                                                         }
                                                         className="flex items-center gap-4 px-4 capitalize"
                                                         fullWidth

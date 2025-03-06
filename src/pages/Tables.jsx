@@ -116,6 +116,8 @@ const Tables = () => {
         );
     };
 
+    
+
     return (
         <div className="mt-12 mb-8 flex flex-col gap-12 p-5">
             <div className="flex flex-wrap items-center justify-between gap-4">

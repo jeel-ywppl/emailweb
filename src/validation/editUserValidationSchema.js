@@ -2,12 +2,8 @@ import * as Yup from "yup";
 
 export const editUserValidationSchema = Yup.object({
     email: Yup.string()
-        .trim()
-        .matches(/^[a-zA-Z0-9._%+-]+$/, "Invalid email format")
         .required("Email is required"),
-    domain_id: Yup.string().required("Subdomain is required"),
     phone_number: Yup.string()
-        .trim()
         .matches(/^\d{10}$/, "Phone number must be 10 digits")
         .required("Phone number is required"),
     recovery_email: Yup.string().trim().email("Invalid email format").notRequired(),

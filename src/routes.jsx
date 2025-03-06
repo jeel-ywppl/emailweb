@@ -1,22 +1,22 @@
-import {HomeIcon, TableCellsIcon} from "@heroicons/react/24/solid";
-import Inbox from "./pages/Inbox";
-import Sent from "./pages/Sent";
-import Starred from "./pages/Starred";
-import Trash from "./pages/Trash";
-import Home from "./pages/Home";
-import Tables from "./pages/Tables";
 import Domain from "./pages/Domain";
+import Tables from "./pages/Tables";
+import Home from "./pages/Home";
+import Inbox from "./pages/email/Inbox.jsx";
+import EmailView from "./componets/EmailView.jsx";
+import Trash from "./pages/email/Trash.jsx";
+import Sent from "./pages/email/Sent.jsx";
+import StarredEmails from "./pages/email/Starred.jsx";
+import Profile from "./pages/Profile";
+import DnsSetting from "./pages/DnsSetting";
+import AccountSettings from "./pages/AccountSettings";
 import DomainTable from "./pages/CompanyData.jsx";
+import {HomeIcon, TableCellsIcon} from "@heroicons/react/24/solid";
 import {SiAwwwards} from "react-icons/si";
 import {IoMailUnreadOutline} from "react-icons/io5";
 import {GoStar} from "react-icons/go";
-import { TbBuildingBank } from "react-icons/tb";
+import {TbBuildingBank} from "react-icons/tb";
 import {BsSendCheck} from "react-icons/bs";
 import {CgTrash} from "react-icons/cg";
-import AccountSettings from "./pages/AccountSettings";
-import DnsSetting from "./pages/DnsSetting";
-import EmailView from "./componets/EmailView";
-import Profile from "./pages/Profile";
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -70,7 +70,7 @@ export const routes = [
                 icon: <GoStar {...icon} />,
                 name: "Starred",
                 path: "/starred",
-                element: <Starred />,
+                element: <StarredEmails />,
                 roles: ["admin", "user"],
             },
             {

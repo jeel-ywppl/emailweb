@@ -3,10 +3,10 @@ import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "../store/index";
 import {registrationValidationSchema} from "../validation/registrationValidationSchema";
-import {createUser} from "../store/user";
+import {createUser, findUser} from "../store/user";
 import {EyeIcon, EyeOffIcon} from "lucide-react";
 import {findDomainWithoutFilter} from "../store/Domain";
-import { Option, Select } from "@material-tailwind/react";
+import {Option, Select} from "@material-tailwind/react";
 
 const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
     const dispatch = useAppDispatch();
@@ -23,7 +23,6 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
         setFieldValue,
         handleBlur,
         handleSubmit,
-        resetForm,
         isSubmitting,
         values,
         errors,
@@ -40,20 +39,22 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
             role_id: "",
         },
         validationSchema: registrationValidationSchema,
-        onSubmit: async (values, {setSubmitting, setFieldError}) => {
+        onSubmit: async (values, {setSubmitting, setFieldError, resetForm}) => {
             try {
-                // const fullEmail = `${values.email}${values.domain_id}`;
-                const userData = {...values, role_id: role === "Admin" ? 1 : 2 };
+                const userData = {...values, role_id: role === "Admin" ? 1 : 2};
                 const response = await dispatch(createUser(userData));
-                resetForm();
+
                 if (response?.payload?.arg) {
-                    await dispatch(handleNewUserRegistration());
+                    resetForm();
+                    handleNewUserRegistration();
                 } else {
                     setFieldError(
                         "general",
                         response?.payload?.message || "Failed to create user.",
                     );
                 }
+                await dispatch(findUser());
+                closeModal();
             } catch {
                 setFieldError("email", "Submission failed. Try again.");
             } finally {

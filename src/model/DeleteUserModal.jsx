@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { Dialog, DialogBody, DialogFooter, DialogHeader, Typography } from "@material-tailwind/react";
 import { Button } from "flowbite-react";
-import { deleteUser } from "../store/user";
+import { deleteUser, findUser } from "../store/user";
 import { useAppDispatch } from "../store";
 
 const DeleteUserModal = ({ isOpen, onClose, user }) => {
@@ -13,6 +13,7 @@ const DeleteUserModal = ({ isOpen, onClose, user }) => {
             return;
         }
         await dispatch(deleteUser(user._id));
+        dispatch(findUser())
         onClose();
     };
 

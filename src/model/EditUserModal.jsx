@@ -7,18 +7,19 @@ import {
     DialogBody,
     DialogFooter,
     Dialog,
+    Select,
+    Option,
 } from "@material-tailwind/react";
 import {EyeIcon, EyeOffIcon} from "lucide-react";
 import {useFormik} from "formik";
-import {useAppDispatch, useAppSelector} from "../store";
+import {useAppDispatch} from "../store";
 import {editUser} from "../store/user";
 import {editUserValidationSchema} from "../validation/editUserValidationSchema";
-import { findDomainWithoutFilter } from "../store/Domain";
+import {findDomainWithoutFilter} from "../store/Domain";
 
 const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) => {
     const dispatch = useAppDispatch();
     const [showPassword, setShowPassword] = useState(false);
-    const {noFilterData} = useAppSelector((state) => state.domain);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -31,6 +32,8 @@ const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) =
             document.removeEventListener("keydown", handleKeyDown);
         };
     }, [setIsEditModalOpen]);
+
+    console.log(user, "user user user");
 
     useEffect(() => {
         dispatch(findDomainWithoutFilter());
@@ -52,6 +55,7 @@ const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) =
             domain_id: user?.domain_id || "",
             recovery_email: user?.recovery_email || "",
             phone_number: user?.phone_number || "",
+            active_status: user?.active_status,
         },
         enableReinitialize: true,
         validationSchema: editUserValidationSchema,
@@ -105,28 +109,25 @@ const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) =
                             onBlur={handleBlur}
                             className="text-gray-800 bg-white border border-gray-300 flex-grow text-sm pl-4 pr-8 py-2.5 rounded-l-md"
                             placeholder="Enter email"
+                            disabled
                         />
-                        <select
-                            name="domain_id"
-                            value={values.domain_id}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            className="text-gray-800 bg-white border border-gray-300 text-sm py-2.5 px-4 rounded-r-md"
-                        >
-                            <option value="">Select domain</option>
-                            {noFilterData.map((domain) => (
-                                <option key={domain?._id} value={domain?._id}>
-                                    {domain?.domain_name}
-                                </option>
-                            ))}
-                        </select>
                     </div>
                     {touched.email && errors.email && (
                         <p className="text-red-500 text-xs">{errors.email}</p>
                     )}
-                    {touched.domain_id && errors.domain_id && (
-                        <p className="text-red-500 text-xs">{errors.domain_id}</p>
-                    )}
+                    <Select
+                        label="Active Status"
+                        name="active_status"
+                        value={values.active_status ? "true" : "false"}
+                        onBlur={handleBlur}
+                        onChange={(value) =>
+                            handleChange({target: {name: "active_status", value: value === "true"}})
+                        }
+                    >
+                        <Option value="true">Active</Option>
+                        <Option value="false">Inactive</Option>
+                    </Select>
+
                     <Input
                         label="Recovery Email"
                         name="recovery_email"
@@ -179,6 +180,7 @@ EditUserModal.propTypes = {
         domain_id: PropTypes.string,
         recovery_email: PropTypes.string,
         phone_number: PropTypes.string,
+        active_status: PropTypes.bool,
     }),
     onClose: PropTypes.func,
     onSave: PropTypes.func,

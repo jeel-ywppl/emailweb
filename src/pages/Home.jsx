@@ -1,5 +1,4 @@
 import {useState} from "react";
-import PropTypes from "prop-types";
 import {HiOutlinePlus} from "react-icons/hi";
 import {FaRegCalendarAlt, FaUser} from "react-icons/fa";
 import RegisterNewUser from "../model/RegisterNewUser";
@@ -80,11 +79,6 @@ const Home = () => {
             )}
         </div>
     );
-};
-
-Home.propTypes = {
-    closeModal: PropTypes.func.isRequired,
-    handleNewUserRegistration: PropTypes.func.isRequired,
 };
 
 export default Home;

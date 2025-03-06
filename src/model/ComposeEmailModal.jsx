@@ -33,10 +33,6 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
         const recipientEmailsCc = extractEmails(ccRecipients);
         const recipientEmailsBcc = extractEmails(bccRecipients);
 
-        console.log("Extracted To:", recipientEmailsTo);
-        console.log("Extracted CC:", recipientEmailsCc);
-        console.log("Extracted BCC:", recipientEmailsBcc);
-
         if (
             recipientEmailsTo.length === 0 &&
             recipientEmailsCc.length === 0 &&
