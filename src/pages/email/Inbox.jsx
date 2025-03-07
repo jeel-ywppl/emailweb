@@ -23,7 +23,7 @@ const Inbox = () => {
     const dropdownRef = useRef(null);
 
     useEffect(() => {
-        dispatch(getAllEmailbyUser({page: 1, limit: 100, status: "recive_status=true"}));
+        dispatch(getAllEmailbyUser({page: 1, limit: 100, status: "received_status=true"}));
     }, [dispatch]);
 
     useEffect(() => {

@@ -4,11 +4,6 @@ import {getAllEmailbyUser, getSinglMail} from "./index";
 const initialState = {
     emails: [],
     selectedEmail: null,
-    receivedEmails: [],
-    starredEmails: [],
-    trashEmails: [],
-    sentEmails: [],
-    archiveEmails: [],
     totalEmails: 0,
     totalPages: 0,
     currentPage: 1,
