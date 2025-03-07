@@ -6,7 +6,7 @@ import {useEffect, useState} from "react";
 import {FaRegStar, FaShareSquare} from "react-icons/fa";
 import {MdOutlineFileDownload} from "react-icons/md";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 const EmailView = () => {
     const [email, setEmail] = useState();
@@ -38,6 +38,20 @@ const EmailView = () => {
         const firstInitial = nameParts[0]?.charAt(0).toUpperCase() || "";
         const lastInitial = nameParts[1]?.charAt(0).toUpperCase() || "";
         return firstInitial + lastInitial;
+    };
+
+    const handleDownload = async (imageUrl, filename) => {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
     };
 
     return (
@@ -121,9 +135,7 @@ const EmailView = () => {
                             <h3 className="font-semibold">Attachments:</h3>
                             <div className="flex flex-wrap gap-3 mt-2">
                                 {email?.attachments.map((file, index) => {
-                                    console.log(
-                                        `Preview Image Clicked: ${config.BASE_URL}/${file?.file_path}`,
-                                    );
+                                    console.log(file,"attachmants");
                                     return (
                                         <div key={index} className="border p-2 rounded-lg">
                                             {file?.file_type ? (
@@ -144,13 +156,17 @@ const EmailView = () => {
                                             ) : (
                                                 <p>{file?.original_name || "Unknown File"}</p>
                                             )}
-                                            <a
-                                                href={file?.file_path}
-                                                download={file?.original_name}
+                                            <div
+                                                onClick={() =>
+                                                    handleDownload(
+                                                        `${config.BASE_URL}/${file?.file_path}`,
+                                                        file?.original_name,
+                                                    )
+                                                }
                                                 className="block mt-1 text-blue-500"
                                             >
                                                 <MdOutlineFileDownload className="w-5 h-5" />
-                                            </a>
+                                            </div>
                                         </div>
                                     );
                                 })}

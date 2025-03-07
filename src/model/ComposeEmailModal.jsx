@@ -32,7 +32,6 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
         const recipientEmailsTo = extractEmails(recipients);
         const recipientEmailsCc = extractEmails(ccRecipients);
         const recipientEmailsBcc = extractEmails(bccRecipients);
-
         if (
             recipientEmailsTo.length === 0 &&
             recipientEmailsCc.length === 0 &&
@@ -41,18 +40,29 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
             console.error("At least one recipient is required.");
             return;
         }
+        const newEmail = {
+            recipient_emails_to: recipientEmailsTo,
+            recipient_emails_cc: recipientEmailsCc,
+            recipient_emails_bcc: recipientEmailsBcc,
+            subject,
+            body,
+            files: attachments,
+        };
 
         const formData = new FormData();
-        formData.append("recipient_emails_to", JSON.stringify(recipientEmailsTo));
-        formData.append("recipient_emails_cc", JSON.stringify(recipientEmailsCc));
-        formData.append("recipient_emails_bcc", JSON.stringify(recipientEmailsBcc));
-        formData.append("subject", subject);
-        formData.append("body", body);
-
-        attachments.forEach((file) => {
-            formData.append("files", file);
+        const keys = Object.keys(newEmail);
+        keys.forEach((key) => {
+            if (Array.isArray(newEmail[key])) {
+                if (key === "files") {
+                    newEmail[key]?.map((item) => formData.append('files', item));
+                } else {
+                    newEmail[key]?.map((item, index) => formData.append(`${key}[${index}]`, item));
+                }
+            }
+            else{
+                formData.append(key, newEmail[key])
+            }
         });
-
         dispatch(sendMail(formData))
             .unwrap()
             .then(() => {
