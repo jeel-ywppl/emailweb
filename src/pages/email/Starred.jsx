@@ -299,7 +299,7 @@ const Starred = () => {
                             {email?.body ? (
                                 <span
                                     dangerouslySetInnerHTML={{
-                                        __html: DOMPurify.sanitize(email.body.slice(0, 100)),
+                                        __html: DOMPurify.sanitize(email?.body.slice(0, 100)),
                                     }}
                                 />
                             ) : (
@@ -307,9 +307,9 @@ const Starred = () => {
                             )}
                             ...
                         </h5>
-                        {email?.attachments.length > 0 && (
+                        {email?.attachments?.length > 0 && (
                             <div className="flex items-center text-sm text-gray-500 mt-1">
-                                <FaPaperclip className="mr-1" /> {email.attachments.length}{" "}
+                                <FaPaperclip className="mr-1" /> {email?.attachments?.length}{" "}
                                 Attachment&apos;s
                             </div>
                         )}

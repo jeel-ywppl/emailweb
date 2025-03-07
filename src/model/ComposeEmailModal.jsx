@@ -42,18 +42,18 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
             return;
         }
 
-        const newEmail = {
-            recipient_emails_to: recipientEmailsTo,
-            recipient_emails_cc: recipientEmailsCc,
-            recipient_emails_bcc: recipientEmailsBcc,
-            subject,
-            body,
-            files: attachments,
-        };
+        const formData = new FormData();
+        formData.append("recipient_emails_to", JSON.stringify(recipientEmailsTo));
+        formData.append("recipient_emails_cc", JSON.stringify(recipientEmailsCc));
+        formData.append("recipient_emails_bcc", JSON.stringify(recipientEmailsBcc));
+        formData.append("subject", subject);
+        formData.append("body", body);
 
-        console.log("Final Email Payload:", newEmail);
+        attachments.forEach((file) => {
+            formData.append("files", file);
+        });
 
-        dispatch(sendMail(newEmail))
+        dispatch(sendMail(formData))
             .unwrap()
             .then(() => {
                 setRecipients([]);

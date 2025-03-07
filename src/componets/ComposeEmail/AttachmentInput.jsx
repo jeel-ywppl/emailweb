@@ -1,14 +1,26 @@
 import PropTypes from "prop-types";
-import { Typography } from "@material-tailwind/react";
-import { PaperClipIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {Typography} from "@material-tailwind/react";
+import {PaperClipIcon, XMarkIcon} from "@heroicons/react/24/outline";
 
-const AttachmentInput = ({ attachments, setAttachments }) => {
+const AttachmentInput = ({attachments, setAttachments}) => {
     const handleAttachmentChange = (e) => {
-        const files = Array.from(e.target.files).filter(file => {
+        const files = Array.from(e.target.files).filter((file) => {
             if (file.type.startsWith("image/")) {
-                return file.size <= 1024 * 1024; // 1MB for images
+                if (file.size <= 1024 * 1024) {
+                    console.log(`Accepted image: ${file.name}`);
+                    return true;
+                } else {
+                    console.log(`Rejected image (too large): ${file.name}`);
+                }
+            } else {
+                if (file.size <= 5 * 1024 * 1024) {
+                    console.log(`Accepted file: ${file.name}`);
+                    return true;
+                } else {
+                    console.log(`Rejected file (too large): ${file.name}`);
+                }
             }
-            return file.size <= 5 * 1024 * 1024; // 5MB for other files
+            return false;
         });
         setAttachments([...attachments, ...files]);
     };
@@ -19,7 +31,9 @@ const AttachmentInput = ({ attachments, setAttachments }) => {
 
     return (
         <div className="space-y-2">
-            <Typography variant="small" color="blue-gray">Attachments</Typography>
+            <Typography variant="small" color="blue-gray">
+                Attachments
+            </Typography>
             <div className="flex items-center gap-2">
                 <input
                     id="attachment-input"
@@ -40,7 +54,9 @@ const AttachmentInput = ({ attachments, setAttachments }) => {
                             key={index}
                             className="flex items-center bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-sm"
                         >
-                            <span>{file.name} ({(file.size / 1024).toFixed(2)} KB)</span>
+                            <span>
+                                {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                            </span>
                             <button onClick={() => removeAttachment(index)} className="ml-2">
                                 <XMarkIcon className="h-4 w-4 text-red-600 cursor-pointer" />
                             </button>
@@ -58,6 +74,3 @@ AttachmentInput.propTypes = {
 };
 
 export default AttachmentInput;
-
-
-
