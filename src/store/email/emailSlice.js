@@ -51,11 +51,6 @@ const emailSlice = createSlice({
             state.totalEmails = action?.payload?.totalEmails;
             state.totalPages = action?.payload?.totalPages;
             state.currentPage = action?.payload?.currentPage;
-            state.receivedEmails = action.payload.data.filter((email) => email.received_status);
-            state.starredEmails = action.payload.data.filter((email) => email.star_status);
-            state.trashEmails = action.payload.data.filter((email) => email.trash_status);
-            state.sentEmails = action.payload.data.filter((email) => email.sent_status);
-            state.archiveEmails = action.payload.data.filter((email) => email.archive_status);
             state.limit = action?.payload?.limit;
             state.status = "success";
         });

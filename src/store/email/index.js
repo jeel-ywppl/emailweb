@@ -5,28 +5,11 @@ import {toast} from "react-toastify";
 export const getAllEmailbyUser = createAsyncThunk(
     "email/getAllEmailbyUser",
     async (
-        {
-            page = 1,
-            limit = 10,
-            star_status,
-            archive_status,
-            received_status,
-            send_status,
-            trash_status,
-        },
+            values,
         {rejectWithValue},
     ) => {
         try {
-            const params = new URLSearchParams();
-            params.append("page", page);
-            params.append("limit", limit);
-            if (star_status !== undefined) params.append("star_status", star_status);
-            if (archive_status !== undefined) params.append("archive_status", archive_status);
-            if (received_status !== undefined) params.append("received_status", received_status);
-            if (send_status !== undefined) params.append("send_status", send_status);
-            if (trash_status !== undefined) params.append("trash_status", trash_status);
-
-            const response = await api.get(`/api/v1/mail/get/sent/by_user?${params.toString()}`);
+            const response = await api.get(`/api/v1/mail/get/sent/by_user?$page=${values.page}&limit=${values.limit}&${values.status}`);
             console.log("API Response:", response);
             if (response?.data?.message) {
                 toast.success(response.data.message);

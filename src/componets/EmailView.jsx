@@ -1,11 +1,12 @@
+import {getSinglMail} from "../store/email";
+import {useAppDispatch} from "../store/index";
+import {config} from "../utils/util";
 import {Archive, ArrowLeft, ArrowRight, Clock, Mail, Tag, Trash} from "lucide-react";
 import {useEffect, useState} from "react";
 import {FaRegStar, FaShareSquare} from "react-icons/fa";
 import {MdOutlineFileDownload} from "react-icons/md";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
-import {getSinglMail} from "../store/email";
-import {useAppDispatch} from "../store/index";
-import {config} from "../utils/util";
+import DOMPurify from 'dompurify';
 
 const EmailView = () => {
     const [email, setEmail] = useState();
@@ -107,11 +108,9 @@ const EmailView = () => {
 
                     <div className="mt-4 text-gray-700 leading-relaxed">
                         {email?.body ? (
-                            email?.body.split("\n").map((para, index) => (
-                                <p key={index} className="mt-2">
-                                    {para}
-                                </p>
-                            ))
+                            <div
+                                dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(email.body)}}
+                            />
                         ) : (
                             <p>No content available</p>
                         )}

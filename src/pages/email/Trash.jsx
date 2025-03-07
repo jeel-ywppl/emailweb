@@ -6,30 +6,29 @@ import {config} from "../../utils/util";
 import {FaPaperclip, FaStar, FaEllipsisV, FaRegStar} from "react-icons/fa";
 import {toast} from "react-toastify";
 import {changeEmailStatus, getAllEmailbyUser} from "../../store/email";
+import DOMPurify from 'dompurify';
 import {MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank} from "react-icons/md";
 
 const Trash = () => {
     const dispatch = useAppDispatch();
-    const {trashEmails} = useAppSelector((state) => state.email);
+    const {emails} = useAppSelector((state) => state.email);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmails, setSelectedEmails] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null);
     const [selectAll, setSelectAll] = useState(false);
     const [StarredEmails, setStarredEmails] = useState(
-        trashEmails.filter((email) => email?.star_status).map((email) => email?._id),
+        emails.filter((email) => email?.star_status).map((email) => email?._id),
     );
 
     const dropdownRef = useRef(null);
 
     useEffect(() => {
-        dispatch(getAllEmailbyUser({page: 1, limit: 10, received_status: true}));
+        dispatch(getAllEmailbyUser({page: 1, limit: 100, status: "trash_status=true"}));
     }, [dispatch]);
 
     useEffect(() => {
-        setStarredEmails(
-            trashEmails.filter((email) => email?.star_status).map((email) => email?._id),
-        );
-    }, [trashEmails]);
+        setStarredEmails(emails.filter((email) => email?.star_status).map((email) => email?._id));
+    }, [emails]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -55,15 +54,13 @@ const Trash = () => {
         if (selectAll) {
             setSelectedEmails([]);
         } else {
-            setSelectedEmails(trashEmails.map((email) => email._id));
+            setSelectedEmails(emails.map((email) => email._id));
         }
         setSelectAll(!selectAll);
     };
 
     const handleStarToggle = (emailId) => {
-        const isCurrentlyStarred = trashEmails.find(
-            (email) => email._id === emailId,
-        )?.star_status;
+        const isCurrentlyStarred = emails.find((email) => email._id === emailId)?.star_status;
         const newStarStatus = !isCurrentlyStarred;
         const payload = {
             email_id: [emailId],
@@ -183,7 +180,7 @@ const Trash = () => {
                 </div>
             </div>
 
-            {trashEmails.map((email) => (
+            {emails.map((email) => (
                 <div
                     key={email?._id}
                     className="flex flex-col px-5 py-4 border border-gray-200 hover:bg-gray-50 cursor-pointer transition-all duration-200 ease-in-out rounded-lg mt-2"
@@ -299,7 +296,16 @@ const Trash = () => {
                             <span className="text-sm text-gray-800 font-semibold">
                                 {email?.subject.slice(0, 30)}
                             </span>{" "}
-                            {email?.body.slice(0, 50)}...
+                            {email?.body ? (
+                                <span
+                                    dangerouslySetInnerHTML={{
+                                        __html: DOMPurify.sanitize(email.body.slice(0, 50)),
+                                    }}
+                                />
+                            ) : (
+                                <span>No content available</span>
+                            )}
+                            ...
                         </h5>
                         {email?.attachments.length > 0 && (
                             <div className="flex items-center text-sm text-gray-500 mt-1">
