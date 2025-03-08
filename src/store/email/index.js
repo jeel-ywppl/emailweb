@@ -4,12 +4,13 @@ import {toast} from "react-toastify";
 
 export const getAllEmailbyUser = createAsyncThunk(
     "email/getAllEmailbyUser",
-    async (
-            values,
-        {rejectWithValue},
-    ) => {
+    async (values, {rejectWithValue}) => {
         try {
-            const response = await api.get(`/api/v1/mail/get/sent/by_user?$page=${values.page}&limit=${values.limit}&${values.status}`);
+            console.log("Fetching emails with:", values);
+            const response = await api.get(
+                `/api/v1/mail/get/sent/by_user?page=${values?.page}&limit=${values?.limit}&${values?.status}`,
+            );
+
             console.log("API Response:", response);
             if (response?.data?.message) {
                 toast.success(response.data.message);

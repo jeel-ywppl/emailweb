@@ -20,5 +20,5 @@ export const registrationValidationSchema = Yup.object().shape({
         .required("Recovery email is required"),
     password: Yup.string()
         .required("Password is required")
-        .min(6, "Password must be at least 6 characters long"),
+        .min(8, "Password must be at least 6 characters long"),
 });

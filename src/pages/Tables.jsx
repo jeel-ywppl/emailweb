@@ -11,7 +11,7 @@ import {
     Option,
 } from "@material-tailwind/react";
 import EditUserModal from "../model/EditUserModal";
-import {Pencil, Trash2} from "lucide-react";
+import {LoaderCircle, Pencil, Trash2} from "lucide-react";
 import {useAppDispatch, useAppSelector} from "../store";
 import {setCurrentPage, setLimit, setSkip} from "../store/user/userSlice";
 import {Box, TablePagination} from "@mui/material";
@@ -34,7 +34,7 @@ const Tables = () => {
     const [search, setSearch] = useState("");
     const [roleId, setRoleId] = useState("");
 
-    const {data, currentPage, limit, totalRecords, active_status} = useAppSelector(
+    const {data, isLoading, currentPage, limit, totalRecords, active_status} = useAppSelector(
         (state) => state.user,
     );
 
@@ -101,7 +101,7 @@ const Tables = () => {
     };
 
     const handleRowsPerPageChange = (event) => {
-        dispatch(setLimit({limit: +event.target.value}));
+        dispatch(setLimit({limit: event.target.value}));
     };
 
     const handleRoleChange = (value) => {
@@ -116,10 +116,15 @@ const Tables = () => {
         );
     };
 
+    if (isLoading) return (
+        <div className="fixed inset-0 flex justify-center items-center ">
+            <LoaderCircle />
+        </div>
+    );
     
 
     return (
-        <div className="mt-12 mb-8 flex flex-col gap-12 p-5">
+        <div className=" mb-8 flex flex-col gap-12 p-5">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="relative w-full max-w-sm">
                     <Input

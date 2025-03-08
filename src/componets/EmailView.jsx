@@ -60,7 +60,7 @@ const EmailView = () => {
                 <div className="flex justify-between items-center border-b px-4 py-3 bg-white shadow-sm">
                     <div className="flex items-center sm:space-x-10 space-x-2">
                         <button
-                            onClick={() => navigate("/inbox")}
+                            onClick={() => navigate(-1)}
                             className="text-gray-600 hover:text-black"
                             title="Go Back"
                         >
@@ -135,7 +135,7 @@ const EmailView = () => {
                             <h3 className="font-semibold">Attachments:</h3>
                             <div className="flex flex-wrap gap-3 mt-2">
                                 {email?.attachments.map((file, index) => {
-                                    console.log(file,"attachmants");
+                                    console.log(file, "attachmants");
                                     return (
                                         <div key={index} className="border p-2 rounded-lg">
                                             {file?.file_type ? (

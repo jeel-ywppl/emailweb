@@ -61,7 +61,7 @@ const Domain = () => {
     };
 
     const handleDeleteClick = (recordId) => {
-        setSelectedDomainId(recordId); 
+        setSelectedDomainId(recordId);
         setDeleteModalOpen(true);
     };
 
@@ -70,9 +70,9 @@ const Domain = () => {
             try {
                 const payload = {
                     id: selectedDomainId,
-                    dns_id: "", 
+                    dns_id: "",
                 };
-                const response = await dispatch(deleteDomain(payload)).unwrap(); 
+                const response = await dispatch(deleteDomain(payload)).unwrap();
                 toast.success(response?.message || "DNS record deleted successfully!");
                 dispatch(findDomain());
             } catch (error) {
@@ -138,7 +138,7 @@ const Domain = () => {
     };
 
     const handleRowsPerPageChange = (event) => {
-        dispatch(setLimit({limit: +event.target.value}));
+        dispatch(setLimit({limit: event.target.value}));
     };
 
     return (

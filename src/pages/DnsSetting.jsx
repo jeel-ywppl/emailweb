@@ -15,14 +15,15 @@ import {Button, Card, Input, Option, Select, Typography} from "@material-tailwin
 import {BiEditAlt} from "react-icons/bi";
 import {deleteDomain, getDomainById, updateDomain} from "../store/Domain";
 import {toast} from "react-toastify";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {dnsValidationSchema} from "../validation/dnsValidationScheama";
-import {Trash2} from "lucide-react";
+import {ArrowLeft, Trash2} from "lucide-react";
 import ConfirmDeleteDomainModal from "../model/ConfirmDeleteDomainModal";
 
 const recordTypes = ["A", "MX", "AAAA", "CNAME", "TXT"];
 
 const DnsSetting = () => {
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const {id} = useParams();
     const [dnsSetting, setDnsSetting] = useState();
@@ -147,9 +148,18 @@ const DnsSetting = () => {
 
     return (
         <div className="w-full p-6 space-y-6">
+            <Card className="p-2">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="text-gray-600 hover:text-black"
+                    title="Go Back"
+                >
+                    <ArrowLeft className="w-6 h-6" />
+                </button>
+            </Card>
             <Card className="p-4 border border-gray-300 space-y-4">
                 <h2 className="text-lg font-semibold">Domain Details</h2>
-                <div className="p-4 flex flex-col md:flex-row md:items-center gap-4">
+                <div className="px-4 flex flex-col md:flex-row md:items-center gap-4">
                     <div className="w-full md:w-1/2">
                         <div className="flex items-center gap-3">
                             <Typography variant="h6" color="blue-gray">

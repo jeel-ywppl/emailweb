@@ -8,10 +8,12 @@ import {toast} from "react-toastify";
 import {changeEmailStatus, getAllEmailbyUser} from "../../store/email";
 import {MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank} from "react-icons/md";
 import DOMPurify from 'dompurify';
+import { Box, TablePagination } from "@mui/material";
+import { setCurrentPage, setLimit, setSkip } from "../../store/email/emailSlice";
 
 const Starred = () => {
     const dispatch = useAppDispatch();
-    const {emails} = useAppSelector((state) => state.email);
+    const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} = useAppSelector((state) => state.email);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmails, setSelectedEmails] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null);
@@ -23,8 +25,8 @@ const Starred = () => {
     const dropdownRef = useRef(null);
 
     useEffect(() => {
-        dispatch(getAllEmailbyUser({page: 1, limit: 100, status: "star_status=true"}));
-    }, [dispatch]);
+        dispatch(getAllEmailbyUser({page: currentPage, limit, status: "star_status=true"}));
+    }, [dispatch, currentPage, limit]);
 
     useEffect(() => {
         setStarredEmails(emails.filter((email) => email?.star_status).map((email) => email?._id));
@@ -114,6 +116,20 @@ const Starred = () => {
                 toast.error(error || "Failed to update email status");
             });
     };
+
+    const handlePageChange = (event, newPage) => {
+            const adjustedPage = newPage + 1;
+            const newSkip = (adjustedPage - 1) * limit;
+            dispatch(setSkip({skip: newSkip}));
+            dispatch(setCurrentPage({currentPage: adjustedPage}));
+        };
+    
+        const handleRowsPerPageChange = (event) => {
+            dispatch(setLimit({limit: event.target.value}));
+        };
+    
+        if (isLoading) return <p>Loading...</p>;
+        if (isError) return <p>Error: {errorMessage}</p>;
 
     return (
         <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2">
@@ -316,6 +332,17 @@ const Starred = () => {
                     </Link>
                 </div>
             ))}
+            <Box sx={{position: "relative"}}>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25, 50]}
+                    component="div"
+                    count={totalEmails}
+                    rowsPerPage={limit}
+                    page={Math.max(0, currentPage - 1)}
+                    onPageChange={handlePageChange}
+                    onRowsPerPageChange={handleRowsPerPageChange}
+                />
+            </Box>
         </div>
     );
 };

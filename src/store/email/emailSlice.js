@@ -6,8 +6,8 @@ const initialState = {
     selectedEmail: null,
     totalEmails: 0,
     totalPages: 0,
-    currentPage: 1,
-    limit: 100,
+    currentPage: 0,
+    limit: 10,
     status: "idle",
     isError: false,
     isLoading: false,
@@ -20,19 +20,20 @@ const emailSlice = createSlice({
     initialState,
     reducers: {
         setLimit: (state, action) => {
-            state.limit = action?.payload ?? state.limit;
+            state.limit = action.payload.limit;
+            state.status = "idle";
+        },
+        setSkip: (state, action) => {
+            state.skip = action.payload.skip;
             state.status = "idle";
         },
         setCurrentPage: (state, action) => {
-            state.currentPage = action?.payload ?? state.currentPage;
+            state.currentPage = action.payload.currentPage;
         },
         setStatus: (state, action) => {
-            state.status = action?.payload ?? state.status;
+            state.status = action.payload.status;
         },
-        reset: () => ({
-            ...initialState,
-            errorMessage: "",
-        }),
+        reset: () => initialState,
     },
     extraReducers: (builder) => {
         builder.addCase(getAllEmailbyUser.pending, (state) => {
@@ -70,5 +71,6 @@ const emailSlice = createSlice({
     },
 });
 
-export const {setCurrentPage, setLimit, setStatus, reset} = emailSlice.actions;
+export const {setCurrentPage, setLimit, setStatus, setSkip, totalEmails, totalPages, reset} =
+    emailSlice.actions;
 export default emailSlice.reducer;

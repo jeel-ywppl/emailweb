@@ -20,20 +20,22 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         setLimit: (state, action) => {
-            state.limit = action.payload.limit;
+            state.limit = action?.payload?.limit;
             state.status = "idle";
         },
         setSkip: (state, action) => {
-            state.skip = action.payload.skip;
+            state.skip = action?.payload?.skip;
             state.status = "idle";
         },
         setCurrentPage: (state, action) => {
-            state.currentPage = action.payload.currentPage;
+            state.currentPage = action?.payload?.currentPage;
         },
         setStatus: (state, action) => {
-            state.status = action.payload.status;
+            state.status = action?.payload?.status;
         },
-        reset: () => initialState,
+        reset: () => {
+            return initialState;
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(findUser.pending, (state) => {
@@ -43,8 +45,8 @@ const userSlice = createSlice({
         });
         builder.addCase(findUser.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.data = action.payload?.data;
-            state.totalRecords = action.payload?.pagination?.totalData;
+            state.data = action?.payload?.data;
+            state.totalRecords = action?.payload?.pagination?.totalData;
             state.status = "success";
         });
         builder.addCase(findUser.rejected, (state) => {
@@ -60,8 +62,8 @@ const userSlice = createSlice({
         });
         builder.addCase(findUserWithoutFilter.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.noFilterData = action.payload?.data;
-            state.totalRecords = action.payload?.data?.length;
+            state.noFilterData = action?.payload?.data;
+            state.totalRecords = action?.payload?.data?.length;
             state.status = "success";
         });
         builder.addCase(findUserWithoutFilter.rejected, (state) => {

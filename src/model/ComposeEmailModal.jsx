@@ -8,11 +8,11 @@ import TextEditor from "../componets/ComposeEmail/TextEditor";
 import AttachmentInput from "../componets/ComposeEmail/AttachmentInput";
 import {FiMaximize, FiMinimize2} from "react-icons/fi";
 import {useAppDispatch, useAppSelector} from "../store";
-import {sendMail} from "../store/email";
+import {getAllEmailbyUser, sendMail} from "../store/email";
 
 const ComposeEmailModal = ({isOpen, onClose}) => {
     const dispatch = useAppDispatch();
-    const isLoading = useAppSelector((state) => state.email.isLoading);
+    const {isLoading} = useAppSelector((state) => state.email);
     const [recipients, setRecipients] = useState([]);
     const [ccRecipients, setCcRecipients] = useState([]);
     const [bccRecipients, setBccRecipients] = useState([]);
@@ -22,6 +22,7 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
     const [showCc, setShowCc] = useState(false);
     const [showBcc, setShowBcc] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
+    const [isSending, setIsSending] = useState(false); // New loading state
 
     const extractEmails = (recipientsArray) =>
         recipientsArray
@@ -29,6 +30,9 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
             .filter((email) => typeof email === "string" && email.trim() !== "");
 
     const handleSend = () => {
+        if (isSending) return;
+        setIsSending(true);
+
         const recipientEmailsTo = extractEmails(recipients);
         const recipientEmailsCc = extractEmails(ccRecipients);
         const recipientEmailsBcc = extractEmails(bccRecipients);
@@ -38,8 +42,10 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
             recipientEmailsBcc.length === 0
         ) {
             console.error("At least one recipient is required.");
+            setIsSending(false); // Reset loading state
             return;
         }
+
         const newEmail = {
             recipient_emails_to: recipientEmailsTo,
             recipient_emails_cc: recipientEmailsCc,
@@ -54,18 +60,19 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
         keys.forEach((key) => {
             if (Array.isArray(newEmail[key])) {
                 if (key === "files") {
-                    newEmail[key]?.map((item) => formData.append('files', item));
+                    newEmail[key]?.map((item) => formData.append("files", item));
                 } else {
                     newEmail[key]?.map((item, index) => formData.append(`${key}[${index}]`, item));
                 }
-            }
-            else{
-                formData.append(key, newEmail[key])
+            } else {
+                formData.append(key, newEmail[key]);
             }
         });
+
         dispatch(sendMail(formData))
             .unwrap()
             .then(() => {
+                dispatch(getAllEmailbyUser());
                 setRecipients([]);
                 setCcRecipients([]);
                 setBccRecipients([]);
@@ -78,6 +85,9 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
             })
             .catch((error) => {
                 console.error("Failed to send email:", error);
+            })
+            .finally(() => {
+                setIsSending(false);
             });
     };
 
@@ -179,10 +189,10 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
                 <Button
                     color="primary1"
                     onClick={handleSend}
-                    disabled={isLoading}
+                    disabled={isLoading || isSending} // Disable if loading or sending
                     className="px-5 py-2 rounded-lg font-medium"
                 >
-                    {isLoading ? (
+                    {isSending ? (
                         <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     ) : (
                         "Send"
