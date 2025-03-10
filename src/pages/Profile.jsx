@@ -1,38 +1,98 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useAppSelector, useAppDispatch} from "../store";
-import {editUser, getUser} from "../store/user";
+import {editUser} from "../store/user";
 import {Card, CardBody, Avatar, Typography, Tooltip, Button, Input} from "@material-tailwind/react";
 import {PencilIcon} from "@heroicons/react/24/solid";
 import {CircularProgress} from "@mui/material";
 import ProfileInfoCard from "../widgets/cards/profile-info-card";
-import {Formik, Form, Field, ErrorMessage} from "formik";
-import * as Yup from "yup";
 import {config} from "../utils/util";
+import {useFormik} from "formik";
+import {ProfilevalidationSchema} from "../validation/ProfilevalidationSchema";
+import {getUserInfo} from "../store/auth";
 
 const Profile = () => {
     const dispatch = useAppDispatch();
     const {isLoading, user} = useAppSelector((state) => state.auth);
     const [isEditing, setIsEditing] = useState(false);
+    const [selectedAvatar, setSelectedAvatar] = useState(null);
+    const [previewAvatar, setPreviewAvatar] = useState(user?.avatar || "");
 
-    const validationSchema = Yup.object().shape({
-        fname: Yup.string().required("First name is required"),
-        lname: Yup.string().required("Last name is required"),
-        phone_number: Yup.string().required("Phone number is required"),
-        email: Yup.string().email("Invalid email").required("Email is required"),
-        country: Yup.string().required("country is required"),
-        bio: Yup.string().required("Bio is required"),
-        designation: Yup.string().required("Designation is required"),
+    const handleAvatarChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setSelectedAvatar(file);
+            setPreviewAvatar(URL.createObjectURL(file));
+        }
+    };
+
+    const formik = useFormik({
+        initialValues: {
+            avatar: user?.avatar,
+            fname: user?.fname || "",
+            lname: user?.lname || "",
+            email: user?.email || "",
+            phone_number: user?.phone_number || "",
+            country: user?.country || "",
+            bio: user?.bio || "",
+            designation: user?.designation || "",
+        },
+        validationSchema: ProfilevalidationSchema,
+        onSubmit: async (values, {setSubmitting, setFieldError}) => {
+            try {
+                const formData = new FormData();
+                if (selectedAvatar) {
+                    formData.append("avatar", selectedAvatar);
+                }
+                formData.append("fname", values?.fname);
+                formData.append("lname", values?.lname);
+                formData.append("email", values?.email);
+                formData.append("phone_number", values?.phone_number);
+                formData.append("country", values?.country);
+                formData.append("bio", values?.bio);
+                formData.append("designation", values?.designation);
+                const response = await dispatch(editUser({id: user._id, updatedData: formData}));
+                console.log("Edit User Response:", response);
+                if (response?.payload?.success) {
+                    dispatch(getUserInfo());
+                    setPreviewAvatar(
+                        selectedAvatar ? URL.createObjectURL(selectedAvatar) : user?.avatar,
+                    );
+                    formik.setValues({
+                        ...values,
+                        avatar: selectedAvatar ? selectedAvatar.name : user.avatar,
+                    });
+
+                    setIsEditing(false);
+                } else {
+                    setFieldError(
+                        "general",
+                        response?.payload?.message || "Failed to update user.",
+                    );
+                }
+            } catch {
+                setFieldError("general", "Submission failed. Try again.");
+            } finally {
+                setSubmitting(false);
+            }
+        },
     });
 
-    const handleSubmit = async (values) => {
-        const formData = new FormData();
-        Object.keys(values).forEach((key) => {
-            formData.append(key, values[key]);
-        });
-        await dispatch(editUser({id: user._id, updatedData: formData}));
-        getUser();
-        setIsEditing(false);
-    };
+    useEffect(() => {
+        if (user) {
+            setIsEditing(false);
+            setPreviewAvatar(user?.avatar || "");
+            formik.setValues({
+                avatar: user?.avatar,
+                fname: user?.fname,
+                lname: user?.lname,
+                email: user?.email,
+                phone_number: user?.phone_number,
+                country: user?.country,
+                bio: user?.bio,
+                designation: user?.designation,
+            });
+        }
+    }, [user]);
 
     return (
         <>
@@ -47,12 +107,12 @@ const Profile = () => {
                     <div className="mb-10 flex items-center justify-between flex-wrap gap-6">
                         <div className="flex items-center gap-6">
                             <div className="relative">
-                                {user?.avatar ? (
+                                {previewAvatar ? (
                                     <Avatar
                                         src={
-                                            user?.avatar.startsWith("http")
-                                                ? user?.avatar
-                                                : `${config.BASE_URL}/${user?.avatar}`
+                                            previewAvatar.startsWith("http")
+                                                ? previewAvatar
+                                                : `${config.BASE_URL}/${previewAvatar}`
                                         }
                                         alt={user?.fname}
                                         size="xl"
@@ -87,122 +147,116 @@ const Profile = () => {
                             />
                         </Tooltip>
                     </div>
+
                     {isEditing ? (
-                        <Formik
-                            initialValues={{
-                                fname: user?.fname || "",
-                                lname: user?.lname || "",
-                                phone_number: user?.phone_number || "",
-                                email: user?.email || "",
-                                country: user?.country || "",
-                                designation: user?.designation || "",
-                                bio: user?.bio || "",
-                                avatar: user?.avatar || null,
-                            }}
-                            validationSchema={validationSchema}
-                            onSubmit={handleSubmit}
-                        >
-                            {({setFieldValue}) => (
-                                <Form className="mb-12 space-y-4">
-                                    <Field name="fname">
-                                        {({field}) => (
-                                            <Input {...field} label="First Name" required />
-                                        )}
-                                    </Field>
-                                    <ErrorMessage
-                                        name="fname"
-                                        component="div"
-                                        className="text-red-500"
+                        <form onSubmit={formik.handleSubmit} className="mb-12 space-y-4">
+                            <div className="flex items-center space-x-6">
+                                <div className="shrink-0">
+                                    <img
+                                        id="preview_img"
+                                        className="h-16 w-16 object-cover rounded-full"
+                                        src={previewAvatar || "https://via.placeholder.com/150"}
+                                        alt="Current profile"
                                     />
-
-                                    <Field name="lname">
-                                        {({field}) => (
-                                            <Input {...field} label="Last Name" required />
-                                        )}
-                                    </Field>
-                                    <ErrorMessage
-                                        name="lname"
-                                        component="div"
-                                        className="text-red-500"
-                                    />
-
-                                    <Field name="phone_number">
-                                        {({field}) => (
-                                            <Input {...field} label="Phone Number" required />
-                                        )}
-                                    </Field>
-                                    <ErrorMessage
-                                        name="phone_number"
-                                        component="div"
-                                        className="text-red-500"
-                                    />
-
-                                    <Field name="email">
-                                        {({field}) => <Input {...field} label="Email" required />}
-                                    </Field>
-                                    <ErrorMessage
-                                        name="email"
-                                        component="div"
-                                        className="text-red-500"
-                                    />
-
-                                    <Field name="country">
-                                        {({field}) => <Input {...field} label="country" required />}
-                                    </Field>
-                                    <ErrorMessage
-                                        name="country"
-                                        component="div"
-                                        className="text-red-500"
-                                    />
-
-                                    <Field name="bio">
-                                        {({field}) => <Input {...field} label="Bio" required />}
-                                    </Field>
-                                    <ErrorMessage
-                                        name="bio"
-                                        component="div"
-                                        className="text-red-500"
-                                    />
-
-                                    <Field name="designation">
-                                        {({field}) => <Input {...field} label="designation" required />}
-                                    </Field>
-                                    <ErrorMessage
-                                        name="designation"
-                                        component="div"
-                                        className="text-red-500"
-                                    />
-
-                                    <Input
+                                </div>
+                                <label className="block">
+                                    <span className="sr-only">Choose profile photo</span>
+                                    <input
                                         type="file"
                                         name="avatar"
-                                        onChange={(event) => {
-                                            setFieldValue("avatar", event.currentTarget.files[0]);
-                                        }}
+                                        accept="image/*"
+                                        onChange={handleAvatarChange}
+                                        className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
                                     />
-                                    <ErrorMessage
-                                        name="avatar"
-                                        component="div"
-                                        className="text-red-500"
-                                    />
-
-                                    <Button type="submit" className="mt-4">
-                                        Save Changes
-                                    </Button>
-                                </Form>
+                                </label>
+                            </div>
+                            <Input
+                                name="fname"
+                                label="First Name"
+                                value={formik.values.fname}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                required
+                            />
+                            {formik.touched.fname && formik.errors.fname && (
+                                <div className="text-red-500 text-xs">{formik.errors.fname}</div>
                             )}
-                        </Formik>
+                            <Input
+                                name="lname"
+                                label="Last Name"
+                                value={formik.values.lname}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                required
+                            />
+                            {formik.touched.lname && formik.errors.lname && (
+                                <div className="text-red-500 text-xs">{formik.errors.lname}</div>
+                            )}
+                            <Input
+                                name="phone_number"
+                                label="Phone Number"
+                                value={formik.values.phone_number}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                required
+                            />
+                            {formik.touched.phone_number && formik.errors.phone_number && (
+                                <div className="text-red-500 text-xs">
+                                    {formik.errors.phone_number}
+                                </div>
+                            )}
+                            <Input
+                                name="email"
+                                label="Email"
+                                value={formik.values.email}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                required
+                            />
+                            {formik.touched.email && formik.errors.email && (
+                                <div className="text-red-500 text-xs">{formik.errors.email}</div>
+                            )}
+                            <Input
+                                name="country"
+                                label="Country"
+                                value={formik.values.country}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                required
+                            />
+                            {formik.touched.country && formik.errors.country && (
+                                <div className="text-red-500 text-xs">{formik.errors.country}</div>
+                            )}
+                            <Input
+                                name="bio"
+                                label="Bio"
+                                value={formik.values.bio}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                            />
+                            <Input
+                                name="designation"
+                                label="Designation"
+                                value={formik.values.designation}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                            />
+
+                            <Button type="submit" className="mt-4">
+                                Save Changes
+                            </Button>
+                        </form>
                     ) : (
                         <div className="grid-cols-1 mb-12 grid gap-12 px-4 lg:grid-cols-2 xl:grid-cols-3">
                             <ProfileInfoCard
                                 title="Profile Information"
-                                description={user.bio || "No bio available."}
+                                description={user?.bio || "No bio available."}
                                 details={{
-                                    "first name": user?.fname,
-                                    "phone no": user?.phone_number,
-                                    email: user?.email,
-                                    country: user?.country,
-                                    designation: user?.designation,
+                                    "First Name": user?.fname,
+                                    "Phone No": user?.phone_number,
+                                    Email: user?.email,
+                                    Country: user?.country,
+                                    Designation: user?.designation,
                                 }}
                             />
                         </div>

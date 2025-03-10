@@ -6,14 +6,16 @@ import {config} from "../../utils/util";
 import {FaPaperclip, FaStar, FaEllipsisV, FaRegStar} from "react-icons/fa";
 import {toast} from "react-toastify";
 import {changeEmailStatus, getAllEmailbyUser} from "../../store/email";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 import {MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank} from "react-icons/md";
-import { Box, TablePagination } from "@mui/material";
-import { setCurrentPage, setLimit, setSkip } from "../../store/email/emailSlice";
+import {Box, TablePagination} from "@mui/material";
+import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
+import Loader from "../../componets/Loader";
 
 const Trash = () => {
     const dispatch = useAppDispatch();
-    const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} = useAppSelector((state) => state.email);
+    const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} =
+        useAppSelector((state) => state.email);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmails, setSelectedEmails] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null);
@@ -118,18 +120,23 @@ const Trash = () => {
     };
 
     const handlePageChange = (event, newPage) => {
-            const adjustedPage = newPage + 1;
-            const newSkip = (adjustedPage - 1) * limit;
-            dispatch(setSkip({skip: newSkip}));
-            dispatch(setCurrentPage({currentPage: adjustedPage}));
-        };
-    
-        const handleRowsPerPageChange = (event) => {
-            dispatch(setLimit({limit: event.target.value}));
-        };
-    
-        if (isLoading) return <p>Loading...</p>;
-        if (isError) return <p>Error: {errorMessage}</p>;
+        const adjustedPage = newPage + 1;
+        const newSkip = (adjustedPage - 1) * limit;
+        dispatch(setSkip({skip: newSkip}));
+        dispatch(setCurrentPage({currentPage: adjustedPage}));
+    };
+
+    const handleRowsPerPageChange = (event) => {
+        dispatch(setLimit({limit: event.target.value}));
+    };
+
+    if (isLoading)
+        return (
+            <div className="fixed inset-0 flex justify-center items-center ">
+                <Loader />
+            </div>
+        );
+    if (isError) return <p>Error: {errorMessage}</p>;
 
     return (
         <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2">

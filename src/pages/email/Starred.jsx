@@ -1,20 +1,20 @@
 import {useEffect, useState, useRef} from "react";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {Link} from "react-router-dom";
-import ComposeEmailModal from "../../model/ComposeEmailModal";
 import {config} from "../../utils/util";
 import {FaPaperclip, FaStar, FaEllipsisV, FaRegStar} from "react-icons/fa";
 import {toast} from "react-toastify";
 import {changeEmailStatus, getAllEmailbyUser} from "../../store/email";
 import {MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank} from "react-icons/md";
-import DOMPurify from 'dompurify';
-import { Box, TablePagination } from "@mui/material";
-import { setCurrentPage, setLimit, setSkip } from "../../store/email/emailSlice";
+import DOMPurify from "dompurify";
+import {Box, TablePagination} from "@mui/material";
+import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
+import Loader from "../../componets/Loader";
 
 const Starred = () => {
     const dispatch = useAppDispatch();
-    const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} = useAppSelector((state) => state.email);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} =
+        useAppSelector((state) => state.email);
     const [selectedEmails, setSelectedEmails] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null);
     const [selectAll, setSelectAll] = useState(false);
@@ -118,29 +118,34 @@ const Starred = () => {
     };
 
     const handlePageChange = (event, newPage) => {
-            const adjustedPage = newPage + 1;
-            const newSkip = (adjustedPage - 1) * limit;
-            dispatch(setSkip({skip: newSkip}));
-            dispatch(setCurrentPage({currentPage: adjustedPage}));
-        };
-    
-        const handleRowsPerPageChange = (event) => {
-            dispatch(setLimit({limit: event.target.value}));
-        };
-    
-        if (isLoading) return <p>Loading...</p>;
-        if (isError) return <p>Error: {errorMessage}</p>;
+        const adjustedPage = newPage + 1;
+        const newSkip = (adjustedPage - 1) * limit;
+        dispatch(setSkip({skip: newSkip}));
+        dispatch(setCurrentPage({currentPage: adjustedPage}));
+    };
+
+    const handleRowsPerPageChange = (event) => {
+        dispatch(setLimit({limit: event.target.value}));
+    };
+
+    if (isLoading)
+        return (
+            <div className="fixed inset-0 flex justify-center items-center ">
+                <Loader />
+            </div>
+        );
+    if (isError) return <p>Error: {errorMessage}</p>;
 
     return (
         <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2">
             <div className="p-3 border-b flex justify-between items-center">
-                <button
+                {/* <button
                     className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
                     onClick={() => setIsModalOpen(true)}
                 >
                     Compose Email
                 </button>
-                <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> */}
                 <div className="flex items-center gap-3 p-3">
                     <button onClick={handleSelectAll} className="p-2.5 font-semibold">
                         {selectAll ? (

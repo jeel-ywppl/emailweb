@@ -72,7 +72,7 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
         dispatch(sendMail(formData))
             .unwrap()
             .then(() => {
-                dispatch(getAllEmailbyUser());
+                dispatch(getAllEmailbyUser({}));
                 setRecipients([]);
                 setCcRecipients([]);
                 setBccRecipients([]);

@@ -20,6 +20,7 @@ import {AiOutlineDelete, AiTwotoneEye} from "react-icons/ai";
 import {FiEdit2} from "react-icons/fi";
 import DeleteConfirmationModal from "../model/DeleteConfirmationModal";
 import { toast } from "react-toastify";
+import Loader from "../componets/Loader";
 
 const DataTable = () => {
     const dispatch = useAppDispatch();
@@ -99,6 +100,12 @@ const DataTable = () => {
             setDeleteCompanyId(null);
         }
     };
+
+    if (isLoading) return (
+        <div className="fixed inset-0 flex justify-center items-center ">
+            <Loader />
+        </div>
+    );
 
     return (
         <div className="p-4">

@@ -11,7 +11,7 @@ import {
     Option,
 } from "@material-tailwind/react";
 import EditUserModal from "../model/EditUserModal";
-import {LoaderCircle, Pencil, Trash2} from "lucide-react";
+import {Pencil, Trash2} from "lucide-react";
 import {useAppDispatch, useAppSelector} from "../store";
 import {setCurrentPage, setLimit, setSkip} from "../store/user/userSlice";
 import {Box, TablePagination} from "@mui/material";
@@ -21,6 +21,7 @@ import {HiOutlinePlus} from "react-icons/hi";
 import RegisterNewUser from "../model/RegisterNewUser";
 import {findDomainWithoutFilter} from "../store/Domain";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
+import Loader from "../componets/Loader";
 
 const Tables = () => {
     const dispatch = useAppDispatch();
@@ -116,12 +117,12 @@ const Tables = () => {
         );
     };
 
-    if (isLoading) return (
-        <div className="fixed inset-0 flex justify-center items-center ">
-            <LoaderCircle />
-        </div>
-    );
-    
+    if (isLoading)
+        return (
+            <div className="fixed inset-0 flex justify-center items-center ">
+                <Loader />
+            </div>
+        );
 
     return (
         <div className=" mb-8 flex flex-col gap-12 p-5">

@@ -20,8 +20,9 @@ import {toast} from "react-toastify";
 import {findCompanyWithoutFilter} from "../store/company";
 import {Box, Icon, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../store/Domain/domainSlice";
-import {Pencil, Settings2, Trash2} from "lucide-react";
+import { Pencil, Settings2, Trash2} from "lucide-react";
 import ConfirmDeleteDomainModal from "../model/ConfirmDeleteDomainModal";
+import Loader from "../componets/Loader";
 
 const Domain = () => {
     const [open, setOpen] = useState(false);
@@ -140,6 +141,12 @@ const Domain = () => {
     const handleRowsPerPageChange = (event) => {
         dispatch(setLimit({limit: event.target.value}));
     };
+
+    if (isLoading) return (
+        <div className="fixed inset-0 flex justify-center items-center ">
+            <Loader />
+        </div>
+    );
 
     return (
         <div className="p-6">

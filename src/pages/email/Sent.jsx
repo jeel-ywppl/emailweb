@@ -10,7 +10,7 @@ import {MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank} from "react-icons/md";
 import DOMPurify from "dompurify";
 import {Box, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
-import { LoaderCircle } from "lucide-react";
+import Loader from "../../componets/Loader";
 
 const Sent = () => {
     const dispatch = useAppDispatch();
@@ -133,7 +133,7 @@ const Sent = () => {
 
     if (isLoading) return (
         <div className="fixed inset-0 flex justify-center items-center">
-            <LoaderCircle />
+            <Loader />
         </div>
     );
     
