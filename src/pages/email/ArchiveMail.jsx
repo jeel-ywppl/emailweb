@@ -11,26 +11,24 @@ import DOMPurify from "dompurify";
 import {Box, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
 import Loader from "../../componets/Loader";
-import { RotateCcw } from "lucide-react";
+import {RotateCcw} from "lucide-react";
 
-const Sent = () => {
+const ArchiveMail = () => {
     const dispatch = useAppDispatch();
-    const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} =
+    const {emails, totalData, currentPage, pageSize:limit, isLoading, isError, errorMessage} =
         useAppSelector((state) => state.email);
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmails, setSelectedEmails] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null);
     const [selectAll, setSelectAll] = useState(false);
-    const [StarredEmails, setStarredEmails] = useState(
+    const [starredEmails, setStarredEmails] = useState(
         emails.filter((email) => email?.star_status).map((email) => email?._id),
     );
 
     const dropdownRef = useRef(null);
-
     useEffect(() => {
-        dispatch(getAllEmailbyUser({page: currentPage, limit, status: "send_status=true"}));
-    }, [dispatch, currentPage, limit]);
+        dispatch(getAllEmailbyUser({page: currentPage, limit, status: "archive_status=true"}));
+    }, [dispatch, limit, currentPage]);
 
     useEffect(() => {
         setStarredEmails(emails.filter((email) => email?.star_status).map((email) => email?._id));
@@ -75,8 +73,10 @@ const Sent = () => {
         dispatch(changeEmailStatus(payload))
             .unwrap()
             .then(() => {
-                console.log("API CALL ENTER... started");
-                dispatch(getAllEmailbyUser({page: currentPage, limit, status: "send_status=true"}));
+                console.log(`Email ${isCurrentlyStarred ? "unstarred" : "starred"} successfully!`);
+                dispatch(
+                    getAllEmailbyUser({page: currentPage, limit, status: "archive_status=true"}),
+                );
             })
             .catch((error) => {
                 toast.error(error || "Failed to update email status");
@@ -87,7 +87,7 @@ const Sent = () => {
         setDropdownOpen(dropdownOpen === emailId ? null : emailId);
     };
 
-    const handleDropdownAction = async(action, emailId = null) => {
+    const handleDropdownAction = async (action, emailId = null) => {
         let emailIds = selectedEmails.length > 0 ? selectedEmails : emailId ? [emailId] : [];
         if (emailIds.length === 0) {
             toast.error("Please select at least one email.");
@@ -95,7 +95,7 @@ const Sent = () => {
         }
         const actionMap = {
             star: {star_status: true},
-            archive: {archive_status: true},
+            archive: {archive_status: false},
             markAsUnread: {read_status: false},
             trash: {trash_status: true},
             spam: {spam_status: true},
@@ -111,7 +111,7 @@ const Sent = () => {
                 console.log(response?.message || `Emails ${action} successfully!`);
                 setDropdownOpen(null);
                 dispatch(
-                    getAllEmailbyUser({page: currentPage, limit, status: "send_status=true"}),
+                    getAllEmailbyUser({page: currentPage, limit, status: "archive_status=true"}),
                 );
             } else {
                 console.error("Failed to send reply:", response.message || "Unknown error");
@@ -132,23 +132,39 @@ const Sent = () => {
         dispatch(setLimit({limit: event.target.value}));
     };
 
+    const handleEmailClick = (email) => {
+        if (!email.read_status) {
+            const payload = {
+                email_id: [email._id],
+                read_status: true,
+            };
+            dispatch(changeEmailStatus(payload))
+                .unwrap()
+                .then(() => {
+                    console.log(`Email marked as read successfully!`);
+                })
+                .catch((error) => {
+                    toast.error(error || "Failed to update email status");
+                });
+        }
+    };
+
     const refreshInbox = () => {
-        dispatch(getAllEmailbyUser({page: currentPage, limit, status: "send_status=true"}));
+        dispatch(getAllEmailbyUser({page: currentPage, limit, status: "archive_status=true"}));
     };
 
     if (isLoading)
         return (
-            <div className="fixed inset-0 flex justify-center items-center">
+            <div className="fixed inset-0 flex justify-center items-center ">
                 <Loader />
             </div>
         );
-
     if (isError) return <p>Error: {errorMessage}</p>;
 
     return (
-        <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2">
+        <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2 ">
             <div className="p-3 border-b flex justify-between items-center">
-            <div className="flex items-center ">
+                <div className="flex items-center ">
                     <button
                         className=" p-2 text-black  font-semibold  flex items-center gap-2 mr-5"
                         onClick={refreshInbox}
@@ -168,7 +184,7 @@ const Sent = () => {
                     </button>
                     <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                 </div>
-                <div className="flex items-center gap-3 p-3 relative">
+                <div className="flex items-center gap-3 p-3 relative mr-5">
                     <button onClick={handleSelectAll} className="p-2.5 font-semibold">
                         {selectAll ? (
                             <MdOutlineCheckBox size={20} />
@@ -187,7 +203,7 @@ const Sent = () => {
                     {dropdownOpen === "bulk" && (
                         <div
                             ref={dropdownRef}
-                            className="absolute right-3 top-14 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+                            className="absolute right-0 top-12 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
                         >
                             <div className="py-1">
                                 <button
@@ -200,7 +216,7 @@ const Sent = () => {
                                     onClick={() => handleDropdownAction("archive")}
                                     className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
-                                    Archive
+                                    Unrchive
                                 </button>
                                 <button
                                     onClick={() => handleDropdownAction("markAsUnread")}
@@ -225,11 +241,13 @@ const Sent = () => {
                     )}
                 </div>
             </div>
-
             {emails.map((email) => (
                 <div
+                    onClick={() => handleEmailClick(email)}
                     key={email?._id}
-                    className="flex flex-col px-5 py-4 border border-gray-200 hover:bg-gray-50 cursor-pointer transition-all duration-200 ease-in-out rounded-lg mt-2 "
+                    className={`flex flex-col px-5 py-4 border border-gray-200 hover:bg-gray-50 cursor-pointer transition-all duration-200 ease-in-out rounded-lg mt-2 ${
+                        !email.read_status ? "bg-lightblue-100" : "bg-white"
+                    }`}
                 >
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
@@ -245,12 +263,12 @@ const Sent = () => {
                                     handleStarToggle(email?._id);
                                 }}
                                 className={`text-gray-600 hover:text-yellow-500 transition-colors duration-200 ${
-                                    email?.star_status || StarredEmails.includes(email?._id)
+                                    email?.star_status || starredEmails.includes(email?._id)
                                         ? "text-yellow-500"
                                         : ""
                                 }`}
                             >
-                                {email?.star_status || StarredEmails.includes(email?._id) ? (
+                                {email?.star_status || starredEmails.includes(email?._id) ? (
                                     <FaStar size={18} />
                                 ) : (
                                     <FaRegStar size={18} />
@@ -268,20 +286,14 @@ const Sent = () => {
                                     />
                                 ) : (
                                     <span className="text-white font-semibold text-xl">
-                                        {email?.recipient_emails_to &&
-                                        email.recipient_emails_to.length > 0
-                                            ? email.recipient_emails_to[0].charAt(0).toUpperCase()
-                                            : "?"}{" "}
+                                        {email?.sender_email?.charAt(0).toUpperCase()}
                                     </span>
                                 )}
                             </div>
                         </div>
                         <div className="flex flex-col flex-grow ml-4">
                             <h4 className="font-semibold text-base text-gray-900 hover:text-primary-700 truncate">
-                                {(email?.recipient_emails_to && email?.recipient_emails_to[0]) ||
-                                    (email?.recipient_emails_bcc &&
-                                        email?.recipient_emails_bcc[0]) ||
-                                    (email?.recipient_emails_cc && email?.recipient_emails_cc[0])}
+                                {email?.sender_email}
                             </h4>
                         </div>
                         <div className=" flex items-center gap-3 relative">
@@ -312,7 +324,7 @@ const Sent = () => {
                                             }
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
-                                            Archive
+                                            Unarchive
                                         </button>
                                         <button
                                             onClick={() =>
@@ -340,7 +352,7 @@ const Sent = () => {
                         </div>
                     </div>
                     <Link
-                        to={`/dashboard/sent/${email?._id}`}
+                        to={`/dashboard/archive/${email?._id}`}
                         state={{...email}}
                         className="mt-2 flex items-center gap-3"
                     >
@@ -368,12 +380,11 @@ const Sent = () => {
                     </Link>
                 </div>
             ))}
-
             <Box sx={{position: "relative"}}>
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25, 50]}
                     component="div"
-                    count={totalEmails}
+                    count={totalData}
                     rowsPerPage={limit}
                     page={Math.max(0, currentPage - 1)}
                     onPageChange={handlePageChange}
@@ -384,4 +395,4 @@ const Sent = () => {
     );
 };
 
-export default Sent;
+export default ArchiveMail;

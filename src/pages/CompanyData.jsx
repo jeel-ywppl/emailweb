@@ -4,22 +4,20 @@ import {deleteCompany, findCompany} from "../store/company";
 import {useAppDispatch, useAppSelector} from "../store";
 import CompanyModal from "../model/CompanyModal";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
-import {Button, Input} from "@material-tailwind/react";
 import {
+    Button,
     Card,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TablePagination,
-    Box,
-} from "@mui/material";
+    CardBody,
+    CardHeader,
+    IconButton,
+    Input,
+    Typography,
+} from "@material-tailwind/react";
+import {TablePagination, Box} from "@mui/material";
 import {AiOutlineDelete, AiTwotoneEye} from "react-icons/ai";
 import {FiEdit2} from "react-icons/fi";
 import DeleteConfirmationModal from "../model/DeleteConfirmationModal";
-import { toast } from "react-toastify";
+import {toast} from "react-toastify";
 import Loader from "../componets/Loader";
 
 const DataTable = () => {
@@ -76,7 +74,7 @@ const DataTable = () => {
     };
 
     const handleRowsPerPageChange = (event) => {
-        const newLimit = +event.target.value;
+        const newLimit = event.target.value;
         dispatch(setLimit({limit: newLimit}));
         dispatch(setCurrentPage({currentPage: 1}));
         dispatch(findCompany({page: 1, limit: newLimit}));
@@ -101,16 +99,17 @@ const DataTable = () => {
         }
     };
 
-    if (isLoading) return (
-        <div className="fixed inset-0 flex justify-center items-center ">
-            <Loader />
-        </div>
-    );
+    if (isLoading)
+        return (
+            <div className="fixed inset-0 flex justify-center items-center ">
+                <Loader />
+            </div>
+        );
 
     return (
         <div className="p-4">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div className="relative w-full sm:w-72">
+                <div className="relative w-full sm:w-72 mb-10">
                     <Input
                         type="text"
                         label="Search Company"
@@ -128,70 +127,107 @@ const DataTable = () => {
             {isLoading ? (
                 <p>Loading companies...</p>
             ) : (
-                <Card className="overflow-hidden shadow-lg">
-                    <TableContainer>
-                        <Table className="min-w-full">
-                            <TableHead>
-                                <TableRow className="bg-gray-100">
-                                    <TableCell>#</TableCell>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Email</TableCell>
-                                    <TableCell>Industry</TableCell>
-                                    <TableCell>Status</TableCell>
-                                    <TableCell className="text-center">Actions</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
+                <Card>
+                    <CardHeader
+                        variant="gradient"
+                        color="gray"
+                        className="mb-8 p-6 flex items-center gap-4 justify-between"
+                    >
+                        <Typography variant="h6" color="white">
+                            Company Table
+                        </Typography>
+                    </CardHeader>
+                    <CardBody className="overflow-auto px-0 pt-0 pb-2">
+                        <table className="w-full min-w-[640px] text-nowrap table-auto">
+                            <thead>
+                                <tr>
+                                    {["#", "Name", "Email", "Industry", "Status", "Action"].map(
+                                        (el) => (
+                                            <th
+                                                key={el}
+                                                className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                            >
+                                                <Typography
+                                                    variant="small"
+                                                    className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                >
+                                                    {el}
+                                                </Typography>
+                                            </th>
+                                        ),
+                                    )}
+                                </tr>
+                            </thead>
+                            <tbody>
                                 {(data || [])
                                     ?.filter((item) =>
                                         item.name.toLowerCase().includes(search.toLowerCase()),
                                     )
                                     .map((item, index) => (
-                                        <TableRow key={index} className="hover:bg-gray-50">
-                                            <TableCell>{index + 1}</TableCell>
-                                            <TableCell>{item?.name}</TableCell>
-                                            <TableCell>{item?.email}</TableCell>
-                                            <TableCell>{item?.industry}</TableCell>
-                                            <TableCell>
-                                                <span
-                                                    className={`px-2 py-1 rounded-full text-sm font-semibold ${
-                                                        item?.active_status === true
-                                                            ? "bg-green-500 text-white"
-                                                            : "bg-red-500 text-white"
-                                                    }`}
-                                                >
-                                                    {item?.active_status === true
-                                                        ? "Active"
-                                                        : "Inactive"}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="flex space-x-2 justify-center items-center flex-nowrap">
-                                                <Button
+                                        <tr key={index} className="hover:bg-gray-50">
+                                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {index + 1}
+                                                </Typography>
+                                            </td>
+                                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {item?.name}
+                                                </Typography>
+                                            </td>
+                                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {item?.email}
+                                                </Typography>
+                                            </td>
+                                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {item?.industry}
+                                                </Typography>
+                                            </td>
+                                            <td className="py-3  border-b border-blue-gray-50">
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    <span
+                                                        className={`px-2 py-1 rounded-full text-sm font-semibold ${
+                                                            item?.active_status === true
+                                                                ? "bg-green-500 text-white"
+                                                                : "bg-red-500 text-white"
+                                                        }`}
+                                                    >
+                                                        {item?.active_status === true
+                                                            ? "Active"
+                                                            : "Inactive"}
+                                                    </span>
+                                                </Typography>
+                                            </td>
+                                            <td className="flex space-x-3 items-center mx-4 justify-start flex-nowrap py-3 border-b border-blue-gray-50">
+                                                <button
                                                     size="sm"
                                                     className="text-black bg-transparent"
                                                 >
-                                                    <AiTwotoneEye className="w-4 h-4" />
-                                                </Button>
-                                                <Button
+                                                    <AiTwotoneEye className="w-5 h-5" />
+                                                </button>
+                                                <button
                                                     size="sm"
                                                     onClick={() => handleEdit(index)}
                                                     className="text-black bg-transparent"
                                                 >
-                                                    <FiEdit2 className="w-4 h-4" />
-                                                </Button>
-                                                <Button
+                                                    <FiEdit2 className="w-5 h-5" />
+                                                </button>
+                                                <button
                                                     size="sm"
                                                     onClick={() => handleDelete(item?._id)}
                                                     className="text-black bg-transparent"
                                                 >
-                                                    <AiOutlineDelete className="w-4 h-4" />
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
+                                                    <AiOutlineDelete className="w-5 h-5" />
+                                                </button>
+                                            </td>
+                                        </tr>
                                     ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                            </tbody>
+                        </table>
+                    </CardBody>
+
                     <Box sx={{position: "relative", display: "flex", justifyContent: "end", mt: 2}}>
                         <TablePagination
                             rowsPerPageOptions={[5, 10, 15, 20, 40, 80]}

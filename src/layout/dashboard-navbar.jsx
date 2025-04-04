@@ -1,7 +1,14 @@
 import {useState} from "react";
 import PropTypes from "prop-types";
 import {useLocation, Link, useNavigate} from "react-router-dom";
-import {Navbar, Typography, Button, IconButton, Avatar} from "@material-tailwind/react";
+import {
+    Navbar,
+    Typography,
+    Button,
+    IconButton,
+    Avatar,
+    Breadcrumbs,
+} from "@material-tailwind/react";
 import {UserCircleIcon, Cog6ToothIcon, Bars3Icon, XMarkIcon} from "@heroicons/react/24/solid";
 import {useMaterialTailwindController, setOpenSidenav} from "../context/index";
 import {useAppSelector} from "../store";
@@ -16,7 +23,7 @@ const DashboardNavbar = () => {
     const [controller, dis] = useMaterialTailwindController();
     const {fixedNavbar, openSidenav} = controller;
     const {pathname} = useLocation();
-    const [page] = pathname.split("/").filter((el) => el !== "");
+    const [page, layout] = pathname.split("/").filter((el) => el !== "");
     const {accessToken, user: authUser} = useAppSelector((state) => state.auth);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -50,10 +57,23 @@ const DashboardNavbar = () => {
                             <Bars3Icon strokeWidth={3} className="h-6 w-6 text-blue-gray-500" />
                         )}
                     </IconButton>
-                    <div className="flex flex-col">
-                        <Typography variant="h6" color="blue-gray" className="font-semibold">
-                            {page}
-                        </Typography>
+                    <div className="capitalize">
+                        <Breadcrumbs
+                            className={`bg-transparent p-0 transition-all ${
+                                fixedNavbar ? "mt-1" : ""
+                            }`}
+                        >
+                            <Typography variant="small" color="blue-gray" className="font-normal">
+                                {page}
+                            </Typography>
+                            <Typography
+                                variant="small"
+                                color="blue-gray"
+                                className="font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100"
+                            >
+                                {layout}
+                            </Typography>
+                        </Breadcrumbs>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">

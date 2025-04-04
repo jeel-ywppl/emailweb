@@ -7,24 +7,25 @@ import {
     Avatar,
     Chip,
     Input,
-    Select,
-    Option,
+    Button,
 } from "@material-tailwind/react";
-import EditUserModal from "../model/EditUserModal";
-import {Pencil, Trash2} from "lucide-react";
+import {findUser} from "../store/user";
 import {useAppDispatch, useAppSelector} from "../store";
 import {setCurrentPage, setLimit, setSkip} from "../store/user/userSlice";
-import {Box, TablePagination} from "@mui/material";
-import {findUser} from "../store/user";
+import EditUserModal from "../model/EditUserModal";
 import DeleteUserModal from "../model/DeleteUserModal";
-import {HiOutlinePlus} from "react-icons/hi";
+import BackupUserModal from "../model/BackupUserModal";
 import RegisterNewUser from "../model/RegisterNewUser";
-import {findDomainWithoutFilter} from "../store/Domain";
-import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
 import Loader from "../componets/Loader";
+import {Box, TablePagination} from "@mui/material";
+import {CloudDownload, Pencil, Settings2, Trash2} from "lucide-react";
+import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
+import {useNavigate} from "react-router-dom";
+import {findRoleWithoutFilter} from "../store/roles";
 
 const Tables = () => {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const [selectedUser, setSelectedUser] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -34,13 +35,16 @@ const Tables = () => {
     const [usersThisMonth, setUsersThisMonth] = useState();
     const [search, setSearch] = useState("");
     const [roleId, setRoleId] = useState("");
+    const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+    const [backupUser, setBackupUser] = useState(null);
 
     const {data, isLoading, currentPage, limit, totalRecords, active_status} = useAppSelector(
         (state) => state.user,
     );
+    const {noFilterRole} = useAppSelector((state) => state.roles);
 
     useEffect(() => {
-        dispatch(findDomainWithoutFilter());
+        dispatch(findRoleWithoutFilter());
     }, [dispatch]);
 
     useEffect(() => {
@@ -87,6 +91,16 @@ const Tables = () => {
         setUserToDelete(null);
     };
 
+    const openBackupModal = (user) => {
+        setBackupUser(user);
+        setIsBackupModalOpen(true);
+    };
+
+    const closeBackupModal = () => {
+        setIsBackupModalOpen(false);
+        setBackupUser(null);
+    };
+
     const getInitials = (fname, lname) => {
         const firstInitial = fname?.charAt(0).toUpperCase() || "";
         const lastInitial = lname?.charAt(0).toUpperCase() || "";
@@ -105,13 +119,18 @@ const Tables = () => {
         dispatch(setLimit({limit: event.target.value}));
     };
 
-    const handleRoleChange = (value) => {
-        setRoleId(value === "All" ? "" : value === "User" ? 2 : 1);
+    const handleRoleChange = (event) => {
+        const value = event.target.value;
+        const selectedRoleId = value === "All" ? "" : value;
+
+        setRoleId(selectedRoleId);
+        console.log("🍟 selectedRoleId", selectedRoleId);
+
         dispatch(
             findUser({
                 page: currentPage,
                 limit,
-                role_id: value === "All" ? "" : value === "User" ? 2 : 1,
+                role_id: selectedRoleId,
                 active_status: true,
             }),
         );
@@ -137,24 +156,23 @@ const Tables = () => {
                     />
                     <MagnifyingGlassIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
                 </div>
-                <div className="">
-                    <Select
-                        label="User Role"
-                        onChange={(value) => handleRoleChange(value)}
-                        className="w-full"
+                <div className="w-full max-w-sm ">
+                    <select
+                        value={roleId} 
+                        onChange={handleRoleChange}
+                        className="text-gray-800 bg-white border border-gray-300 w-full rounded"
                     >
-                        <Option value="All">All</Option>
-                        <Option value="User">User</Option>
-                        <Option value="Admin">Admin</Option>
-                    </Select>
+                        <option value="">All</option>
+                        {noFilterRole.map((role) => (
+                            <option value={role?.role_id} key={role?._id}>
+                                {role?.role_name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
-                <button
-                    onClick={openModal}
-                    className="flex items-center relative border-2 border-gray-300 rounded px-4 py-2 cursor-pointer text-sm font-bold before:bg-gray-300 hover:rounded-b-none before:absolute before:-bottom-0 before:-left-0 before:block before:h-[4px] before:w-full before:origin-bottom-right before:scale-x-0 before:transition before:duration-300 before:ease-in-out hover:before:origin-bottom-left hover:before:scale-x-100"
-                >
-                    <HiOutlinePlus className="h-5 w-5" />
-                    Add New User
-                </button>
+                <Button color="primary" onClick={openModal} className="w-full sm:w-auto">
+                    + Add New User
+                </Button>
             </div>
             <Card>
                 <CardHeader
@@ -170,19 +188,21 @@ const Tables = () => {
                     <table className="w-full min-w-[640px] text-nowrap table-auto">
                         <thead>
                             <tr>
-                                {["author", "email", "status", "employed", "Action"].map((el) => (
-                                    <th
-                                        key={el}
-                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                    >
-                                        <Typography
-                                            variant="small"
-                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                {["#", "author", "email", "status", "employed", "Action"].map(
+                                    (el) => (
+                                        <th
+                                            key={el}
+                                            className="border-b border-blue-gray-50 py-3 px-5 text-left"
                                         >
-                                            {el}
-                                        </Typography>
-                                    </th>
-                                ))}
+                                            <Typography
+                                                variant="small"
+                                                className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                            >
+                                                {el}
+                                            </Typography>
+                                        </th>
+                                    ),
+                                )}
                             </tr>
                         </thead>
                         <tbody>
@@ -194,10 +214,15 @@ const Tables = () => {
                                         item?.email.toLowerCase().includes(search.toLowerCase())
                                     );
                                 })
-                                .map((item) => {
+                                .map((item, index) => {
                                     const className = "py-3 px-5 border-b border-blue-gray-50";
                                     return (
                                         <tr key={item?._id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {index + 1}
+                                                </Typography>
+                                            </td>
                                             <td className={className}>
                                                 <div className="flex items-center gap-4">
                                                     {item?.img ? (
@@ -245,15 +270,15 @@ const Tables = () => {
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                    {
-                                                        new Date(item?.updatedAt)
-                                                            .toISOString()
-                                                            .split("T")[0]
-                                                    }
+                                                    {item?.updatedAt
+                                                        ? new Date(item.updatedAt)
+                                                              .toISOString()
+                                                              .split("T")[0]
+                                                        : "N/A"}
                                                 </Typography>
                                             </td>
                                             <td className={className}>
-                                                <div className="flex justify-start items-center gap-3 ">
+                                                <div className="flex justify-start items-center gap-3 text-black">
                                                     <button
                                                         onClick={() =>
                                                             openEditModal({
@@ -274,6 +299,21 @@ const Tables = () => {
                                                         onClick={() => openDeleteModal(item)}
                                                     >
                                                         <Trash2 size={"20px"} strokeWidth={1} />
+                                                    </button>
+                                                    <button onClick={() => openBackupModal(item)}>
+                                                        <CloudDownload
+                                                            size={"20px"}
+                                                            strokeWidth={1}
+                                                        />
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/dashboard/user/permission/${item?._id}`,
+                                                            )
+                                                        }
+                                                    >
+                                                        <Settings2 size={"20px"} strokeWidth={1} />
                                                     </button>
                                                 </div>
                                             </td>
@@ -316,6 +356,13 @@ const Tables = () => {
                 <RegisterNewUser
                     closeModal={closeModal}
                     handleNewUserRegistration={handleNewUserRegistration}
+                />
+            )}
+            {isBackupModalOpen && backupUser && (
+                <BackupUserModal
+                    isOpen={isBackupModalOpen}
+                    onClose={closeBackupModal}
+                    user={backupUser}
                 />
             )}
         </div>

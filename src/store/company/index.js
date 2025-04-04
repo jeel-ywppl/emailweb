@@ -3,7 +3,7 @@ import {api} from "../../utils/api";
 import {toast} from "react-toastify";
 
 export const findCompany = createAsyncThunk(
-    "Company/findCompany",
+    "company/findCompany",
     async (values, {rejectWithValue}) => {
         try {
             const response = await api.get(
@@ -20,7 +20,7 @@ export const findCompany = createAsyncThunk(
 );
 
 export const findCompanyWithoutFilter = createAsyncThunk(
-    "Company/findCompanyWithoutFilter",
+    "company/findCompanyWithoutFilter",
     async (_, {rejectWithValue}) => {
         try {
             const response = await api.get("/api/v1/company/get/all/without_filter");
@@ -32,7 +32,7 @@ export const findCompanyWithoutFilter = createAsyncThunk(
     },
 );
 
-export const getCompany = createAsyncThunk("Company/getCompany", async (id, {rejectWithValue}) => {
+export const getCompany = createAsyncThunk("company/getCompany", async (id, {rejectWithValue}) => {
     try {
         const response = await api.get(`/api/v1/company/get/${id}`);
         return response?.data;
@@ -43,7 +43,7 @@ export const getCompany = createAsyncThunk("Company/getCompany", async (id, {rej
 });
 
 export const createCompany = createAsyncThunk(
-    "Company/createCompany",
+    "company/createCompany",
     async (values, {rejectWithValue}) => {
         try {
             const response = await api.post("/api/v1/company/create", values);
@@ -56,7 +56,7 @@ export const createCompany = createAsyncThunk(
 );
 
 export const deleteCompany = createAsyncThunk(
-    "Company/deleteCompany",
+    "company/deleteCompany",
     async (id, {rejectWithValue}) => {
         try {
             const response = await api.delete(`/api/v1/company/delete/${id}`);
@@ -69,11 +69,10 @@ export const deleteCompany = createAsyncThunk(
 );
 
 export const editCompany = createAsyncThunk(
-    "Company/editCompany",
+    "company/editCompany",
     async ({id, updatedData}, {rejectWithValue}) => {
         try {
             const response = await api.put(`/api/v1/company/update/${id}`, updatedData);
-            toast.success(response?.data?.message);
             return response?.data;
         } catch (error) {
             console.error("Error updating user:", error?.response?.data);

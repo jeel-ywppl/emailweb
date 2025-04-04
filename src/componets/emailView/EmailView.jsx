@@ -5,7 +5,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {config} from "../../utils/util";
 import {MdOutlineFileDownload} from "react-icons/md";
 import DOMPurify from "dompurify";
-import {Archive, ArrowLeft, Mail, Reply, Trash} from "lucide-react";
+import {Archive, ArrowLeft, Forward, Mail, Reply, Trash} from "lucide-react";
 import Loader from "../Loader";
 import ReplyMail from "../../model/ReplyMail";
 import {RiSpam2Line} from "react-icons/ri";
@@ -17,6 +17,7 @@ const EmailView = () => {
     const dispatch = useAppDispatch();
     const replyRef = useRef(null);
     const {selectedEmail: email, isLoading} = useAppSelector((state) => state.email);
+
     const [isReplying, setIsReplying] = useState(false);
     const [replyDetails, setReplyDetails] = useState(null);
 
@@ -26,11 +27,7 @@ const EmailView = () => {
     const [isUnread, setIsUnread] = useState(false);
 
     useEffect(() => {
-        const payload = {
-            email_id: [id],
-            read_status: true,
-        };
-        dispatch(getSinglMail(id, payload));
+        dispatch(getSinglMail(id));
     }, [dispatch, id]);
 
     const getSenderInitials = (fname) => {
@@ -72,24 +69,26 @@ const EmailView = () => {
         }
     };
 
-    const handleReplyClick = (reply, index) => {
+    const handleReplyClick = (reply) => {
         if (reply) {
             setReplyDetails({
                 recipientEmail: reply?.sender_email,
-                senderEmail: email?.recipient_emails_to[0],
+                senderEmail: email?.recipient_emails_to,
+                senderEmailCC: email?.recipient_emails_cc,
+                senderEmailBCC: email?.recipient_emails_bcc,
                 subject: reply?.subject,
                 createdAt: reply?.createdAt,
                 content: reply?.body,
-                index: index !== undefined ? index : 0,
             });
         } else {
             setReplyDetails({
-                recipientEmail: email.sender_email,
-                senderEmail: email.recipient_emails_to[0],
-                subject: email.subject,
-                createdAt: email.createdAt,
-                content: email.body,
-                index: index !== undefined ? index : 0,
+                recipientEmail: email?.recipient_emails_to,
+                senderEmail: email?.sender_email,
+                senderEmailCC: email?.recipient_emails_cc,
+                senderEmailBCC: email?.recipient_emails_bcc,
+                subject: email?.subject,
+                createdAt: email?.createdAt,
+                content: email?.body,
             });
         }
         setIsReplying(true);
@@ -117,7 +116,6 @@ const EmailView = () => {
             if (response?.payload?.success) {
                 console.log(`Email marked as ${action}!`);
                 await dispatch(getSinglMail(id));
-
                 if (action === "star") setIsStarred(!isStarred);
                 if (action === "archive") setIsArchived(!isArchived);
                 if (action === "unread") setIsUnread(!isUnread);
@@ -221,6 +219,9 @@ const EmailView = () => {
                             >
                                 {isStarred ? <FaStar size={18} /> : <FaRegStar size={18} />}
                             </button>
+                            <button className="p-2 rounded-full hover:bg-gray-200">
+                                <Forward size={22} />
+                            </button>
                         </div>
                     </div>
 
@@ -245,7 +246,7 @@ const EmailView = () => {
                                                 src={
                                                     file?.file_path.startsWith("http")
                                                         ? file?.file_path
-                                                        : `${config.BASE_URL}/${file?.file_path}`
+                                                        : `${config.LIVE_URL}/${file?.file_path}`
                                                 }
                                                 alt={file?.original_name}
                                                 className="w-24 h-24 object-cover rounded cursor-pointer"
@@ -256,7 +257,7 @@ const EmailView = () => {
                                         <div
                                             onClick={() =>
                                                 handleDownload(
-                                                    `${config.BASE_URL}/${file?.file_path}`,
+                                                    `${config.LIVE_URL}/${file?.file_path}`,
                                                     file?.original_name,
                                                 )
                                             }
@@ -272,7 +273,7 @@ const EmailView = () => {
                 </div>
 
                 {email?.replies?.length > 0 && (
-                    <div className="mt-2 md:p-6 p-2">
+                    <div className="mt-2">
                         {email?.replies?.map((reply, index) => (
                             <div key={index} className="bg-white rounded-lg shadow-md p-4 mt-2">
                                 <div className="flex flex-col sm:flex-row justify-between items-center pb-4 border-b">
@@ -296,10 +297,13 @@ const EmailView = () => {
                                             {new Date(reply?.createdAt).toLocaleString()}
                                         </span>
                                         <button
-                                            onClick={() => handleReplyClick(null)}
+                                            onClick={() => handleReplyClick(reply, index)}
                                             className="p-2 rounded-full hover:bg-gray-200"
                                         >
                                             <Reply size={22} />
+                                        </button>
+                                        <button className="p-2 rounded-full hover:bg-gray-200">
+                                            <Forward size={22} />
                                         </button>
                                     </div>
                                 </div>
@@ -319,45 +323,49 @@ const EmailView = () => {
                                         <p>No content available</p>
                                     )}
                                 </div>
+
+                                {reply?.attachments?.length > 0 && (
+                                    <div className="mt-4">
+                                        <h3 className="font-semibold">Attachments:</h3>
+                                        <div className="flex flex-wrap gap-3 mt-2">
+                                            {reply?.attachments.map((file, index) => (
+                                                <div key={index} className="border p-2 rounded-lg">
+                                                    {file?.file_type?.startsWith("image/") ? (
+                                                        <img
+                                                            src={
+                                                                file?.file_path.startsWith("http")
+                                                                    ? file?.file_path
+                                                                    : `${config.LIVE_URL}/${file?.file_path}`
+                                                            }
+                                                            alt={file?.original_name}
+                                                            className="w-24 h-24 object-cover rounded cursor-pointer"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex flex-col items-center">
+                                                            <p>
+                                                                {file?.original_name ||
+                                                                    "Unknown File"}
+                                                            </p>
+                                                            <div
+                                                                onClick={() =>
+                                                                    handleDownload(
+                                                                        `${config.LIVE_URL}/${file?.file_path}`,
+                                                                        file?.original_name,
+                                                                    )
+                                                                }
+                                                                className="block mt-1 text-blue-500 cursor-pointer"
+                                                            >
+                                                                <MdOutlineFileDownload className="w-5 h-5" />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ))}
-                        {email?.attachments?.length > 0 && (
-                            <div className="mt-4">
-                                <h3 className="font-semibold">Attachments:</h3>
-                                <div className="flex flex-wrap gap-3 mt-2">
-                                    {email?.attachments.map((file, index) => (
-                                        <div key={index} className="border p-2 rounded-lg">
-                                            {file?.file_type?.startsWith("image/") ? ( // Check if the file is an image
-                                                <img
-                                                    src={
-                                                        file?.file_path.startsWith("http")
-                                                            ? file?.file_path
-                                                            : `${config.BASE_URL}/${file?.file_path}`
-                                                    }
-                                                    alt={file?.original_name}
-                                                    className="w-24 h-24 object-cover rounded cursor-pointer"
-                                                />
-                                            ) : (
-                                                <div className="flex flex-col items-center">
-                                                    <p>{file?.original_name || "Unknown File"}</p>
-                                                    <div
-                                                        onClick={() =>
-                                                            handleDownload(
-                                                                `${config.BASE_URL}/${file?.file_path}`,
-                                                                file?.original_name,
-                                                            )
-                                                        }
-                                                        className="block mt-1 text-blue-500 cursor-pointer"
-                                                    >
-                                                        <MdOutlineFileDownload className="w-5 h-5" />
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </div>
                 )}
 
@@ -366,7 +374,9 @@ const EmailView = () => {
                         <ReplyMail
                             originalEmailId={email?._id}
                             recipientEmail={replyDetails?.recipientEmail}
-                            senderEmail={replyDetails?.senderEmail}
+                            senderEmailCC={email?.recipient_emails_cc[0]}
+                            senderEmailBCC={email?.recipient_emails_bcc[0]}
+                            senderEmail={replyDetails?.recipient_emails_to}
                             subject={replyDetails?.subject}
                             createdAt={replyDetails?.createdAt}
                             user={email?.sender_name}

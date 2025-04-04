@@ -1,16 +1,18 @@
-import { Routes, Route } from "react-router-dom";
+import {Routes, Route} from "react-router-dom";
 import routes from "../routes";
 import Sidenav from "../layout/Sidenav";
 import DashboardNavbar from "../layout/dashboard-navbar";
-import { useAppSelector, useAppDispatch } from "../store";
-import { logoutUserFromLoacal } from "../store/auth/authSlice";
+import {useAppSelector, useAppDispatch} from "../store";
+import {logoutUserFromLoacal} from "../store/auth/authSlice";
 
 export function Dashboard() {
-    const { user } = useAppSelector((state) => state.auth);
+    const {user} = useAppSelector((state) => state.auth);
     const dispatch = useAppDispatch();
 
+    console.log("useruser", user , );
+
     const onLogout = () => {
-        dispatch(logoutUserFromLoacal()); 
+        dispatch(logoutUserFromLoacal());
     };
 
     return (
@@ -20,12 +22,11 @@ export function Dashboard() {
                 <DashboardNavbar onLogout={onLogout} />
                 <Routes>
                     {routes.map(
-                        ({ layout, pages }) =>
+                        ({layout, pages}) =>
                             layout === "dashboard" &&
                             pages.map(
-                                ({ path, element, roles }) =>
-                                    roles &&
-                                    roles.includes(user?.role_id?.role_name) && (
+                                ({path, element, roles, name}) =>
+                                    user?.permissions?.find((x) => x.model === name)?.view && (
                                         <Route key={path} exact path={path} element={element} />
                                     ),
                             ),

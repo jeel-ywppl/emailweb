@@ -1,52 +1,51 @@
 import {useEffect, useState, useRef} from "react";
 import {useAppDispatch, useAppSelector} from "../../store";
-import {Link} from "react-router-dom";
 import ComposeEmailModal from "../../model/ComposeEmailModal";
 import {config} from "../../utils/util";
 import {FaPaperclip, FaStar, FaEllipsisV, FaRegStar} from "react-icons/fa";
 import {toast} from "react-toastify";
-import {changeEmailStatus, getAllEmailbyUser} from "../../store/email";
 import {MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank} from "react-icons/md";
 import DOMPurify from "dompurify";
 import {Box, TablePagination} from "@mui/material";
-import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
 import Loader from "../../componets/Loader";
-import { RotateCcw } from "lucide-react";
+import {RotateCcw, Trash2Icon} from "lucide-react";
+import {deleteDraft, getAllDraftsbyUser} from "../../store/draft";
+import {changeEmailStatus} from "../../store/email";
+import {setCurrentPage, setLimit, setSkip} from "../../store/draft/draftSlice";
 
-const Sent = () => {
+const Draft = () => {
     const dispatch = useAppDispatch();
-    const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} =
-        useAppSelector((state) => state.email);
+    const {
+        drafts,
+        totalData,
+        pageNumber: currentPage,
+        pageSize: limit,
+        isLoading,
+        isError,
+        errorMessage,
+    } = useAppSelector((state) => state.draft);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmails, setSelectedEmails] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null);
     const [selectAll, setSelectAll] = useState(false);
-    const [StarredEmails, setStarredEmails] = useState(
-        emails.filter((email) => email?.star_status).map((email) => email?._id),
-    );
+    const [StarredEmails, setStarredEmails] = useState([]);
+    const [draftToEdit, setDraftToEdit] = useState(null);
 
     const dropdownRef = useRef(null);
 
     useEffect(() => {
-        dispatch(getAllEmailbyUser({page: currentPage, limit, status: "send_status=true"}));
+        dispatch(getAllDraftsbyUser({page: currentPage, limit}));
     }, [dispatch, currentPage, limit]);
 
     useEffect(() => {
-        setStarredEmails(emails.filter((email) => email?.star_status).map((email) => email?._id));
-    }, [emails]);
+        setStarredEmails(drafts.filter((email) => email?.star_status).map((email) => email?._id));
+    }, [drafts]);
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setDropdownOpen(null);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
+    const handleCompose = (draft) => {
+        setDraftToEdit(draft);
+        setIsModalOpen(true);
+    };
 
     const handleCheckboxChange = (emailId) => {
         setSelectedEmails((prevSelected) =>
@@ -56,17 +55,30 @@ const Sent = () => {
         );
     };
 
+    const habdleDelete = (draft_id) => {
+        const draftIdsArray = [draft_id];
+            dispatch(deleteDraft({draft_ids: draftIdsArray}))
+                .unwrap()
+                .then(() => {
+                    console.log("Email Deleted successfully!");
+                        dispatch(getAllDraftsbyUser({page: currentPage, limit}));
+                })
+                .catch((error) => {
+                    toast.error(error || "Failed to update email status");
+                });
+        };
+
     const handleSelectAll = () => {
         if (selectAll) {
             setSelectedEmails([]);
         } else {
-            setSelectedEmails(emails.map((email) => email._id));
+            setSelectedEmails(drafts.map((email) => email._id));
         }
         setSelectAll(!selectAll);
     };
 
     const handleStarToggle = (emailId) => {
-        const isCurrentlyStarred = emails.find((email) => email._id === emailId)?.star_status;
+        const isCurrentlyStarred = drafts.find((email) => email._id === emailId)?.star_status;
         const newStarStatus = !isCurrentlyStarred;
         const payload = {
             email_id: [emailId],
@@ -75,19 +87,14 @@ const Sent = () => {
         dispatch(changeEmailStatus(payload))
             .unwrap()
             .then(() => {
-                console.log("API CALL ENTER... started");
-                dispatch(getAllEmailbyUser({page: currentPage, limit, status: "send_status=true"}));
+                dispatch(getAllDraftsbyUser({page: currentPage, limit}));
             })
             .catch((error) => {
                 toast.error(error || "Failed to update email status");
             });
     };
 
-    const handleDropdownToggle = (emailId) => {
-        setDropdownOpen(dropdownOpen === emailId ? null : emailId);
-    };
-
-    const handleDropdownAction = async(action, emailId = null) => {
+    const handleDropdownAction = async (action, emailId = null) => {
         let emailIds = selectedEmails.length > 0 ? selectedEmails : emailId ? [emailId] : [];
         if (emailIds.length === 0) {
             toast.error("Please select at least one email.");
@@ -108,11 +115,8 @@ const Sent = () => {
         try {
             const response = await dispatch(changeEmailStatus(payload));
             if (response?.payload?.success) {
-                console.log(response?.message || `Emails ${action} successfully!`);
                 setDropdownOpen(null);
-                dispatch(
-                    getAllEmailbyUser({page: currentPage, limit, status: "send_status=true"}),
-                );
+                dispatch(getAllDraftsbyUser({page: currentPage, limit}));
             } else {
                 console.error("Failed to send reply:", response.message || "Unknown error");
             }
@@ -129,28 +133,27 @@ const Sent = () => {
     };
 
     const handleRowsPerPageChange = (event) => {
-        dispatch(setLimit({limit: event.target.value}));
+        dispatch(setLimit({pageSize: event.target.value}));
     };
 
     const refreshInbox = () => {
-        dispatch(getAllEmailbyUser({page: currentPage, limit, status: "send_status=true"}));
+        dispatch(getAllDraftsbyUser({page: currentPage, limit}));
     };
 
     if (isLoading)
         return (
-            <div className="fixed inset-0 flex justify-center items-center">
+            <div className="fixed inset-0 flex justify-center items-center ">
                 <Loader />
             </div>
         );
-
     if (isError) return <p>Error: {errorMessage}</p>;
 
     return (
         <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2">
             <div className="p-3 border-b flex justify-between items-center">
-            <div className="flex items-center ">
+                <div className="flex items-center ">
                     <button
-                        className=" p-2 text-black  font-semibold  flex items-center gap-2 mr-5"
+                        className="p-2 text-black font-semibold flex items-center gap-2 mr-5"
                         onClick={refreshInbox}
                         disabled={isLoading}
                     >
@@ -162,11 +165,21 @@ const Sent = () => {
                     </button>
                     <button
                         className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={() => {
+                            console.log("Opening compose modal");
+                            setIsModalOpen(true);
+                        }}
                     >
                         Compose Email
                     </button>
-                    <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                    <ComposeEmailModal
+                        isOpen={isModalOpen}
+                        onClose={() => {
+                            setDraftToEdit(null);
+                            setIsModalOpen(false);
+                        }}
+                        draft_id={draftToEdit?._id}
+                    />
                 </div>
                 <div className="flex items-center gap-3 p-3 relative">
                     <button onClick={handleSelectAll} className="p-2.5 font-semibold">
@@ -179,7 +192,7 @@ const Sent = () => {
                     {selectedEmails.length > 0 && (
                         <button
                             onClick={() => setDropdownOpen(dropdownOpen === "bulk" ? null : "bulk")}
-                            className="p-2 text-black rounded-lg "
+                            className="p-2 text-black rounded-lg"
                         >
                             <FaEllipsisV />
                         </button>
@@ -197,28 +210,10 @@ const Sent = () => {
                                     Star
                                 </button>
                                 <button
-                                    onClick={() => handleDropdownAction("archive")}
-                                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                    Archive
-                                </button>
-                                <button
-                                    onClick={() => handleDropdownAction("markAsUnread")}
-                                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                    Mark as Unread
-                                </button>
-                                <button
                                     onClick={() => handleDropdownAction("trash")}
                                     className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                     Move to Trash
-                                </button>
-                                <button
-                                    onClick={() => handleDropdownAction("spam")}
-                                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                    Mark as Spam
                                 </button>
                             </div>
                         </div>
@@ -226,10 +221,11 @@ const Sent = () => {
                 </div>
             </div>
 
-            {emails.map((email) => (
+            {drafts.map((email) => (
                 <div
                     key={email?._id}
-                    className="flex flex-col px-5 py-4 border border-gray-200 hover:bg-gray-50 cursor-pointer transition-all duration-200 ease-in-out rounded-lg mt-2 "
+                    className="flex flex-col px-5 py-4 border border-gray-200 hover:bg-gray-50 cursor-pointer transition-all duration-200 ease-in-out rounded-lg mt-2"
+                    onClick={() => handleCompose(email)}
                 >
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
@@ -256,6 +252,7 @@ const Sent = () => {
                                     <FaRegStar size={18} />
                                 )}
                             </button>
+
                             <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
                                 {email?.profilePic ? (
                                     <img
@@ -271,7 +268,7 @@ const Sent = () => {
                                         {email?.recipient_emails_to &&
                                         email.recipient_emails_to.length > 0
                                             ? email.recipient_emails_to[0].charAt(0).toUpperCase()
-                                            : "?"}{" "}
+                                            : "?"}
                                     </span>
                                 )}
                             </div>
@@ -284,70 +281,26 @@ const Sent = () => {
                                     (email?.recipient_emails_cc && email?.recipient_emails_cc[0])}
                             </h4>
                         </div>
-                        <div className=" flex items-center gap-3 relative">
+                        <div className="flex items-center gap-3  flex-nowrap">
                             <p className="text-xs text-gray-400">
                                 {email?.updatedAt ? email?.updatedAt.split("T")[0] : ""}
                             </p>
                             <button
-                                onClick={() => handleDropdownToggle(email?._id)}
-                                className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    habdleDelete(email?._id);
+                                }}
+                                className="text-gray-600 hover:text-yellow-500 transition-colors duration-200 "
                             >
-                                <FaEllipsisV />
+                                <Trash2Icon size={18} />
                             </button>
-                            {dropdownOpen === email._id && (
-                                <div
-                                    ref={dropdownRef}
-                                    className="absolute right-3 top-5 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
-                                >
-                                    <div className="py-1">
-                                        <button
-                                            onClick={() => handleDropdownAction("star", email._id)}
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Star
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                handleDropdownAction("archive", email._id)
-                                            }
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Archive
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                handleDropdownAction("markAsUnread", email._id)
-                                            }
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Mark as Unread
-                                        </button>
-                                        <button
-                                            onClick={() => handleDropdownAction("trash", email._id)}
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Move to Trash
-                                        </button>
-                                        <button
-                                            onClick={() => handleDropdownAction("spam", email._id)}
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Mark as Spam
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     </div>
-                    <Link
-                        to={`/dashboard/sent/${email?._id}`}
-                        state={{...email}}
-                        className="mt-2 flex items-center gap-3"
-                    >
+                    <div className="mt-2 flex items-center gap-3">
                         <h5 className="text-sm font-light text-gray-700 line-clamp-2 overflow-hidden">
                             <span className="text-sm text-gray-800 font-semibold">
-                                {email?.subject.slice(0, 30)}
-                            </span>{" "}
+                                {(email?.subject || "").slice(0, 30)}
+                            </span>
                             {email?.body ? (
                                 <span
                                     dangerouslySetInnerHTML={{
@@ -365,7 +318,7 @@ const Sent = () => {
                                 Attachment&apos;s
                             </div>
                         )}
-                    </Link>
+                    </div>
                 </div>
             ))}
 
@@ -373,7 +326,7 @@ const Sent = () => {
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25, 50]}
                     component="div"
-                    count={totalEmails}
+                    count={totalData}
                     rowsPerPage={limit}
                     page={Math.max(0, currentPage - 1)}
                     onPageChange={handlePageChange}
@@ -384,4 +337,4 @@ const Sent = () => {
     );
 };
 
-export default Sent;
+export default Draft;

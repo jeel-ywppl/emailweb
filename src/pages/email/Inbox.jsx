@@ -11,6 +11,7 @@ import DOMPurify from "dompurify";
 import {Box, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
 import Loader from "../../componets/Loader";
+import {RotateCcw} from "lucide-react";
 
 const Inbox = () => {
     const dispatch = useAppDispatch();
@@ -148,6 +149,10 @@ const Inbox = () => {
         }
     };
 
+    const refreshInbox = () => {
+        dispatch(getAllEmailbyUser({page: currentPage, limit, status: "received_status=true"}));
+    };
+
     if (isLoading)
         return (
             <div className="fixed inset-0 flex justify-center items-center ">
@@ -157,16 +162,29 @@ const Inbox = () => {
     if (isError) return <p>Error: {errorMessage}</p>;
 
     return (
-        <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2">
+        <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2 ">
             <div className="p-3 border-b flex justify-between items-center">
-                <button
-                    className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
-                    onClick={() => setIsModalOpen(true)}
-                >
-                    Compose Email
-                </button>
-                <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-                <div className="flex items-center gap-3 p-3 relative">
+                <div className="flex items-center ">
+                    <button
+                        className=" p-2 text-black  font-semibold  flex items-center gap-2 mr-5"
+                        onClick={refreshInbox}
+                        disabled={isLoading}
+                    >
+                        <RotateCcw
+                            className={`w-5 h-5 transition-transform duration-500 ${
+                                isLoading ? "animate-spin" : ""
+                            }`}
+                        />
+                    </button>
+                    <button
+                        className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        Compose Email
+                    </button>
+                    <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                </div>
+                <div className="flex items-center gap-3 p-3 relative mr-5">
                     <button onClick={handleSelectAll} className="p-2.5 font-semibold">
                         {selectAll ? (
                             <MdOutlineCheckBox size={20} />
@@ -345,7 +363,7 @@ const Inbox = () => {
                             {email?.body ? (
                                 <span
                                     dangerouslySetInnerHTML={{
-                                        __html: DOMPurify.sanitize(email.body.slice(0, 50)),
+                                        __html: DOMPurify.sanitize(email?.body.slice(0, 50)),
                                     }}
                                 />
                             ) : (

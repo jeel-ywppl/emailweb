@@ -48,7 +48,7 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues}) => {
                     if (!initialValues._id) {
                         toast.error("Company ID is missing!");
                         return;
-                    }   
+                    }
                     const response = await dispatch(
                         editCompany({id: initialValues._id, updatedData: values}),
                     ).unwrap();
@@ -78,7 +78,14 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues}) => {
     });
 
     return (
-        <Dialog open={open} handler={handleOpen}>
+        <Dialog
+            open={open}
+            handler={handleOpen}
+            animate={{
+                mount: {scale: 1, y: 0},
+                unmount: {scale: 0.9, y: -100},
+            }}
+        >
             <DialogHeader>
                 {editIndex !== null ? "Edit Company" : "Create New Company"}
             </DialogHeader>

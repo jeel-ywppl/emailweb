@@ -8,9 +8,7 @@ const RecipientInput = ({label, recipients, setRecipients}) => {
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && inputValue.trim()) {
-            setRecipients([...recipients, {email: inputValue.trim()}]); 
-            setInputValue("");
-            setBackspaceCount(0);
+            addRecipient(inputValue.trim());
         }
 
         if (e.key === "Backspace" && !inputValue) {
@@ -23,6 +21,18 @@ const RecipientInput = ({label, recipients, setRecipients}) => {
         }
     };
 
+    const handleBlur = () => {
+        if (inputValue.trim()) {
+            addRecipient(inputValue.trim());
+        }
+    };
+
+    const addRecipient = (email) => {
+        setRecipients([...recipients, {email}]); 
+        setInputValue(""); 
+        setBackspaceCount(0);
+    };
+
     const removeRecipient = (index) => {
         setRecipients(recipients.filter((_, i) => i !== index));
     };
@@ -31,12 +41,14 @@ const RecipientInput = ({label, recipients, setRecipients}) => {
         <div className="w-full mb-4">
             <span className="text-gray-600 text-sm p-1 font-semibold">{label} :</span>
             <div className="flex flex-wrap items-center gap-2 border-b border-gray-300 p-1 min-h-[10px]">
-                {recipients.map((email, index) => (
+                {recipients.map((recipient, index) => (
                     <div
                         key={index}
                         className="flex items-center bg-gray-200 rounded-full px-2 text-sm"
                     >
-                        {email}
+                        <span className="mr-1">
+                            {typeof recipient === "string" ? recipient : recipient.email}
+                        </span>
                         <button type="button" onClick={() => removeRecipient(index)}>
                             <XMarkIcon className="h-3 w-3 text-gray-600 cursor-pointer" />
                         </button>
@@ -46,9 +58,10 @@ const RecipientInput = ({label, recipients, setRecipients}) => {
                     type="email"
                     placeholder="Enter email"
                     className="flex-1 outline-none bg-transparent min-w-[120px] border-none py-1 px-2 border-b"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    value={inputValue} 
+                    onChange={(e) => setInputValue(e.target.value)} 
                     onKeyDown={handleKeyDown}
+                    onBlur={handleBlur}
                 />
             </div>
         </div>

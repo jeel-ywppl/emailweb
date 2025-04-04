@@ -14,13 +14,16 @@ import {
     Select,
     Option,
     Card,
+    CardBody,
+    CardHeader,
+    Typography,
 } from "@material-tailwind/react";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
 import {toast} from "react-toastify";
 import {findCompanyWithoutFilter} from "../store/company";
 import {Box, Icon, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../store/Domain/domainSlice";
-import { Pencil, Settings2, Trash2} from "lucide-react";
+import {Pencil, Settings2, Trash2} from "lucide-react";
 import ConfirmDeleteDomainModal from "../model/ConfirmDeleteDomainModal";
 import Loader from "../componets/Loader";
 
@@ -142,16 +145,17 @@ const Domain = () => {
         dispatch(setLimit({limit: event.target.value}));
     };
 
-    if (isLoading) return (
-        <div className="fixed inset-0 flex justify-center items-center ">
-            <Loader />
-        </div>
-    );
+    if (isLoading)
+        return (
+            <div className="fixed inset-0 flex justify-center items-center ">
+                <Loader />
+            </div>
+        );
 
     return (
         <div className="p-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div className="relative w-full sm:w-72">
+                <div className="relative w-full sm:w-72 mb-10">
                     <Input
                         type="text"
                         label="Search Domain"
@@ -165,103 +169,146 @@ const Domain = () => {
                     + Domain Name
                 </Button>
             </div>
-            <Card className="overflow-auto">
-                <table className="w-full min-w-max table-auto text-left">
-                    <thead>
-                        <tr className="bg-gray-100 text-gray-700">
-                            <th className="px-4 py-2">#</th>
-                            <th className="px-4 py-2">Domain</th>
-                            <th className="px-4 py-2">Company</th>
-                            <th className="px-4 py-2">Status</th>
-                            <th className="px-4 py-2">Expiration Date</th>
-                            <th className="px-4 py-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {isLoading ? (
+            <Card>
+                <CardHeader
+                    variant="gradient"
+                    color="gray"
+                    className="mb-8 p-6 flex items-center gap-4 justify-between "
+                >
+                    <Typography variant="h6" color="white">
+                        Module Table
+                    </Typography>
+                </CardHeader>
+                <CardBody className="overflow-auto px-0 pt-0 pb-2">
+                    <table className="w-full min-w-[640px] text-nowrap table-auto">
+                        <thead>
                             <tr>
-                                <td colSpan="6" className="text-center py-4">
-                                    Loading...
-                                </td>
+                                {[
+                                    "#",
+                                    "Domain",
+                                    "Company",
+                                    "Status",
+                                    "Expiration Date",
+                                    "Actions",
+                                ].map((el) => (
+                                    <th
+                                        key={el}
+                                        className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                                    >
+                                        <Typography
+                                            variant="small"
+                                            className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                        >
+                                            {el}
+                                        </Typography>
+                                    </th>
+                                ))}
                             </tr>
-                        ) : data.length > 0 ? (
-                            data
-                                .filter((data) =>
-                                    data?.domain_name.toLowerCase().includes(search.toLowerCase()),
-                                )
-                                .map((data, index) => (
-                                    <tr key={data?.id} className="border-t">
-                                        <td className="px-4 py-2">{index + 1}</td>
-                                        <td className="px-4 py-2">{data?.domain_name}</td>
-                                        <td className="px-4 py-2">{data?.company_id?.name}</td>
-                                        <td className="px-4 py-2">
-                                            <span
-                                                className={`px-2 py-1 rounded-full text-sm ${
-                                                    data?.active_status === true
-                                                        ? "bg-green-100 text-green-600"
-                                                        : "bg-red-100 text-red-600"
-                                                }`}
-                                            >
-                                                {data?.active_status === true
-                                                    ? "Active"
-                                                    : "Inactive"}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            {data?.expiration_date
-                                                ? data.expiration_date.split("T")[0]
-                                                : "N/A"}
-                                        </td>
-                                        <td className="px-4 py-2 flex gap-3">
-                                            <Icon
-                                                color="gray"
-                                                size="sm"
-                                                onClick={() => handleEdit(data?._id)}
-                                                className="m-1.5"
-                                            >
-                                                <Pencil size={"20px"} strokeWidth={2} />
-                                            </Icon>
-                                            <Icon
-                                                color="gray"
-                                                size="sm"
-                                                onClick={() =>
-                                                    navigate(`/dashboard/domain/${data?._id}`)
-                                                }
-                                                className="m-1.5"
-                                            >
-                                                <Settings2 size={"20px"} strokeWidth={2} />
-                                            </Icon>
-                                            <Icon
-                                                color="red"
-                                                size="sm"
-                                                onClick={() => handleDeleteClick(data?._id)}
-                                                className="m-1.5 cursor-pointer text-red-500"
-                                            >
-                                                <Trash2 size={"20px"} strokeWidth={2} />
-                                            </Icon>
-                                        </td>
-                                    </tr>
-                                ))
-                        ) : (
-                            <tr>
-                                <td colSpan="6" className="text-center py-4">
-                                    No domains found.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-                <Box sx={{position: "relative", display: "flex", justifyContent: "end", mt: 2}}>
-                    <TablePagination
-                        rowsPerPageOptions={[5, 10, 15, 20, 40, 80]}
-                        component="div"
-                        count={totalRecords}
-                        rowsPerPage={limit}
-                        page={Math.max(0, currentPage - 1)}
-                        onPageChange={handlePageChange}
-                        onRowsPerPageChange={handleRowsPerPageChange}
-                    />
-                </Box>
+                        </thead>
+                        <tbody>
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan="6" className="text-center py-4">
+                                        Loading...
+                                    </td>
+                                </tr>
+                            ) : data.length > 0 ? (
+                                data
+                                    .filter((data) =>
+                                        data?.domain_name
+                                            .toLowerCase()
+                                            .includes(search.toLowerCase()),
+                                    )
+                                    .map((data, index) => (
+                                        <tr key={data?.id} className="border-t">
+                                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {index + 1}
+                                                </Typography>
+                                            </td>
+                                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {data?.domain_name}
+                                                </Typography>
+                                            </td>
+                                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {data?.company_id?.name}
+                                                </Typography>
+                                            </td>
+                                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    <span
+                                                        className={`px-2 py-1 rounded-full text-sm ${
+                                                            data?.active_status === true
+                                                                ? "bg-green-100 text-green-600"
+                                                                : "bg-red-100 text-red-600"
+                                                        }`}
+                                                    >
+                                                        {data?.active_status === true
+                                                            ? "Active"
+                                                            : "Inactive"}
+                                                    </span>
+                                                </Typography>
+                                            </td>
+                                            <td className="py-3 px-5 border-b border-blue-gray-50">
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {data?.expiration_date
+                                                        ? data.expiration_date.split("T")[0]
+                                                        : "N/A"}
+                                                </Typography>
+                                            </td>
+                                            <td className="py-3 px-5 border-blue-gray-50 flex gap-3">
+                                                <Icon
+                                                    color="gray"
+                                                    size="sm"
+                                                    onClick={() => handleEdit(data?._id)}
+                                                    className="m-1.5"
+                                                >
+                                                    <Pencil size={"18px"} strokeWidth={2} />
+                                                </Icon>
+                                                <Icon
+                                                    color="gray"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        navigate(`/dashboard/domain/${data?._id}`)
+                                                    }
+                                                    className="m-1.5"
+                                                >
+                                                    <Settings2 size={"18px"} strokeWidth={2} />
+                                                </Icon>
+                                                <Icon
+                                                    color="red"
+                                                    size="sm"
+                                                    onClick={() => handleDeleteClick(data?._id)}
+                                                    className="m-1.5 cursor-pointer text-red-500"
+                                                >
+                                                    <Trash2 size={"18px"} strokeWidth={2} />
+                                                </Icon>
+                                            </td>
+                                        </tr>
+                                    ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" className="text-center py-4">
+                                        No domains found.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                    <Box sx={{position: "relative", display: "flex", justifyContent: "end", mt: 2}}>
+                        <TablePagination
+                            rowsPerPageOptions={[5, 10, 15, 20, 40, 80]}
+                            component="div"
+                            count={totalRecords}
+                            rowsPerPage={limit}
+                            page={Math.max(0, currentPage - 1)}
+                            onPageChange={handlePageChange}
+                            onRowsPerPageChange={handleRowsPerPageChange}
+                        />
+                    </Box>
+                </CardBody>
             </Card>
             <Dialog open={open} handler={handleOpen}>
                 <DialogHeader>{editingDomainId ? "Edit Domain" : "Add Domain"}</DialogHeader>

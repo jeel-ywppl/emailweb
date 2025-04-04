@@ -5,9 +5,9 @@ import {toast} from "react-toastify";
 export const findUser = createAsyncThunk("user/findUser", async (values, {rejectWithValue}) => {
     try {
         const response = await api.get(
-            `/api/v1/user/get/all/?page=${values?.page || 1}&limit=${
-                values?.limit || 10
-            }&role_id=${values?.role_id || ""}&deletedAt=null`,
+            `/api/v1/user/get/all/?page=${values?.page || 1}&limit=${values?.limit || 10}&role_id=${
+                values?.role_id || ""
+            }&deletedAt=null`,
         );
         return response?.data;
     } catch (error) {
@@ -43,7 +43,6 @@ export const createUser = createAsyncThunk("user/createUser", async (values, {re
     try {
         const response = await api.post("/api/v1/user/create", values);
         if (response?.status === 201) {
-            toast.success(response?.data?.message);
             return response?.data;
         }
         return response?.data;
@@ -58,7 +57,6 @@ export const editUser = createAsyncThunk(
     async ({id, updatedData}, {rejectWithValue}) => {
         try {
             const response = await api.put(`/api/v1/user/update/${id}`, updatedData);
-            toast.success(response?.data?.message);
             return response?.data;
         } catch (error) {
             console.error("Error updating user:", error?.response?.data);
@@ -71,7 +69,6 @@ export const editUser = createAsyncThunk(
 export const deleteUser = createAsyncThunk("user/deleteUser", async (id, {rejectWithValue}) => {
     try {
         const response = await api.delete(`/api/v1/user/delete/${id}`);
-        toast.success(response?.data?.message);
         return response?.data;
     } catch (error) {
         console.error("Delete user error:", error);

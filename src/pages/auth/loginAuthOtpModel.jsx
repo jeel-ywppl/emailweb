@@ -21,13 +21,11 @@ const LoginAuthOtpModel = ({
     }, [open]);
 
     const handleKeyDown = (e, index) => {
-        // Handle Backspace for moving backward
         if (e.key === "Backspace" && index > 0) {
             handleBackspace(e, index);
             document.getElementById(`otp-input-${index - 1}`).focus();
         }
 
-        // Move focus on arrow keys
         if (e.key === "ArrowRight" && index < otp.length - 1) {
             e.preventDefault();
             document.getElementById(`otp-input-${index + 1}`).focus();
@@ -36,20 +34,17 @@ const LoginAuthOtpModel = ({
             document.getElementById(`otp-input-${index - 1}`).focus();
         }
 
-        // Submit on Enter
         if (e.key === "Enter") {
             handleSubmit();
         }
 
-        // Cancel on Escape
         if (e.key === "Escape") {
             onCancel();
         }
     };
 
-    // Submit OTP when Enter is pressed or Submit button is clicked
     const handleOtpSubmit = () => {
-        const otpString = otp.join(""); // Convert OTP array to string
+        const otpString = otp.join(""); 
         handleSubmit(otpString);
     };
 

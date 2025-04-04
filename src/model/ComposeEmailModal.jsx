@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import PropTypes from "prop-types";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 import {Dialog, Button, IconButton} from "@material-tailwind/react";
@@ -8,9 +8,12 @@ import TextEditor from "../componets/ComposeEmail/TextEditor";
 import AttachmentInput from "../componets/ComposeEmail/AttachmentInput";
 import {FiMaximize, FiMinimize2} from "react-icons/fi";
 import {useAppDispatch, useAppSelector} from "../store";
+import {deleteDraft, getAllDraftsbyUser, getDraftById, updateDraft} from "../store/draft";
 import {getAllEmailbyUser, sendMail} from "../store/email";
+import {toast} from "react-toastify";
+import {TrashIcon} from "lucide-react";
 
-const ComposeEmailModal = ({isOpen, onClose}) => {
+const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
     const dispatch = useAppDispatch();
     const {isLoading} = useAppSelector((state) => state.email);
     const [recipients, setRecipients] = useState([]);
@@ -22,27 +25,64 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
     const [showCc, setShowCc] = useState(false);
     const [showBcc, setShowBcc] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
-    const [isSending, setIsSending] = useState(false); 
+    const [isSending, setIsSending] = useState(false);
+    const [hasFetchedDraft, setHasFetchedDraft] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen) {
+            resetForm();
+            setHasFetchedDraft(false);
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (isOpen && draft_id && !hasFetchedDraft) {
+            dispatch(getDraftById(draft_id))
+                .unwrap()
+                .then((response) => {
+                    if (response.success) {
+                        const draft = response?.draft;
+                        setRecipients(draft?.recipient_emails_to || []);
+                        setCcRecipients(draft?.recipient_emails_cc || []);
+                        setBccRecipients(draft?.recipient_emails_bcc || []);
+                        setSubject(draft?.subject || "");
+                        setBody(draft?.body || "");
+                        setAttachments(draft?.attachments || []);
+                        setHasFetchedDraft(true);
+                    } else {
+                        toast.error("Failed to fetch draft. Please try again.");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching draft:", error);
+                    toast.error("Failed to fetch draft. Please try again.");
+                });
+        }
+    }, [isOpen, draft_id, dispatch, hasFetchedDraft]);
 
     const extractEmails = (recipientsArray) =>
         recipientsArray
             .map((r) => (typeof r === "object" && r.email ? r.email : r))
             .filter((email) => typeof email === "string" && email.trim() !== "");
 
-    const handleSend = () => {
+    const handleSubmit = (actionType) => {
         if (isSending) return;
+
         setIsSending(true);
 
         const recipientEmailsTo = extractEmails(recipients);
         const recipientEmailsCc = extractEmails(ccRecipients);
         const recipientEmailsBcc = extractEmails(bccRecipients);
+
         if (
             recipientEmailsTo.length === 0 &&
             recipientEmailsCc.length === 0 &&
-            recipientEmailsBcc.length === 0
+            recipientEmailsBcc.length === 0 &&
+            actionType === "send"
         ) {
             console.error("At least one recipient is required.");
-            setIsSending(false); // Reset loading state
+            toast.error("At least one recipient is required."); // Notify user
+            setIsSending(false);
             return;
         }
 
@@ -55,44 +95,89 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
             files: attachments,
         };
 
+        if (actionType === "save" && draft_id) {
+            newEmail.draft_id = draft_id;
+        }
+
         const formData = new FormData();
-        const keys = Object.keys(newEmail);
-        keys.forEach((key) => {
+        Object.keys(newEmail).forEach((key) => {
             if (Array.isArray(newEmail[key])) {
-                if (key === "files") {
-                    newEmail[key]?.map((item) => formData.append("files", item));
-                } else {
-                    newEmail[key]?.map((item, index) => formData.append(`${key}[${index}]`, item));
-                }
+                newEmail[key]?.forEach((item, index) => formData.append(`${key}[${index}]`, item));
             } else {
                 formData.append(key, newEmail[key]);
             }
         });
 
-        dispatch(sendMail(formData))
+        const action = actionType === "send" ? sendMail(formData) : updateDraft(formData);
+
+        dispatch(action)
             .unwrap()
             .then(() => {
-                dispatch(getAllEmailbyUser({}));
-                setRecipients([]);
-                setCcRecipients([]);
-                setBccRecipients([]);
-                setSubject("");
-                setBody("");
-                setAttachments([]);
-                setShowCc(false);
-                setShowBcc(false);
+                if (actionType === "send") {
+                    dispatch(getAllEmailbyUser({}));
+                    if (draft_id) {
+                        const draftIdsArray = [draft_id];
+                        dispatch(deleteDraft({draft_ids: draftIdsArray}));
+                    }
+                } else {
+                    dispatch(getAllDraftsbyUser({}));
+                }
+                resetForm();
                 onClose();
             })
             .catch((error) => {
                 console.error("Failed to send email:", error);
+                toast.error("Failed to send email. Please try again.");
             })
             .finally(() => {
                 setIsSending(false);
             });
     };
 
+    const resetForm = () => {
+        setRecipients([]);
+        setCcRecipients([]);
+        setBccRecipients([]);
+        setSubject("");
+        setBody("");
+        setAttachments([]);
+        setShowCc(false);
+        setShowBcc(false);
+        setHasFetchedDraft(false);
+    };
+
+    const handleClose = () => {
+        if (
+            !recipients.length &&
+            !ccRecipients.length &&
+            !bccRecipients.length &&
+            !subject &&
+            !body
+        ) {
+            onClose();
+        } else {
+            handleSubmit("save");
+        }
+    };
+
     const toggleFullScreen = () => {
         setIsFullScreen((prev) => !prev);
+    };
+
+    const handleDeleteDraft = () => {
+        if (draft_id) {
+            const draftIdsArray = [draft_id];
+            dispatch(deleteDraft({draft_ids: draftIdsArray}))
+                .unwrap()
+                .then(() => {
+                    dispatch(getAllDraftsbyUser({}));
+                    onClose();
+                })
+                .catch((error) => {
+                    console.error("Failed to delete draft:", error);
+                    toast.error("Failed to delete draft. Please try again.");
+                });
+        }
     };
 
     return (
@@ -100,12 +185,15 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
             open={isOpen}
             handler={onClose}
             className={`block my-auto rounded-lg space-y-2 shadow-xl p-4 w-full ${
-                isFullScreen ? "h-full w-screen" : "sm:max-w-2xl lg:max-w-3xl xl:max-w-4xl"
+                isFullScreen ? "h-screen w-screen" : "sm:max-w-2xl lg:max-w-3xl xl:max-w-4xl"
             } overflow-y-auto scrollbar-thin scrollbar-thumb-scrollbarThumb scrollbar-track-scrollbarTrack`}
         >
             <div className="flex justify-between items-center border-b pb-2">
                 <div className="text-lg font-semibold text-gray-700">Compose New Mail</div>
                 <div className="flex items-center space-x-2">
+                    <IconButton variant="text" onClick={handleDeleteDraft} className="text-red-600">
+                        <TrashIcon className="h-5 w-5 text-gray-600" />
+                    </IconButton>
                     <IconButton variant="text" onClick={toggleFullScreen}>
                         {isFullScreen ? (
                             <FiMinimize2 className="h-5 w-5 text-gray-600" />
@@ -113,7 +201,7 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
                             <FiMaximize className="h-5 w-5 text-gray-600" />
                         )}
                     </IconButton>
-                    <IconButton variant="text" onClick={onClose}>
+                    <IconButton variant="text" onClick={handleClose}>
                         <XMarkIcon className="h-5 w-5 text-gray-600" />
                     </IconButton>
                 </div>
@@ -188,8 +276,8 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
             <div className="flex justify-end mt-4 items-baseline">
                 <Button
                     color="primary1"
-                    onClick={handleSend}
-                    disabled={isLoading || isSending} 
+                    onClick={() => handleSubmit("send")}
+                    disabled={isLoading || isSending}
                     className="px-5 py-2 rounded-lg font-medium"
                 >
                     {isSending ? (
@@ -206,6 +294,7 @@ const ComposeEmailModal = ({isOpen, onClose}) => {
 ComposeEmailModal.propTypes = {
     isOpen: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
+    draft_id: PropTypes.string,
 };
 
 export default ComposeEmailModal;

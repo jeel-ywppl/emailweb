@@ -48,7 +48,6 @@ const companySlice = createSlice({
             state.totalRecords = action.payload.pagination.totalData;
             state.currentPage = action.payload.pagination.pageNumber;
             state.limit = action.payload.pagination.pageSize; 
-            console.log("Companies fetched successfully:", action.payload.data);
             state.status = "success";
         });
         builder.addCase(findCompany.rejected, (state) => {

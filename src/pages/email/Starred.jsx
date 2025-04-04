@@ -11,6 +11,7 @@ import {Box, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
 import Loader from "../../componets/Loader";
 import ComposeEmailModal from "../../model/ComposeEmailModal";
+import {RotateCcw} from "lucide-react";
 
 const Starred = () => {
     const dispatch = useAppDispatch();
@@ -72,7 +73,7 @@ const Starred = () => {
             return;
         }
         const actionMap = {
-            star: {star_status: true},
+            star: {star_status: false},
             archive: {archive_status: true},
             markAsUnread: {read_status: false},
             trash: {trash_status: true},
@@ -120,6 +121,10 @@ const Starred = () => {
         dispatch(setLimit({limit: event.target.value}));
     };
 
+    const refreshInbox = () => {
+        dispatch(getAllEmailbyUser({page: currentPage, limit, status: "star_status=true"}));
+    };
+
     if (isLoading)
         return (
             <div className="fixed inset-0 flex justify-center items-center ">
@@ -131,13 +136,26 @@ const Starred = () => {
     return (
         <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2">
             <div className="p-3 border-b flex justify-between items-center">
-                <button
-                    className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
-                    onClick={() => setIsModalOpen(true)}
-                >
-                    Compose Email
-                </button>
-                <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                <div className="flex items-center ">
+                    <button
+                        className=" p-2 text-black  font-semibold  flex items-center gap-2 mr-5"
+                        onClick={refreshInbox}
+                        disabled={isLoading}
+                    >
+                        <RotateCcw
+                            className={`w-5 h-5 transition-transform duration-500 ${
+                                isLoading ? "animate-spin" : ""
+                            }`}
+                        />
+                    </button>
+                    <button
+                        className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        Compose Email
+                    </button>
+                    <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                </div>
                 <div className="flex items-center gap-3 p-3 relative">
                     <button onClick={handleSelectAll} className="p-2.5 font-semibold">
                         {selectAll ? (
@@ -164,7 +182,7 @@ const Starred = () => {
                                     onClick={() => handleDropdownAction("star")}
                                     className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
-                                    Star
+                                    Unstar
                                 </button>
                                 <button
                                     onClick={() => handleDropdownAction("archive")}
@@ -265,14 +283,14 @@ const Starred = () => {
                                 >
                                     <div className="py-1">
                                         <button
-                                            onClick={() => handleDropdownAction("star", email._id)}
+                                            onClick={() => handleDropdownAction("star", email?._id)}
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
-                                            Star
+                                            Unstar
                                         </button>
                                         <button
                                             onClick={() =>
-                                                handleDropdownAction("archive", email._id)
+                                                handleDropdownAction("archive", email?._id)
                                             }
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
@@ -280,20 +298,20 @@ const Starred = () => {
                                         </button>
                                         <button
                                             onClick={() =>
-                                                handleDropdownAction("markAsUnread", email._id)
+                                                handleDropdownAction("markAsUnread", email?._id)
                                             }
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             Mark as Unread
                                         </button>
                                         <button
-                                            onClick={() => handleDropdownAction("trash", email._id)}
+                                            onClick={() => handleDropdownAction("trash", email?._id)}
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             Move to Trash
                                         </button>
                                         <button
-                                            onClick={() => handleDropdownAction("spam", email._id)}
+                                            onClick={() => handleDropdownAction("spam", email?._id)}
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             Mark as Spam
@@ -304,7 +322,7 @@ const Starred = () => {
                         </div>
                     </div>
                     <Link
-                        to={`/dashboard/inbox/${email?._id}`}
+                        to={`/dashboard/starred/${email?._id}`}
                         state={{...email}}
                         className="mt-2 flex items-center gap-3"
                     >

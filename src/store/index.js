@@ -4,8 +4,12 @@ import authReducer from "./auth/authSlice";
 import domainReducer from "./Domain/domainSlice";
 import userReducer from "./user/userSlice";
 import emailReducer from "./email/emailSlice";
-import companyReducer from "./company/companySlice"
-
+import companyReducer from "./company/companySlice";
+import backupReducer from "./backup/backupSlice";
+import draftReducer from "./draft/draftSlice";
+import roleReducer from "./roles/rolesSlice";
+import permissionRedicers from "./permissions/permissionSlice";
+import moduleRedicers from "./modules/modualSlice";
 
 const reducers = {
     auth: authReducer,
@@ -13,6 +17,11 @@ const reducers = {
     user: userReducer,
     email: emailReducer,
     company: companyReducer,
+    backup: backupReducer,
+    draft: draftReducer,
+    roles: roleReducer,
+    permission: permissionRedicers,
+    modules: moduleRedicers,
 };
 
 export const rootReducer = combineReducers(reducers);

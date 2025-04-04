@@ -17,7 +17,7 @@ import {deleteDomain, getDomainById, updateDomain} from "../store/Domain";
 import {toast} from "react-toastify";
 import {useNavigate, useParams} from "react-router-dom";
 import {dnsValidationSchema} from "../validation/dnsValidationScheama";
-import {ArrowLeft, Trash2} from "lucide-react";
+import {ArrowLeft, Pencil, PencilIcon, Trash2} from "lucide-react";
 import ConfirmDeleteDomainModal from "../model/ConfirmDeleteDomainModal";
 
 const recordTypes = ["A", "MX", "AAAA", "CNAME", "TXT"];
@@ -325,15 +325,15 @@ const DnsSetting = () => {
                                             : record?.content}
                                     </TableCell>
                                     <TableCell>{record?.ttl}</TableCell>
-                                    <TableCell className="flex-nowrap gap-2">
+                                    <TableCell className="flex-nowrap gap-2 space-x-3">
                                         <Icon onClick={() => handleEditClick(record)}>
-                                            <BiEditAlt />
+                                            <Pencil size={"20px"} strokeWidth={2}/>
                                         </Icon>
                                         <Icon
                                             color="red"
                                             size="sm"
                                             onClick={() => handleDeleteClick(record?._id)}
-                                            className="m-1.5 cursor-pointer text-red-500"
+                                            className=" cursor-pointer text-red-500"
                                         >
                                             <Trash2 size={"20px"} strokeWidth={2} />
                                         </Icon>

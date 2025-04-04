@@ -6,16 +6,22 @@ import {registrationValidationSchema} from "../validation/registrationValidation
 import {createUser, findUser} from "../store/user";
 import {EyeIcon, EyeOffIcon} from "lucide-react";
 import {findDomainWithoutFilter} from "../store/Domain";
-import {Option, Select} from "@material-tailwind/react";
+import {findRoleWithoutFilter} from "../store/roles";
+import { Option, Select } from "@material-tailwind/react";
 
 const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
     const dispatch = useAppDispatch();
     const [showPassword, setShowPassword] = useState(false);
-    const [role, setRole] = useState("User");
     const {noFilterData} = useAppSelector((state) => state.domain);
+    const {noFilterRole} = useAppSelector((state) => state.roles);
+    console.log("🍩 roles", noFilterRole);
 
     useEffect(() => {
         dispatch(findDomainWithoutFilter());
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(findRoleWithoutFilter());
     }, [dispatch]);
 
     const {
@@ -41,7 +47,7 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
         validationSchema: registrationValidationSchema,
         onSubmit: async (values, {setSubmitting, setFieldError, resetForm}) => {
             try {
-                const userData = {...values, role_id: role === "Admin" ? 1 : 2};
+                const userData = {...values};
                 const response = await dispatch(createUser(userData));
 
                 if (response?.payload?.arg) {
@@ -221,14 +227,35 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                                     )}
                                 </div>
                                 <div>
-                                    <label className="text-gray-600 text-sm mb-1 block">Role</label>
-                                    <Select
-                                        value={role}
-                                        onChange={(value) => setRole(value)}
-                                        className="w-full"
+                                    {/* <select
+                                        name="role_id"
+                                        value={values.role_id}
+                                        onChange={(e) => setFieldValue("role_id", e.target.value)}
+                                        onBlur={handleBlur}
+                                        className={`text-gray-800 bg-white border border-gray-300 w-full rounded ${
+                                            touched.role_id && errors.role_id
+                                                ? "border-red-500"
+                                                : ""
+                                        }`}
                                     >
-                                        <Option value="User">User</Option>
-                                        <Option value="Admin">Admin</Option>
+                                        <option value="w-full ">Select Role</option>
+                                        {noFilterRole.map((role) => (
+                                            <option key={role?._id} value={role?._id}>
+                                                {role?.role_name}
+                                            </option>
+                                        ))}
+                                    </select> */}
+                                    <Select
+                                        label="Select roles"
+                                        name="role_id"
+                                        value={values.role_id}
+                                        onChange={(value) => setFieldValue("role_id", value)}
+                                    >
+                                        {noFilterRole.map((role) => (
+                                            <Option key={role?._id} value={role?.role_id}>
+                                                {role?.role_name}
+                                            </Option>
+                                        ))}
                                     </Select>
                                 </div>
                                 <div>

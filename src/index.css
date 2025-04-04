@@ -50,3 +50,22 @@ input:focus {
     to {
     }
 }
+
+
+style-4::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
+	background-color: #F5F5F5;
+}
+
+#style-4::-webkit-scrollbar
+{
+	width: 4px;
+	background-color: #F5F5F5;
+}
+
+#style-4::-webkit-scrollbar-thumb
+{
+	background-color: #918e8e;
+	border: 0.3px solid #a19f9f;
+}

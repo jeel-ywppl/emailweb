@@ -1,10 +1,10 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {getAllEmailbyUser, getSinglMail} from "./index";
+import {findRoleWithoutFilter, getAllRoles} from "./index";
 
 const initialState = {
-    emails: [],
-    selectedEmail: null,
-    totalEmails: 0,
+    roles: [],
+    noFilterRole: [],
+    totalData: 0,
     totalPages: 0,
     pageNumber: 1,
     pageSize: 10,
@@ -15,8 +15,8 @@ const initialState = {
     errorMessage: "",
 };
 
-const emailSlice = createSlice({
-    name: "emails",
+const roleSlice = createSlice({
+    name: "roles",
     initialState,
     reducers: {
         setLimit: (state, action) => {
@@ -37,41 +37,48 @@ const emailSlice = createSlice({
         reset: () => initialState,
     },
     extraReducers: (builder) => {
-        builder.addCase(getAllEmailbyUser.pending, (state) => {
+        builder.addCase(getAllRoles.pending, (state) => {
             state.isLoading = true;
             state.isError = false;
             state.status = "pending";
         });
-        builder.addCase(getAllEmailbyUser.fulfilled, (state, action) => {
+        builder.addCase(getAllRoles.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.emails = action?.payload?.data || [];
+            state.roles = action?.payload?.data;
+            console.log("🦜 state.roles", state.roles);
+
             state.totalData = action?.payload?.pagination?.totalData;
             state.totalPages = action?.payload?.pagination?.totalPages;
             state.pageNumber = action?.payload?.pagination?.pageNumber;
             state.pageSize = action?.payload?.pagination?.pageSize;
             state.status = "success";
         });
-        builder.addCase(getAllEmailbyUser.rejected, (state) => {
+        builder.addCase(getAllRoles.rejected, (state) => {
             state.isLoading = false;
             state.isError = true;
             state.status = "fail";
         });
-        builder.addCase(getSinglMail.pending, (state) => {
+        builder.addCase(findRoleWithoutFilter.pending, (state) => {
             state.isLoading = true;
-            state.isError = false;
+            state.isError = true;
+            state.status = "pending";
         });
-        builder.addCase(getSinglMail.fulfilled, (state, action) => {
+        builder.addCase(findRoleWithoutFilter.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.selectedEmail = action?.payload?.data?.email ;
+            state.noFilterRole = action?.payload?.data;
+            console.log("🌭 state.noFilterRole", state.noFilterRole);
+
+            state.totalData = action?.payload?.data?.length;
+            state.status = "success";
         });
-        builder.addCase(getSinglMail.rejected, (state, action) => {
+        builder.addCase(findRoleWithoutFilter.rejected, (state) => {
             state.isLoading = false;
             state.isError = true;
-            state.errorMessage = action?.payload || "Failed to fetch email";
+            state.status = "fail";
         });
     },
 });
 
-export const {setCurrentPage, setLimit, setStatus, setSkip, totalEmails, totalPages, reset} =
-    emailSlice.actions;
-export default emailSlice.reducer;
+export const {setCurrentPage, setLimit, setStatus, setSkip, totalData, totalPages, reset} =
+    roleSlice.actions;
+export default roleSlice.reducer;

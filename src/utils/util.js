@@ -1,4 +1,6 @@
 export const config = {
+    LIVE_URL: import.meta.env.VITE_APP_LIVE_URL ?? "",
+    
     BASE_URL: import.meta.env.VITE_APP_BASE_URL ?? "",
     SECRET_KEY: import.meta.env.VITE_APP_SECRET_KEY ?? "",
     POWERED_BY_URL: "https://yashworldproducts.com/",
@@ -18,12 +20,12 @@ export const NAVBAR = {
     DASHBOARD_NAVBAR_SUB_ITEM_HEIGHT: 40,
 };
 
-export const firebaseConfig = {
-    APIKEY: import.meta.env.VITE_APP_FIREBASE_API_KEY,
-    AUTHDOMAIN: import.meta.env.VITE_APP_FIREBASE_AUTH_DOMAIN,
-    PROJECTID: import.meta.env.VITE_APP_FIREBASE_PROJECT_ID,
-    STORAGEBUCKET: import.meta.env.VITE_APP_FIREBASE_STORAGE_BUCKET,
-    MESSAGINGSENDERID: import.meta.env.VITE_APP_FIREBASE_MESSAGING_SENDER_ID,
-    APPID: import.meta.env.VITE_APP_FIREBASE_APPID,
-    MEASUREMENTID: import.meta.env.VITE_APP_FIREBASE_MEASUREMENT_ID,
-};
+// export const firebaseConfig = {
+//     APIKEY: import.meta.env.VITE_APP_FIREBASE_API_KEY,
+//     AUTHDOMAIN: import.meta.env.VITE_APP_FIREBASE_AUTH_DOMAIN,
+//     PROJECTID: import.meta.env.VITE_APP_FIREBASE_PROJECT_ID,
+//     STORAGEBUCKET: import.meta.env.VITE_APP_FIREBASE_STORAGE_BUCKET,
+//     MESSAGINGSENDERID: import.meta.env.VITE_APP_FIREBASE_MESSAGING_SENDER_ID,
+//     APPID: import.meta.env.VITE_APP_FIREBASE_APPID,
+//     MEASUREMENTID: import.meta.env.VITE_APP_FIREBASE_MEASUREMENT_ID,
+// };
