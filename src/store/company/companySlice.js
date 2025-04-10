@@ -3,7 +3,7 @@ import { findCompany, findCompanyWithoutFilter } from ".";
 
 const initialState = {
     data: [],
-    noFilterData: [],
+    noFilterCompany: [],
     skip: 0,
     limit: 10,
     totalRecords: 1,
@@ -63,7 +63,7 @@ const companySlice = createSlice({
         });
         builder.addCase(findCompanyWithoutFilter.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.noFilterData = action.payload.data; 
+            state.noFilterCompany = action.payload.data; 
             state.totalRecords = action.payload.data.length; 
             state.status = "success";
         });

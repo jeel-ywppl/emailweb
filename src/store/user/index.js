@@ -7,7 +7,7 @@ export const findUser = createAsyncThunk("user/findUser", async (values, {reject
         const response = await api.get(
             `/api/v1/user/get/all/?page=${values?.page || 1}&limit=${values?.limit || 10}&role_id=${
                 values?.role_id || ""
-            }&deletedAt=null`,
+            }&company_id=${values?.company_id || ""}&deletedAt=null`,
         );
         return response?.data;
     } catch (error) {
@@ -32,6 +32,7 @@ export const findUserWithoutFilter = createAsyncThunk(
 export const getUser = createAsyncThunk("user/getUser", async (id, {rejectWithValue}) => {
     try {
         const response = await api.get(`/api/v1/user/get/${id}`);
+        console.log("🌽 response", response);
         return response?.data;
     } catch (error) {
         toast.error(error?.response?.data?.message);

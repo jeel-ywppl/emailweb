@@ -7,8 +7,13 @@ export const findDomain = createAsyncThunk(
     async (values, {rejectWithValue}) => {
         try {
             const response = await api.get(
-                `/api/v1/domain/get/all/?deletedAt=null&page=${values?.page || 1}&limit=${values?.limit || 10}`,
+                `/api/v1/domain/get/all/?deletedAt=null&page=${values?.page || 1}&limit=${
+                    values?.limit || 10
+                }`,
             );
+
+            console.log("🍄 response", response);
+
             return response?.data;
         } catch (error) {
             toast.error(error?.response?.data?.message);
@@ -19,9 +24,11 @@ export const findDomain = createAsyncThunk(
 
 export const findDomainWithoutFilter = createAsyncThunk(
     "domain/findDomainWithoutFilter",
-    async (_, {rejectWithValue}) => {
+    async (values, {rejectWithValue}) => {
         try {
-            const response = await api.get("/api/v1/domain/get/all/without_filter");
+            const response = await api.get(
+                `/api/v1/domain/get/all/without_filter?company_id=${values?.company_id || ""}`,
+            );
             return response?.data;
         } catch (error) {
             toast.error(error?.response?.data?.message);
@@ -57,8 +64,8 @@ export const deleteDomain = createAsyncThunk(
     "domain/deleteDomain",
     async ({id, dns_id}, {rejectWithValue}) => {
         try {
-            const response = await api.delete(`/api/v1/domain/delete/${id}`,{
-                data:{dns_id}
+            const response = await api.delete(`/api/v1/domain/delete/${id}`, {
+                data: {dns_id},
             });
             return response?.data;
         } catch (error) {

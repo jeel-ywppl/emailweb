@@ -4,10 +4,10 @@ import {findRoleWithoutFilter, getAllRoles} from "./index";
 const initialState = {
     roles: [],
     noFilterRole: [],
-    totalData: 0,
-    totalPages: 0,
-    pageNumber: 1,
-    pageSize: 10,
+    skip: 0,
+    limit: 10,
+    totalRecords: 1,
+    currentPage: 0,
     status: "idle",
     isError: false,
     isLoading: false,
@@ -20,20 +20,24 @@ const roleSlice = createSlice({
     initialState,
     reducers: {
         setLimit: (state, action) => {
-            state.pageSize = action.payload.pageSize;
+            state.limit = action.payload.limit;
+            console.log("🚀 state.limit", state.limit);
+
             state.status = "idle";
         },
         setSkip: (state, action) => {
             state.skip = action.payload.skip;
+            console.log("💣 state.skip", state.skip);
+
             state.status = "idle";
         },
         setCurrentPage: (state, action) => {
-            state.pageNumber = action.payload.pageNumber;
+            state.currentPage = action.payload.currentPage;
+            console.log("🫒 state.currentPage", state.currentPage);
         },
         setStatus: (state, action) => {
             state.status = action.payload.status;
         },
-
         reset: () => initialState,
     },
     extraReducers: (builder) => {
@@ -45,12 +49,9 @@ const roleSlice = createSlice({
         builder.addCase(getAllRoles.fulfilled, (state, action) => {
             state.isLoading = false;
             state.roles = action?.payload?.data;
-            console.log("🦜 state.roles", state.roles);
-
-            state.totalData = action?.payload?.pagination?.totalData;
-            state.totalPages = action?.payload?.pagination?.totalPages;
-            state.pageNumber = action?.payload?.pagination?.pageNumber;
-            state.pageSize = action?.payload?.pagination?.pageSize;
+            state.totalRecords = action.payload?.pagination?.totalData;
+            state.currentPage = action.payload?.pagination?.pageNumber;
+            state.limit = action.payload?.pagination?.pageSize;
             state.status = "success";
         });
         builder.addCase(getAllRoles.rejected, (state) => {
@@ -66,8 +67,6 @@ const roleSlice = createSlice({
         builder.addCase(findRoleWithoutFilter.fulfilled, (state, action) => {
             state.isLoading = false;
             state.noFilterRole = action?.payload?.data;
-            console.log("🌭 state.noFilterRole", state.noFilterRole);
-
             state.totalData = action?.payload?.data?.length;
             state.status = "success";
         });

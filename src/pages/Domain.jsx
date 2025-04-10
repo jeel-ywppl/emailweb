@@ -26,12 +26,15 @@ import {setCurrentPage, setLimit, setSkip} from "../store/Domain/domainSlice";
 import {Pencil, Settings2, Trash2} from "lucide-react";
 import ConfirmDeleteDomainModal from "../model/ConfirmDeleteDomainModal";
 import Loader from "../componets/Loader";
+import useCheckAccess from "../utils/useCheckAccess";
 
 const Domain = () => {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const checkAccess = useCheckAccess();
+
     const [editingDomainId, setEditingDomainId] = useState(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedDomainId, setSelectedDomainId] = useState(null);
@@ -40,7 +43,7 @@ const Domain = () => {
         (state) => state.domain,
     );
 
-    const {noFilterData} = useAppSelector((state) => state.company);
+    const {noFilterCompany} = useAppSelector((state) => state.company);
 
     useEffect(() => {
         dispatch(findCompanyWithoutFilter());
@@ -134,11 +137,8 @@ const Domain = () => {
     const handlePageChange = (event, newPage) => {
         const adjustedPage = newPage + 1;
         const newSkip = (adjustedPage - 1) * limit;
-
         dispatch(setSkip({skip: newSkip}));
         dispatch(setCurrentPage({currentPage: adjustedPage}));
-
-        dispatch(findDomain({page: adjustedPage, limit}));
     };
 
     const handleRowsPerPageChange = (event) => {
@@ -165,9 +165,11 @@ const Domain = () => {
                     />
                     <MagnifyingGlassIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
                 </div>
-                <Button color="primary" onClick={handleOpen} className="w-full sm:w-auto">
-                    + Domain Name
-                </Button>
+                {checkAccess("domain", "create") && (
+                    <Button color="primary" onClick={handleOpen} className="w-full sm:w-auto">
+                        + Domain Name
+                    </Button>
+                )}
             </div>
             <Card>
                 <CardHeader
@@ -259,32 +261,40 @@ const Domain = () => {
                                                 </Typography>
                                             </td>
                                             <td className="py-3 px-5 border-blue-gray-50 flex gap-3">
-                                                <Icon
-                                                    color="gray"
-                                                    size="sm"
-                                                    onClick={() => handleEdit(data?._id)}
-                                                    className="m-1.5"
-                                                >
-                                                    <Pencil size={"18px"} strokeWidth={2} />
-                                                </Icon>
-                                                <Icon
-                                                    color="gray"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        navigate(`/dashboard/domain/${data?._id}`)
-                                                    }
-                                                    className="m-1.5"
-                                                >
-                                                    <Settings2 size={"18px"} strokeWidth={2} />
-                                                </Icon>
-                                                <Icon
-                                                    color="red"
-                                                    size="sm"
-                                                    onClick={() => handleDeleteClick(data?._id)}
-                                                    className="m-1.5 cursor-pointer text-red-500"
-                                                >
-                                                    <Trash2 size={"18px"} strokeWidth={2} />
-                                                </Icon>
+                                                {checkAccess("domain", "edit") && (
+                                                    <Icon
+                                                        color="gray"
+                                                        size="sm"
+                                                        onClick={() => handleEdit(data?._id)}
+                                                        className="m-1.5"
+                                                    >
+                                                        <Pencil size={"18px"} strokeWidth={2} />
+                                                    </Icon>
+                                                )}
+                                                {checkAccess("domain", "create") && (
+                                                    <Icon
+                                                        color="gray"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/dashboard/domain/${data?._id}`,
+                                                            )
+                                                        }
+                                                        className="m-1.5"
+                                                    >
+                                                        <Settings2 size={"18px"} strokeWidth={2} />
+                                                    </Icon>
+                                                )}
+                                                {checkAccess("domain", "delete") && (
+                                                    <Icon
+                                                        color="red"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteClick(data?._id)}
+                                                        className="m-1.5 cursor-pointer text-red-500"
+                                                    >
+                                                        <Trash2 size={"18px"} strokeWidth={2} />
+                                                    </Icon>
+                                                )}
                                             </td>
                                         </tr>
                                     ))
@@ -328,7 +338,7 @@ const Domain = () => {
                             value={values.company_id}
                             onChange={(value) => setFieldValue("company_id", value)}
                         >
-                            {noFilterData.map((company) => (
+                            {noFilterCompany.map((company) => (
                                 <Option key={company?._id} value={company?._id}>
                                     {company?.name}
                                 </Option>

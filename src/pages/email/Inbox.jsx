@@ -121,11 +121,11 @@ const Inbox = () => {
         }
     };
 
-    const handlePageChange = (event, newPage) => {
+    const handlePageChange = (_, newPage) => {
         const adjustedPage = newPage + 1;
         const newSkip = (adjustedPage - 1) * limit;
         dispatch(setSkip({skip: newSkip}));
-        dispatch(setCurrentPage({currentPage: adjustedPage}));
+        dispatch(setCurrentPage(adjustedPage));
     };
 
     const handleRowsPerPageChange = (event) => {

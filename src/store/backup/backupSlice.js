@@ -47,10 +47,10 @@ const backupSlice = createSlice({
         builder.addCase(findBackupEmails.fulfilled, (state, action) => {
             state.isLoading = false;
             state.data = action?.payload?.data || [];
-            state.totalEmails = action?.payload?.totalEmails;
-            state.totalPages = action?.payload?.totalPages;
-            state.currentPage = action?.payload?.currentPage;
-            state.limit = action?.payload?.limit;
+            state.totalEmails = action?.payload?.pagination?.totalData;
+            state.totalPages = action?.payload?.pagination?.totalPages;
+            state.currentPage = action?.payload?.pagination?.pageNumber;
+            state.limit = action?.payload?.pagination?.pageSize;
             state.status = "success";
         });
         builder.addCase(findBackupEmails.rejected, (state) => {

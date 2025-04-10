@@ -37,7 +37,7 @@ export const resetUserPermissions = createAsyncThunk(
     'permissions/resetUserPermissions',
     async (userId, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/api/v1/module/reset/permissions/${userId}`);
+            const response = await api.post(`/api/v1/users/reset/permissions/${userId}`);
             return response.data; 
         } catch (error) {
             console.error("Error resetting permissions:", error?.response?.data);

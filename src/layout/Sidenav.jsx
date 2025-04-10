@@ -1,9 +1,8 @@
-import PropTypes from "prop-types";
-import {NavLink} from "react-router-dom";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 import {Button, IconButton, Typography} from "@material-tailwind/react";
+import PropTypes from "prop-types";
 import {useEffect, useRef} from "react";
-// import {useAppSelector} from "../store";
+import {NavLink} from "react-router-dom";
 import {setOpenSidenav, useMaterialTailwindController} from "../context";
 import useCheckAccess from "../utils/useCheckAccess";
 
@@ -12,8 +11,6 @@ const Sidenav = ({routes}) => {
     const {sidenavColor, sidenavType, openSidenav} = controller;
     const sidenavRef = useRef(null);
     const checkAccess = useCheckAccess();
-
-    // const {user} = useAppSelector((state) => state.auth);
 
     const sidenavTypes = {
         white: "bg-white shadow-sm",
@@ -35,10 +32,6 @@ const Sidenav = ({routes}) => {
         };
     }, [openSidenav, dispatch]);
 
-    console.log("dmnjsbnjdnsjdnjsnd", checkAccess(routes[0]?.pages[0]?.name, "view"));
-    console.log("sddjhjhdsjdjsd", routes[0]?.pages[0]?.name);
-    console.log("🍔 routes", routes[0]?.pages[0]?.name);
-
     return (
         <aside
             ref={sidenavRef}
@@ -48,7 +41,7 @@ const Sidenav = ({routes}) => {
             id="style-4"
         >
             <div className="">
-                <Typography className="text-center p-1" variant="h6" color="white">
+                <Typography className="text-center p-1 relative" variant="h6" color="white">
                     <img src="/imgs/klogo.png" alt="" className="rounded-lg " />
                 </Typography>
                 <IconButton
@@ -56,12 +49,53 @@ const Sidenav = ({routes}) => {
                     color="white"
                     size="sm"
                     ripple={false}
-                    className="grid rounded-br-none rounded-tl-none xl:hidden"
+                    className="absolute top-1 right-1 rounded-br-none rounded-tl-none xl:hidden"
                     onClick={() => setOpenSidenav(dispatch, false)}
                 >
-                    <XMarkIcon strokeWidth={2.5} className="h-5 w-5 text-white" />
+                    <XMarkIcon strokeWidth={2.5} className="h-5 w-5 text-white " />
                 </IconButton>
             </div>
+            {/* <div className="mx-3 ">
+                {routes.map(({layout, title, pages}, key) => (
+                    <ul key={key} className="mb-2 flex flex-col gap-1 force-overflow">
+                        {title && (
+                            <li className="mx-2 mt-2 mb-2">
+                                <Typography
+                                    variant="small"
+                                    color={sidenavType === "white" ? "blue-gray" : "white"}
+                                    className="font-black uppercase opacity-75"
+                                >
+                                    {title}
+                                </Typography>
+                            </li>
+                        )}
+                        {pages.map(({icon, name, path, isSideNav}, pageKey) => {
+                            isSideNav && (
+                                <li key={pageKey}>
+                                    <NavLink to={`/${layout}${path}`}>
+                                        {({isActive}) => (
+                                            <Button
+                                                variant={isActive ? "gradient" : "text"}
+                                                color={isActive ? sidenavColor : "#192230"}
+                                                className="flex items-center gap-4 px-4 capitalize"
+                                                fullWidth
+                                            >
+                                                {icon}
+                                                <Typography
+                                                    color="inherit"
+                                                    className="font-medium capitalize"
+                                                >
+                                                    {name}
+                                                </Typography>
+                                            </Button>
+                                        )}
+                                    </NavLink>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                ))}
+            </div> */}
             <div className="m-4 ">
                 {routes.map(({layout, title, pages}, key) => (
                     <ul key={key} className="mb-4 flex flex-col gap-1 force-overflow">

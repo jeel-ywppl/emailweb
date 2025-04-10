@@ -26,6 +26,8 @@ import Draft from "./pages/email/Draft";
 import {Drafts} from "@mui/icons-material";
 import Permission from "./pages/Permission";
 import Modules from "./pages/Modules";
+import UserView from "./pages/UserView";
+
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -128,61 +130,67 @@ export const routes = [
             },
             {
                 path: "/accountsettings",
-                name: "accountsettings/:id-hidden",
+                name: "accountsettings",
                 element: <AccountSettings />,
                 isSideNav: false,
             },
             {
                 path: "/backup/backup_emails",
-                name: "backup/backup_emails/:id-hidden",
+                name: "backup",
                 element: <BackupMail />,
                 isSideNav: false,
             },
             {
                 path: "/backup/backup_emails/:id",
-                name: "backup/backup_emails/:id-hidden",
+                name: "backup",
                 element: <EmailView />,
                 isSideNav: false,
             },
             {
                 path: "/profile",
-                name: "profile-hidden",
+                name: "profile",
                 element: <Profile />,
                 isSideNav: false,
             },
             {
                 path: "/domain/:id",
-                name: "domain-hidden",
+                name: "domain",
                 element: <DnsSetting />,
                 isSideNav: false,
             },
             {
+                path: "/user/:id",
+                name: "user",
+                element: <UserView />,
+                isSideNav: false,
+            },
+            {
                 path: "/trash/:id",
-                name: "/trash/:id-hidden",
+                name: "trash",
                 element: <EmailView />,
                 isSideNav: false,
             },
             {
                 path: "/archive/:id",
-                name: "archive/:id-hidden",
+                name: "archive",
                 element: <EmailView />,
                 isSideNav: false,
             },
             {
                 path: "/sent/:id",
-                name: "/sent/:id-hidden",
+                name: "sent",
                 element: <EmailView />,
                 isSideNav: false,
             },
             {
                 path: "/starred/:id",
-                name: "starred/:id",
+                name: "starred",
                 element: <EmailView />,
                 isSideNav: false,
             },
             {
                 path: "/inbox/:id",
-                name: "inbox/id",
+                name: "inbox",
                 element: <EmailView />,
                 isSideNav: false,
             },

@@ -6,8 +6,8 @@ const initialState = {
     selectedEmail: null,
     totalEmails: 0,
     totalPages: 0,
-    pageNumber: 1,
-    pageSize: 10,
+    currentPage: 1,
+    limit: 10,
     status: "idle",
     isError: false,
     isLoading: false,
@@ -45,10 +45,10 @@ const emailSlice = createSlice({
         builder.addCase(getAllEmailbyUser.fulfilled, (state, action) => {
             state.isLoading = false;
             state.emails = action?.payload?.data || [];
-            state.totalData = action?.payload?.pagination?.totalData;
+            state.totalEmails = action?.payload?.pagination?.totalData;
             state.totalPages = action?.payload?.pagination?.totalPages;
-            state.pageNumber = action?.payload?.pagination?.pageNumber;
-            state.pageSize = action?.payload?.pagination?.pageSize;
+            state.currentPage = action?.payload?.pagination?.pageNumber;
+            state.limit = action?.payload?.pagination?.pageSize;
             state.status = "success";
         });
         builder.addCase(getAllEmailbyUser.rejected, (state) => {
@@ -62,7 +62,7 @@ const emailSlice = createSlice({
         });
         builder.addCase(getSinglMail.fulfilled, (state, action) => {
             state.isLoading = false;
-            state.selectedEmail = action?.payload?.data?.email ;
+            state.selectedEmail = action?.payload?.data?.email;
         });
         builder.addCase(getSinglMail.rejected, (state, action) => {
             state.isLoading = false;

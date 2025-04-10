@@ -7,20 +7,19 @@ import {createUser, findUser} from "../store/user";
 import {EyeIcon, EyeOffIcon} from "lucide-react";
 import {findDomainWithoutFilter} from "../store/Domain";
 import {findRoleWithoutFilter} from "../store/roles";
-import { Option, Select } from "@material-tailwind/react";
+import {Autocomplete, TextField} from "@mui/material";
 
 const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
     const dispatch = useAppDispatch();
     const [showPassword, setShowPassword] = useState(false);
     const {noFilterData} = useAppSelector((state) => state.domain);
     const {noFilterRole} = useAppSelector((state) => state.roles);
-    console.log("🍩 roles", noFilterRole);
+    console.log("🦐 noFilterRole", noFilterRole);
+
+    const {noFilterCompany} = useAppSelector((state) => state.company);
 
     useEffect(() => {
         dispatch(findDomainWithoutFilter());
-    }, [dispatch]);
-
-    useEffect(() => {
         dispatch(findRoleWithoutFilter());
     }, [dispatch]);
 
@@ -43,6 +42,7 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
             recovery_email: "",
             password: "",
             role_id: "",
+            companyId: "",
         },
         validationSchema: registrationValidationSchema,
         onSubmit: async (values, {setSubmitting, setFieldError, resetForm}) => {
@@ -157,6 +157,58 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                                         <div className="text-red-500 text-sm">{errors.lname}</div>
                                     )}
                                 </div>
+                                <div className="flex flex-col sm:flex-row gap-2 w-full items-center">
+                                    <Autocomplete
+                                        sx={{width: "50%"}}
+                                        options={noFilterCompany}
+                                        getOptionLabel={(option) => option?.name || ""}
+                                        onChange={(event, selectedOption) => {
+                                            const companyId = selectedOption?._id || "";
+                                            setFieldValue("companyId", companyId);
+                                            setFieldValue("domain_id", ""); 
+                                            dispatch(
+                                                findRoleWithoutFilter({company_id: companyId}),
+                                            );
+                                            dispatch(
+                                                findDomainWithoutFilter({company_id: companyId}),
+                                            );
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Choose a company"
+                                                variant="outlined"
+                                                size="small"
+                                                className="bg-white w-full"
+                                                InputLabelProps={{
+                                                    className: "text-sm text-gray-700",
+                                                }}
+                                            />
+                                        )}
+                                    />
+
+                                    <Autocomplete
+                                        sx={{width: "50%"}}
+                                        options={noFilterRole}
+                                        getOptionLabel={(option) => option?.role_name || ""}
+                                        onChange={(event, selectedOption) => {
+                                            const roleId = selectedOption?._id || "";
+                                            setFieldValue("role_id", roleId);
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="All roles"
+                                                variant="outlined"
+                                                size="small"
+                                                className="bg-white w-full"
+                                                InputLabelProps={{
+                                                    className: "text-sm text-gray-700",
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                </div>
                                 <div>
                                     <label className="text-gray-600 text-sm mb-1 block">
                                         Email Address
@@ -225,38 +277,6 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                                             {errors.phone_number}
                                         </div>
                                     )}
-                                </div>
-                                <div>
-                                    {/* <select
-                                        name="role_id"
-                                        value={values.role_id}
-                                        onChange={(e) => setFieldValue("role_id", e.target.value)}
-                                        onBlur={handleBlur}
-                                        className={`text-gray-800 bg-white border border-gray-300 w-full rounded ${
-                                            touched.role_id && errors.role_id
-                                                ? "border-red-500"
-                                                : ""
-                                        }`}
-                                    >
-                                        <option value="w-full ">Select Role</option>
-                                        {noFilterRole.map((role) => (
-                                            <option key={role?._id} value={role?._id}>
-                                                {role?.role_name}
-                                            </option>
-                                        ))}
-                                    </select> */}
-                                    <Select
-                                        label="Select roles"
-                                        name="role_id"
-                                        value={values.role_id}
-                                        onChange={(value) => setFieldValue("role_id", value)}
-                                    >
-                                        {noFilterRole.map((role) => (
-                                            <Option key={role?._id} value={role?.role_id}>
-                                                {role?.role_name}
-                                            </Option>
-                                        ))}
-                                    </Select>
                                 </div>
                                 <div>
                                     <label className="text-gray-600 text-sm mb-1 block">

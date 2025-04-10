@@ -18,11 +18,13 @@ import {Loader2, Pencil, Settings2, Trash2} from "lucide-react";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
 import CreateRoleModal from "../model/CreateRoleModal";
 import DeleteRoleModal from "../model/DeleteRoleModal";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import useCheckAccess from "../utils/useCheckAccess";
 
 const Roles = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const checkAccess = useCheckAccess();
     const [search, setSearch] = useState("");
     const [selectedCompanyId, setSelectedCompanyId] = useState("");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -31,15 +33,12 @@ const Roles = () => {
     const [editingRole, setEditingRole] = useState(null);
     const [isEditMode, setIsEditMode] = useState(false);
 
-    const {
-        roles,
-        isLoading,
-        totalData,
-        pageNumber: currentPage,
-        pageSize: limit,
-    } = useAppSelector((state) => state.roles);
+    const {roles, isLoading, totalRecords, limit, currentPage} = useAppSelector(
+        (state) => state.roles,
+    );
 
-    const {noFilterData} = useAppSelector((state) => state.company);
+    console.log("🌮 limit", limit);
+    const {noFilterCompany} = useAppSelector((state) => state.company);
 
     useEffect(() => {
         dispatch(findCompanyWithoutFilter());
@@ -48,17 +47,6 @@ const Roles = () => {
     useEffect(() => {
         dispatch(getAllRoles({page: currentPage, limit, company_id: selectedCompanyId}));
     }, [dispatch, currentPage, limit, selectedCompanyId]);
-
-    const handlePageChange = (event, newPage) => {
-        const adjustedPage = newPage + 1;
-        const newSkip = (adjustedPage - 1) * limit;
-        dispatch(setSkip({skip: newSkip}));
-        dispatch(setCurrentPage({currentPage: adjustedPage}));
-    };
-
-    const handleRowsPerPageChange = (event) => {
-        dispatch(setLimit({pageSize: event.target.value}));
-    };
 
     const handleCompanyChange = (value) => {
         setSelectedCompanyId(value || "");
@@ -98,6 +86,17 @@ const Roles = () => {
         });
     };
 
+    const handlePageChange = (event, newPage) => {
+        const adjustedPage = newPage + 1;
+        const newSkip = (adjustedPage - 1) * limit;
+        dispatch(setSkip({skip: newSkip}));
+        dispatch(setCurrentPage({currentPage: adjustedPage}));
+    };
+
+    const handleRowsPerPageChange = (event) => {
+        dispatch(setLimit({limit: event.target.value}));
+    };
+
     if (isLoading)
         return (
             <div className="fixed inset-0 flex justify-center items-center ">
@@ -125,16 +124,18 @@ const Roles = () => {
                         value={selectedCompanyId || ""}
                         onChange={(value) => handleCompanyChange(value)}
                     >
-                        {noFilterData.map((company) => (
+                        {noFilterCompany.map((company) => (
                             <Option key={company?._id} value={company?._id}>
                                 {company?.name}
                             </Option>
                         ))}
                     </Select>
                 </div>
-                <Button color="primary" onClick={openCreateModal} className="w-full sm:w-auto">
-                    + Add New role
-                </Button>
+                {checkAccess("role", "create") && (
+                    <Button color="primary" onClick={openCreateModal} className="w-full sm:w-auto">
+                        + Add New role
+                    </Button>
+                )}
             </div>
             <Card>
                 <CardHeader
@@ -210,25 +211,36 @@ const Roles = () => {
                                             </td>
                                             <td className={className}>
                                                 <div className="flex justify-start items-center gap-3 text-black">
-                                                    <button
-                                                        onClick={() => openEditModal(item?._id)}
-                                                    >
-                                                        <Pencil size={"20px"} strokeWidth={1} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => openDeleteModal(item?._id)}
-                                                    >
-                                                        <Trash2 size={"20px"} strokeWidth={1} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() =>
-                                                            navigate(
-                                                                `/dashboard/role/permission/${item?._id}`,
-                                                            )
-                                                        }
-                                                    >
-                                                        <Settings2 size={"20px"} strokeWidth={1} />
-                                                    </button>
+                                                    {checkAccess("role", "edit") && (
+                                                        <button
+                                                            onClick={() => openEditModal(item?._id)}
+                                                        >
+                                                            <Pencil size={"20px"} strokeWidth={1} />
+                                                        </button>
+                                                    )}
+                                                    {checkAccess("role", "delete") && (
+                                                        <button
+                                                            onClick={() =>
+                                                                openDeleteModal(item?._id)
+                                                            }
+                                                        >
+                                                            <Trash2 size={"20px"} strokeWidth={1} />
+                                                        </button>
+                                                    )}
+                                                    {checkAccess("permission", "view") && (
+                                                        <button
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    `/dashboard/role/permission/${item?._id}`,
+                                                                )
+                                                            }
+                                                        >
+                                                            <Settings2
+                                                                size={"20px"}
+                                                                strokeWidth={1}
+                                                            />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -241,7 +253,7 @@ const Roles = () => {
                     <TablePagination
                         rowsPerPageOptions={[5, 10, 25, 50]}
                         component="div"
-                        count={totalData}
+                        count={totalRecords}
                         rowsPerPage={limit}
                         page={Math.max(0, currentPage - 1)}
                         onPageChange={handlePageChange}

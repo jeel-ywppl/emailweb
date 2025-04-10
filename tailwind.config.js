@@ -12,6 +12,9 @@ module.exports = withMT({
                 primary: "#4CAF50",
                 secondary: "#388E3C",
             },
+            animation: {
+                "spin-slow": "spin 2s linear infinite",
+            },
             // fontFamily: {
             //     sans: ["SF Pro", "Helvetica", "Arial", "sans-serif"],
             // },

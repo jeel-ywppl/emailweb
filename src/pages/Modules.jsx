@@ -6,6 +6,7 @@ import {Loader2, Pencil, Trash2} from "lucide-react";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
 import CreateModual from "../model/CreateModual";
 import DeleteModule from "../model/DeleteModule";
+import useCheckAccess from "../utils/useCheckAccess";
 
 const Modules = () => {
     const dispatch = useAppDispatch();
@@ -15,6 +16,7 @@ const Modules = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingModule, setEditingModule] = useState(null);
     const [isEditMode, setIsEditMode] = useState(false);
+    const checkAccess = useCheckAccess();
 
     const {modules, isLoading} = useAppSelector((state) => state.modules);
 
@@ -77,16 +79,18 @@ const Modules = () => {
                 <div className="relative w-full max-w-sm">
                     <Input
                         type="text"
-                        label="Search Role"
+                        label="Search Modules"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="w-full pr-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500"
                     />
                     <MagnifyingGlassIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
                 </div>
-                <Button color="primary" onClick={openCreateModal} className="w-full sm:w-auto">
-                    + Add New Module
-                </Button>
+                {checkAccess("module", "create") && (
+                    <Button color="primary" onClick={openCreateModal} className="w-full sm:w-auto">
+                        + Add New Module
+                    </Button>
+                )}
             </div>
             <Card>
                 <CardHeader
@@ -118,33 +122,47 @@ const Modules = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {modules.map((item, index) => {
-                                const className = "py-3 px-5 border-b border-blue-gray-50";
-                                return (
-                                    <tr key={item?._id}>
-                                        <td className={className}>
-                                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                {index + 1}
-                                            </Typography>
-                                        </td>
-                                        <td className={className}>
-                                            <Typography className="text-xs font-semibold text-blue-gray-600">
-                                                {item?.name}
-                                            </Typography>
-                                        </td>
-                                        <td className={className}>
-                                            <div className="flex justify-start items-center gap-3 text-black">
-                                                <button onClick={() => openEditModal(item?._id)}>
-                                                    <Pencil size={"20px"} strokeWidth={1} />
-                                                </button>
-                                                <button onClick={() => openDeleteModal(item?._id)}>
-                                                    <Trash2 size={"20px"} strokeWidth={1} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {modules
+                                .filter((item) =>
+                                    `${item?.name}`.toLowerCase().includes(search.toLowerCase()),
+                                )
+                                .map((item, index) => {
+                                    const className = "py-3 px-5 border-b border-blue-gray-50";
+                                    return (
+                                        <tr key={item?._id}>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {index + 1}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-xs font-semibold text-blue-gray-600">
+                                                    {item?.name}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <div className="flex justify-start items-center gap-3 text-black">
+                                                    {checkAccess("module", "edit") && (
+                                                        <button
+                                                            onClick={() => openEditModal(item?._id)}
+                                                        >
+                                                            <Pencil size={"20px"} strokeWidth={1} />
+                                                        </button>
+                                                    )}
+                                                    {checkAccess("module", "delete") && (
+                                                        <button
+                                                            onClick={() =>
+                                                                openDeleteModal(item?._id)
+                                                            }
+                                                        >
+                                                            <Trash2 size={"20px"} strokeWidth={1} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                         </tbody>
                     </table>
                 </CardBody>

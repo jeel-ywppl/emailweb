@@ -11,6 +11,9 @@ export const getAllRoles = createAsyncThunk(
                     values?.limit || 10
                 }&company_id=${values?.company_id || ""}`,
             );
+
+            console.log("🍿 response", response);
+
             if (response?.data?.message) return response?.data;
         } catch (error) {
             toast.error(error?.response?.data?.message);
@@ -31,11 +34,12 @@ export const getRoleById = createAsyncThunk("roles/getRoleById", async (id, {rej
 
 export const findRoleWithoutFilter = createAsyncThunk(
     "user/findRoleWithoutFilter",
-    async (_, {rejectWithValue}) => {
+    async (values, {rejectWithValue}) => {
         try {
-            const response = await api.get("/api/v1/role/get/all/without_filter");
-            console.log("🦜 response", response);
-
+            const response = await api.get(
+                `/api/v1/role/get/all/without_filter?company_id=${values?.company_id || ""}`,
+            );
+            if (response?.data?.message) 
             return response?.data;
         } catch (error) {
             toast.error(error?.response?.data?.message);

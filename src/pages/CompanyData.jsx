@@ -4,33 +4,27 @@ import {deleteCompany, findCompany} from "../store/company";
 import {useAppDispatch, useAppSelector} from "../store";
 import CompanyModal from "../model/CompanyModal";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
-import {
-    Button,
-    Card,
-    CardBody,
-    CardHeader,
-    IconButton,
-    Input,
-    Typography,
-} from "@material-tailwind/react";
+import {Button, Card, CardBody, CardHeader, Input, Typography} from "@material-tailwind/react";
 import {TablePagination, Box} from "@mui/material";
 import {AiOutlineDelete, AiTwotoneEye} from "react-icons/ai";
 import {FiEdit2} from "react-icons/fi";
 import DeleteConfirmationModal from "../model/DeleteConfirmationModal";
 import {toast} from "react-toastify";
 import Loader from "../componets/Loader";
+import useCheckAccess from "../utils/useCheckAccess";
 
 const DataTable = () => {
     const dispatch = useAppDispatch();
-    const {data, isLoading, totalRecords, limit, currentPage} = useAppSelector(
-        (state) => state.company,
-    );
-
+    const checkAccess = useCheckAccess();
     const [openModal, setOpenModal] = useState(false);
     const [search, setSearch] = useState("");
     const [editIndex, setEditIndex] = useState(null);
     const [deleteCompanyId, setDeleteCompanyId] = useState(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+    const {data, isLoading, totalRecords, limit, currentPage} = useAppSelector(
+        (state) => state.company,
+    );
 
     const initialValues = {
         _id: "",
@@ -119,9 +113,11 @@ const DataTable = () => {
                     />
                     <MagnifyingGlassIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
                 </div>
-                <Button color="primary" onClick={handleOpen} className="w-full sm:w-auto">
-                    + Add Company
-                </Button>
+                {checkAccess("company", "create") && (
+                    <Button color="primary" onClick={handleOpen} className="w-full sm:w-auto">
+                        + Add Company
+                    </Button>
+                )}
             </div>
 
             {isLoading ? (
@@ -201,26 +197,32 @@ const DataTable = () => {
                                                 </Typography>
                                             </td>
                                             <td className="flex space-x-3 items-center mx-4 justify-start flex-nowrap py-3 border-b border-blue-gray-50">
-                                                <button
-                                                    size="sm"
-                                                    className="text-black bg-transparent"
-                                                >
-                                                    <AiTwotoneEye className="w-5 h-5" />
-                                                </button>
-                                                <button
-                                                    size="sm"
-                                                    onClick={() => handleEdit(index)}
-                                                    className="text-black bg-transparent"
-                                                >
-                                                    <FiEdit2 className="w-5 h-5" />
-                                                </button>
-                                                <button
-                                                    size="sm"
-                                                    onClick={() => handleDelete(item?._id)}
-                                                    className="text-black bg-transparent"
-                                                >
-                                                    <AiOutlineDelete className="w-5 h-5" />
-                                                </button>
+                                                {checkAccess("company", "view") && (
+                                                    <button
+                                                        size="sm"
+                                                        className="text-black bg-transparent"
+                                                    >
+                                                        <AiTwotoneEye className="w-5 h-5" />
+                                                    </button>
+                                                )}
+                                                {checkAccess("company", "edit") && (
+                                                    <button
+                                                        size="sm"
+                                                        onClick={() => handleEdit(index)}
+                                                        className="text-black bg-transparent"
+                                                    >
+                                                        <FiEdit2 className="w-5 h-5" />
+                                                    </button>
+                                                )}
+                                                {checkAccess("company", "delete") && (
+                                                    <button
+                                                        size="sm"
+                                                        onClick={() => handleDelete(item?._id)}
+                                                        className="text-black bg-transparent"
+                                                    >
+                                                        <AiOutlineDelete className="w-5 h-5" />
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

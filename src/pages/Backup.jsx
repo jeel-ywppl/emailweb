@@ -8,9 +8,11 @@ import {Card, CardHeader, CardBody, Typography, Input} from "@material-tailwind/
 import {Eye, Trash2} from "lucide-react";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
 import Loader from "../componets/Loader";
+import useCheckAccess from "../utils/useCheckAccess";
 
 const Backup = () => {
     const dispatch = useAppDispatch();
+    const checkAccess = useCheckAccess();
     const [isModalOpen, setModalOpen] = useState(false);
     const [emailToDelete, setEmailToDelete] = useState("");
     const [search, setSearch] = useState("");
@@ -122,23 +124,33 @@ const Backup = () => {
                                                 </td>
                                                 <td className={className}>
                                                     <div className="flex justify-start items-center gap-3">
-                                                        <button
-                                                            onClick={() =>
-                                                                handleEdit(item?.backup_email)
-                                                            }
-                                                        >
-                                                            <Eye size={"20px"} strokeWidth={1} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                setEmailToDelete(
-                                                                    item?.backup_email,
-                                                                );
-                                                                setModalOpen(true);
-                                                            }}
-                                                        >
-                                                            <Trash2 size={"20px"} strokeWidth={1} />
-                                                        </button>
+                                                        {checkAccess("backup", "view")  && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleEdit(item?.backup_email)
+                                                                }
+                                                            >
+                                                                <Eye
+                                                                    size={"20px"}
+                                                                    strokeWidth={1}
+                                                                />
+                                                            </button>
+                                                        )}
+                                                        {checkAccess("backup", "delete") && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setEmailToDelete(
+                                                                        item?.backup_email,
+                                                                    );
+                                                                    setModalOpen(true);
+                                                                }}
+                                                            >
+                                                                <Trash2
+                                                                    size={"20px"}
+                                                                    strokeWidth={1}
+                                                                />
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>

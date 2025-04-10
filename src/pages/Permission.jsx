@@ -7,7 +7,7 @@ import {toast} from "react-toastify";
 import {SwitchCustomStyles} from "../componets/SwitchCustomStyles";
 import {ArrowLeft} from "lucide-react";
 
-const RolePermissionsPage = () => {
+const Permission = () => {
     const {id} = useParams();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
@@ -65,7 +65,6 @@ const RolePermissionsPage = () => {
                         if (response) {
                             dispatch(getRolePermissions(object));
                         }
-                        toast.success("Permissions updated successfully!");
                     })
                     .catch(() => {
                         toast.error("Failed to update permissions");
@@ -186,4 +185,4 @@ const RolePermissionsPage = () => {
     );
 };
 
-export default RolePermissionsPage;
+export default Permission;

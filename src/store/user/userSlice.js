@@ -4,6 +4,7 @@ import {findUser, findUserWithoutFilter} from "./index";
 const initialState = {
     data: [],
     noFilterData: [],
+    selecteduser: null,
     skip: 0,
     limit: 10,
     totalRecords: 1,
