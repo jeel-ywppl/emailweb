@@ -246,7 +246,7 @@ const Inbox = () => {
                     onClick={() => handleEmailClick(email)}
                     key={email?._id}
                     className={`flex flex-col px-5 py-4 border border-gray-200 hover:bg-gray-50 cursor-pointer transition-all duration-200 ease-in-out rounded-lg mt-2 ${
-                        !email.read_status ? "bg-lightblue-100" : "bg-white"
+                        !email.read_status ? "bg-[#e2f7f5]" : "bg-white"
                     }`}
                 >
                     <div className="flex justify-between items-center">
@@ -306,21 +306,21 @@ const Inbox = () => {
                             >
                                 <FaEllipsisV />
                             </button>
-                            {dropdownOpen === email._id && (
+                            {dropdownOpen === email?._id && (
                                 <div
                                     ref={dropdownRef}
                                     className="absolute right-3 top-5 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
                                 >
                                     <div className="py-1">
                                         <button
-                                            onClick={() => handleDropdownAction("star", email._id)}
+                                            onClick={() => handleDropdownAction("star", email?._id)}
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             Star
                                         </button>
                                         <button
                                             onClick={() =>
-                                                handleDropdownAction("archive", email._id)
+                                                handleDropdownAction("archive", email?._id)
                                             }
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
@@ -328,20 +328,22 @@ const Inbox = () => {
                                         </button>
                                         <button
                                             onClick={() =>
-                                                handleDropdownAction("markAsUnread", email._id)
+                                                handleDropdownAction("markAsUnread", email?._id)
                                             }
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             Mark as Unread
                                         </button>
                                         <button
-                                            onClick={() => handleDropdownAction("trash", email._id)}
+                                            onClick={() =>
+                                                handleDropdownAction("trash", email?._id)
+                                            }
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             Move to Trash
                                         </button>
                                         <button
-                                            onClick={() => handleDropdownAction("spam", email._id)}
+                                            onClick={() => handleDropdownAction("spam", email?._id)}
                                             className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             Mark as Spam
@@ -371,6 +373,16 @@ const Inbox = () => {
                             )}
                             ...
                         </h5>
+                        {email?.replies?.length > 0 && (
+                            <p className="text-xs text-gray-500 font-medium mt-1">
+                                Replied by {email?.replies[0]?.sender_name || "someone"} (
+                                {email.replies.length})
+                            </p>
+                        )}
+
+                        {email?.isForwarded && (
+                            <p className="text-xs text-green-600 font-medium mt-1">Forwarded</p>
+                        )}
                         {email?.attachments.length > 0 && (
                             <div className="flex items-center text-sm text-gray-500 mt-1">
                                 <FaPaperclip className="mr-1" /> {email.attachments.length}{" "}

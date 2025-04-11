@@ -20,23 +20,42 @@ const ReplyMail = ({
     const [replySubject, setReplySubject] = useState("");
     const [body, setBody] = useState("");
     const [attachments, setAttachments] = useState([]);
-    const [recipientEmailsCc, setRecipientEmailsCc] = useState([]); 
-    const [recipientEmailsBcc, setRecipientEmailsBcc] = useState([]); 
+    const [recipientEmailsCc, setRecipientEmailsCc] = useState([]);
+    const [recipientEmailsBcc, setRecipientEmailsBcc] = useState([]);
 
     useEffect(() => {
+        const formattedDate = new Date(createdAt).toLocaleString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true,
+        });
+
         setReplySubject(subject);
-        setBody("");
+
+        const quotedBody = `
+            <br/><br/><br/><br/><br/><br/>
+            On ${formattedDate}, ${user} &lt;${recipientEmail}&gt; wrote:
+            <blockquote style="margin:0 0 0 1em; padding-left:1em; border-left:2px solid #ccc;">
+                ${content}
+            </blockquote>
+        `;
+        setBody(quotedBody);
     }, [subject, recipientEmail, senderEmail, createdAt, user, content]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const formData = new FormData();
         formData.append("originalEmailId", originalEmailId);
-        formData.append("subject", replySubject);
+        formData.append("subject", subject);
         formData.append("body", body);
         formData.append("is_reply", true);
 
         const recipientEmails = Array.isArray(recipientEmail) ? recipientEmail : [recipientEmail];
+
         recipientEmails.forEach((email, index) => {
             formData.append(`recipient_emails_to[${index}]`, email);
         });
@@ -46,6 +65,7 @@ const ReplyMail = ({
             : recipientEmailsCc
             ? [recipientEmailsCc]
             : [];
+
         const bccEmails = Array.isArray(recipientEmailsBcc)
             ? recipientEmailsBcc
             : recipientEmailsBcc
@@ -77,7 +97,7 @@ const ReplyMail = ({
                 <Close />
             </button>
             <form onSubmit={handleSubmit} className="mt-4 p-4 border rounded-lg bg-white shadow-md">
-                <h2 className="text-lg font-semibold">Reply to {recipientEmail}</h2>
+                <h2 className="text-lg font-semibold">Reply to {senderEmail}</h2>
 
                 <div className="mt-2">
                     <Input
@@ -90,7 +110,6 @@ const ReplyMail = ({
                     />
                 </div>
 
-                {/* CC Field */}
                 <div className="mt-2">
                     <Input
                         label="CC"
@@ -105,7 +124,6 @@ const ReplyMail = ({
                     />
                 </div>
 
-                {/* BCC Field */}
                 <div className="mt-2">
                     <Input
                         label="BCC"
@@ -141,7 +159,8 @@ const ReplyMail = ({
 };
 
 ReplyMail.propTypes = {
-    recipientEmail: PropTypes.array.isRequired,
+    recipientEmail: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)])
+        .isRequired,
     onSend: PropTypes.func.isRequired,
     senderEmail: PropTypes.string.isRequired,
     subject: PropTypes.string.isRequired,

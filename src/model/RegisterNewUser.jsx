@@ -8,6 +8,7 @@ import {EyeIcon, EyeOffIcon} from "lucide-react";
 import {findDomainWithoutFilter} from "../store/Domain";
 import {findRoleWithoutFilter} from "../store/roles";
 import {Autocomplete, TextField} from "@mui/material";
+import { findCompanyWithoutFilter } from "../store/company";
 
 const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
     const dispatch = useAppDispatch();
@@ -19,6 +20,7 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
     const {noFilterCompany} = useAppSelector((state) => state.company);
 
     useEffect(() => {
+        dispatch(findCompanyWithoutFilter());
         dispatch(findDomainWithoutFilter());
         dispatch(findRoleWithoutFilter());
     }, [dispatch]);

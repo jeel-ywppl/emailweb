@@ -203,7 +203,7 @@ const EmailView = () => {
                         </div>
                         <div className="flex items-center text-gray-500 space-x-3">
                             <span className="text-sm">
-                                {new Date(email?.createdAt).toLocaleString()}
+                                {new Date(email?.updatedAt).toLocaleString()}
                             </span>
                             <button
                                 onClick={() => handleReplyClick(null)}
@@ -376,7 +376,7 @@ const EmailView = () => {
                             recipientEmail={replyDetails?.recipientEmail}
                             senderEmailCC={email?.recipient_emails_cc[0]}
                             senderEmailBCC={email?.recipient_emails_bcc[0]}
-                            senderEmail={replyDetails?.recipient_emails_to}
+                            senderEmail={replyDetails?.sender_email}
                             subject={replyDetails?.subject}
                             createdAt={replyDetails?.createdAt}
                             user={email?.sender_name}
