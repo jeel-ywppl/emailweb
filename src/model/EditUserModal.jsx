@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react";
 import PropTypes from "prop-types";
 import {
-    Button,
     Input,
     DialogHeader,
     DialogBody,
@@ -16,6 +15,7 @@ import {useAppDispatch} from "../store";
 import {editUser} from "../store/user";
 import {editUserValidationSchema} from "../validation/editUserValidationSchema";
 import {findDomainWithoutFilter} from "../store/Domain";
+import MyButton from "../componets/MyButton";
 
 const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) => {
     const dispatch = useAppDispatch();
@@ -159,12 +159,16 @@ const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) =
             </DialogBody>
 
             <DialogFooter className="gap-3">
-                <Button color="gray" onClick={onClose} disabled={isSubmitting}>
-                    Cancel
-                </Button>
-                <Button color="green" onClick={handleSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? "Saving..." : "Save"}
-                </Button>
+                <MyButton label="Cancel" onClick={onClose} type="outlineGray" disabled={isSubmitting} />
+
+                <MyButton
+                    htmlType="submit"
+                    label={isSubmitting ? "Saving..." : "Save"}
+                    onClick={handleSubmit}
+                    type="primary"
+                    disabled={isSubmitting}
+
+                />
             </DialogFooter>
         </Dialog>
     );

@@ -21,7 +21,6 @@ const backupSlice = createSlice({
     reducers: {
         setLimit: (state, action) => {
             state.limit = action?.payload?.limit;
-
             state.status = "idle";
         },
         setSkip: (state, action) => {

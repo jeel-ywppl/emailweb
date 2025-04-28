@@ -23,7 +23,21 @@ const ReplyMail = ({
     const [recipientEmailsCc, setRecipientEmailsCc] = useState([]);
     const [recipientEmailsBcc, setRecipientEmailsBcc] = useState([]);
 
+    const [showCc, setShowCc] = useState(false);
+    const [showBcc, setShowBcc] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [recipientEmailsTo, setRecipientEmailsTo] = useState([]);
+
     useEffect(() => {
+        const filteredRecipients = Array.isArray(recipientEmail)
+            ? recipientEmail?.filter((email) => email !== senderEmail)
+            : recipientEmail !== senderEmail
+            ? [recipientEmail]
+            : [];
+
+        setRecipientEmailsTo(filteredRecipients);
+        console.log("Updated recipientEmailsTo:", recipientEmailsTo);
+
         const formattedDate = new Date(createdAt).toLocaleString("en-US", {
             weekday: "short",
             month: "short",
@@ -48,15 +62,19 @@ const ReplyMail = ({
 
     const handleSubmit = (event) => {
         event.preventDefault();
+
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
+
         const formData = new FormData();
         formData.append("originalEmailId", originalEmailId);
-        formData.append("subject", subject);
+        formData.append("subject", replySubject);
         formData.append("body", body);
         formData.append("is_reply", true);
 
-        const recipientEmails = Array.isArray(recipientEmail) ? recipientEmail : [recipientEmail];
-
-        recipientEmails.forEach((email, index) => {
+        const toEmails = recipientEmailsTo?.filter((email) => email);
+        toEmails.forEach((email, index) => {
             formData.append(`recipient_emails_to[${index}]`, email);
         });
 
@@ -80,9 +98,22 @@ const ReplyMail = ({
             formData.append(`recipient_emails_bcc[${index}]`, email);
         });
 
-        attachments.forEach((file) => {
-            formData.append("files", file);
+        if (attachments && attachments.length > 0) {
+            attachments.forEach((file) => {
+                formData.append(`files`, file);
+            });
+        }
+
+        const formDataLog = {};
+        formData.forEach((value, key) => {
+            if (key.includes("files")) {
+                formDataLog[key] = value.name ? value.name : value;
+            } else {
+                formDataLog[key] = value;
+            }
         });
+
+        console.log("FormData Payload before submitting:", formDataLog);
 
         onSend(formData);
     };
@@ -96,8 +127,96 @@ const ReplyMail = ({
             >
                 <Close />
             </button>
+
             <form onSubmit={handleSubmit} className="mt-4 p-4 border rounded-lg bg-white shadow-md">
-                <h2 className="text-lg font-semibold">Reply to {senderEmail}</h2>
+                <div className="mt-4">
+                    <div className="flex justify-between items-start gap-4">
+                        <div className="flex flex-col flex-grow">
+                            <label htmlFor="toInput" className="text-sm text-gray-600 mb-1">
+                                To
+                            </label>
+                            <input
+                                id="toInput"
+                                type="text"
+                                value={recipientEmailsTo.join(", ")}
+                                onChange={(e) =>
+                                    setRecipientEmailsTo(
+                                        e.target.value.split(",").map((email) => email.trim()),
+                                    )
+                                }
+                                className="w-full outline-none border-b border-gray-400 focus:border-blue-500 focus:ring-0 rounded-none py-1 px-2"
+                                required
+                            />
+                        </div>
+
+                        <div className="flex space-x-2 pt-6">
+                            {!showCc && (
+                                <button
+                                    type="button"
+                                    className="text-blue-600 hover:text-blue-800 text-sm"
+                                    onClick={() => setShowCc(true)}
+                                >
+                                    CC
+                                </button>
+                            )}
+                            {!showBcc && (
+                                <button
+                                    type="button"
+                                    className="text-blue-600 hover:text-blue-800 text-sm"
+                                    onClick={() => setShowBcc(true)}
+                                >
+                                    BCC
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {showCc && (
+                    <div className="flex justify-between items-center mt-2">
+                        <label htmlFor="">CC:- </label>
+                        <input
+                            type="text"
+                            value={recipientEmailsCc.join(", ")}
+                            onChange={(e) =>
+                                setRecipientEmailsCc(
+                                    e.target.value.split(",").map((email) => email.trim()),
+                                )
+                            }
+                            className="flex-1 py-1 px-2 border-b"
+                        />
+                        <button
+                            type="button"
+                            className="text-red-600 hover:text-red-800 text-sm"
+                            onClick={() => setShowCc(false)}
+                        >
+                            Hide CC
+                        </button>
+                    </div>
+                )}
+
+                {showBcc && (
+                    <div className="flex justify-between items-center mt-2">
+                        <label htmlFor="">BCC:- </label>
+                        <input
+                            type="text"
+                            value={recipientEmailsBcc.join(", ")}
+                            onChange={(e) =>
+                                setRecipientEmailsBcc(
+                                    e.target.value.split(",").map((email) => email.trim()),
+                                )
+                            }
+                            className="flex-1 py-1 px-2 border-b"
+                        />
+                        <button
+                            type="button"
+                            className="text-red-600 hover:text-red-800 text-sm"
+                            onClick={() => setShowBcc(false)}
+                        >
+                            Hide BCC
+                        </button>
+                    </div>
+                )}
 
                 <div className="mt-2">
                     <Input
@@ -105,36 +224,7 @@ const ReplyMail = ({
                         type="text"
                         value={replySubject}
                         onChange={(e) => setReplySubject(e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"
                         required
-                    />
-                </div>
-
-                <div className="mt-2">
-                    <Input
-                        label="CC"
-                        type="text"
-                        value={recipientEmailsCc.join(", ")}
-                        onChange={(e) =>
-                            setRecipientEmailsCc(
-                                e.target.value.split(",").map((email) => email.trim()),
-                            )
-                        }
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"
-                    />
-                </div>
-
-                <div className="mt-2">
-                    <Input
-                        label="BCC"
-                        type="text"
-                        value={recipientEmailsBcc.join(", ")}
-                        onChange={(e) =>
-                            setRecipientEmailsBcc(
-                                e.target.value.split(",").map((email) => email.trim()),
-                            )
-                        }
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50"
                     />
                 </div>
 
@@ -148,9 +238,14 @@ const ReplyMail = ({
                     <Button
                         color="primary"
                         type="submit"
-                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        disabled={isSubmitting}
+                        className={`mt-4 px-4 py-2 text-white rounded-md ${
+                            isSubmitting
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700"
+                        }`}
                     >
-                        Send
+                        {isSubmitting ? "Sending..." : "Send"}
                     </Button>
                 </div>
             </form>

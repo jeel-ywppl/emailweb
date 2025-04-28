@@ -2,7 +2,8 @@ import PropTypes from "prop-types";
 import {useAppDispatch} from "../store";
 import {useState} from "react";
 import {verify2FARecoveryOTP} from "../store/auth";
-import {Dialog, Button} from "@material-tailwind/react";
+import {Dialog} from "@material-tailwind/react";
+import MyButton from "../componets/MyButton";
 
 const RecovryOTPVerify = ({open, onClose, email, set2FAEnabled, is2FAEnabled}) => {
     const dispatch = useAppDispatch();
@@ -63,14 +64,13 @@ const RecovryOTPVerify = ({open, onClose, email, set2FAEnabled, is2FAEnabled}) =
                 {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
             </div>
             <div className="flex flex-col gap-3">
-                <Button
-                    color="primary1"
-                    className="w-full"
+                <MyButton
+                    label={loading ? "Verifying..." : "Verify account"}
                     onClick={handleVerify}
+                    fullWidth
                     disabled={code.length !== 6 || loading}
-                >
-                    {loading ? "Verifying..." : "Verify account"}
-                </Button>
+                    type="primary"
+                />
             </div>
         </Dialog>
     );

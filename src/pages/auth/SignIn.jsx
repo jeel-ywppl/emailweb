@@ -1,80 +1,112 @@
-import {EyeIcon, EyeSlashIcon} from "@heroicons/react/24/outline";
-import {Button, Checkbox, Input, Typography} from "@material-tailwind/react";
+import {useEffect, useState} from "react";
+import {Eye, EyeOff} from "lucide-react";
+import {useNavigate} from "react-router-dom";
+import {useAppDispatch} from "../../store";
 import {useFormik} from "formik";
-import {useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
+import {Button} from "@material-tailwind/react";
 import {authenticateUser, getUserInfo, verifyOTPFor2FA} from "../../store/auth";
 import {signInValidationSchema} from "../../validation/signInValidationSchema";
-import {useAppDispatch, useAppSelector} from "../../store";
 import LoginAuthOtpModel from "./loginAuthOtpModel";
 import {toast} from "react-toastify";
 import {setItem} from "../../utils/localStorage";
 
-const SignIn = () => {
+const Index = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [otp, setOtp] = useState(Array(6).fill(""));
     const [showPassword, setShowPassword] = useState(false);
     const [otpModalOpen, setOtpModalOpen] = useState(false);
-    const {user} = useAppSelector((state) => state.auth);
 
-    const {handleChange, handleBlur, handleSubmit, isSubmitting, values, errors, touched} =
-        useFormik({
-            initialValues: {
-                email: "",
-                password: "",
-            },
-            validationSchema: signInValidationSchema,
-            onSubmit: async (values, {setSubmitting, setFieldError}) => {
-                try {
-                    console.log("response----", values);
-                    const response = await dispatch(authenticateUser(values));
-                    if (response?.payload?.otpRequired) {
-                        setOtpModalOpen(true);
-                    } else {
-                        setOtpModalOpen(false);
-                        navigate("/");
-                    }
-                    if (response?.payload?.success && !response?.payload?.otpRequired) {
-                        await dispatch(getUserInfo());
-                        console.log(user, "authentication trfsl");
-                        // if (response?.payload?.otpRequired) {
-                        //     console.log("setOtpModalOpen", response?.payload);
-                        //     setOtpModalOpen(true);
-                        // } else {
-                        //     setOtpModalOpen(false);
-                        //     navigate("/inbox");
-                        // }
-                    } else {
-                        console.log("response?.payload?.message", response?.payload?.message);
-                        setFieldError("general", response?.payload?.message || "Login failed.");
-                    }
-                } catch {
-                    setFieldError("general", "An unexpected error occurred.");
-                } finally {
-                    setSubmitting(false);
+    const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+
+    const loadRecaptchaScript = () => {
+        const script = document.createElement("script");
+        script.src = "https://www.google.com/recaptcha/api.js";
+        script.async = true;
+        script.defer = true;
+        document.body.appendChild(script);
+    };
+
+    useEffect(() => {
+        loadRecaptchaScript();
+    }, []);
+
+    const resetRecaptcha = () => {
+        window.grecaptcha.reset();
+    };
+
+    const {
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        isSubmitting,
+        values,
+        errors,
+        touched,
+        setFieldError,
+        setSubmitting,
+    } = useFormik({
+        initialValues: {
+            email: "",
+            password: "",
+        },
+        validationSchema: signInValidationSchema,
+        onSubmit: async (values) => {
+            if (!window.grecaptcha || !window.grecaptcha.getResponse) {
+                setFieldError("general", "reCAPTCHA is not ready. Please refresh the page.");
+                return;
+            }
+
+            const recaptchaToken = window.grecaptcha.getResponse();
+            if (!recaptchaToken) {
+                setFieldError("general", "Please complete the reCAPTCHA.");
+                return;
+            }
+
+            try {
+                const payload = {
+                    ...values,
+                    "g-recaptcha-response": recaptchaToken,
+                };
+
+                const response = await dispatch(authenticateUser(payload));
+
+                if (response?.payload?.otpRequired) {
+                    setOtpModalOpen(true);
+                } else if (response?.payload?.success) {
+                    await dispatch(getUserInfo());
+                    navigate("/");
+                } else {
+                    setFieldError("general", response?.payload?.message || "Login failed.");
                 }
-            },
-        });
+                resetRecaptcha();
+            } catch (error) {
+                console.error(error);
+                resetRecaptcha();
+                setFieldError("general", "An unexpected error occurred.");
+            } finally {
+                setSubmitting(false);
+            }
+        },
+    });
 
-        const handleOtpChange = (index, value) => {
+    const handleOtpChange = (index, value) => {
+        const newOtp = [...otp];
+        newOtp[index] = value;
+        setOtp(newOtp);
+        if (value && index < otp.length - 1) {
+            document.getElementById(`otp-input-${index + 1}`).focus();
+        }
+    };
+
+    const handleBackspace = (e, index) => {
+        if (e.key === "Backspace" && index > 0) {
             const newOtp = [...otp];
-            newOtp[index] = value;
+            newOtp[index] = "";
             setOtp(newOtp);
-            if (value && index < otp.length - 1) {
-                document.getElementById(`otp-input-${index + 1}`).focus();
-            }
-        };
-        
-        const handleBackspace = (e, index) => {
-            if (e.key === "Backspace" && index > 0) {
-                const newOtp = [...otp];
-                newOtp[index] = "";
-                setOtp(newOtp);
-                document.getElementById(`otp-input-${index - 1}`).focus();
-            }
-        };
-        
+            document.getElementById(`otp-input-${index - 1}`).focus();
+        }
+    };
 
     const handleOtpSubmit = async () => {
         const otpString = otp.join("");
@@ -94,138 +126,139 @@ const SignIn = () => {
     };
 
     return (
-        <section
-            className="h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative"
-            style={{backgroundImage: `url('/imgs/1746.jpg')`}}
-        >
-            <div className="absolute inset-0 bg-black/40 "></div>
-            <div className="relative inset-0 bg-black/0 backdrop-blur-[1px] w-full sm:w-4/5 lg:w-5/12 xl:w-[35%] px-5 sm:px-10  border rounded-xl py-8 border-gray-200 bg-trasparant   text-white">
-                <div className="text-center ">
-                    <Typography variant="h3" className="font-bold mb-4 text-white">
-                        Log In
-                    </Typography>
-                    <Typography variant="paragraph" color="" className="text-lg font-normal">
-                        Enter your email and password to Sign In.
-                    </Typography>
+        <div className="min-h-screen w-full flex">
+            <div className="hidden lg:flex lg:w-1/2 bg-[#f5f5f5] flex-col p-12 relative">
+                <div className="absolute top-6 left-6">
+                    <h1 className="text-4xl font-bold tracking-tight text-right">Welcome!</h1>
                 </div>
-                <form onSubmit={handleSubmit} className="mt-6 mb-2 mx-auto w-full">
-                    <div className="mb-4">
-                        <Typography variant="small" color="" className="mb-1 font-medium">
-                            Email
-                        </Typography>
-                        <Input
-                            type="email"
-                            name="email"
-                            placeholder="example@email.com"
-                            value={values.email}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            labelProps={{
-                                className: "hidden",
-                            }}
-                            className="border border-white  text-white focus:shadow-md focus:shadow-gray-500 ring-1 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 focus:!border-white focus:!border-t-white "
-                        />
-                        {touched.email && errors.email && (
-                            <div className="text-red-500 text-xs mt-1">{errors.email}</div>
-                        )}
+
+                <div className="flex  items-center justify-center h-full gap-6">
+                    <div className="text-5xl font-black text-center">Hive Mailer</div>
+
+                    <div className="">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 32 32"
+                            className="w-16 h-16 text-[#153e6d]"
+                        >
+                            <path
+                                d="M29 4H3a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h26a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm-.72 2L16 14.77 3.72 6zM2 24.59V7.23l10.12 7.23zM3.41 26l10.36-10.36 1.64 1.17a1 1 0 0 0 1.16 0l1.64-1.17L28.59 26zM30 24.59 19.88 14.46 30 7.23z"
+                                data-name="2-Email"
+                            />
+                        </svg>
                     </div>
-                    <div className="mb-4">
-                        <Typography variant="small" color="" className="mb-1 font-medium">
-                            Password
-                        </Typography>
-                        <div className="relative">
-                            <Input
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                value={values.password}
-                                placeholder="********"
+                </div>
+            </div>
+
+            {/* Right Section */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+                <div className="w-full max-w-md space-y-8">
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-semibold tracking-tight">Log in</h2>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Email field */}
+                        <div className="space-y-2">
+                            <label className="text-sm text-gray-600 uppercase tracking-wide">
+                                Email
+                            </label>
+                            <input
+                                type="email"
+                                placeholder="Email "
+                                className="h-12 border-gray-200 w-full rounded-md"
+                                name="email"
+                                value={values.email}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                labelProps={{
-                                    className: "hidden",
-                                }}
-                                className="border border-white  text-white focus:shadow-md focus:shadow-gray-500 ring-1 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 focus:!border-white focus:!border-t-white "
                             />
-                            <button
-                                type="button"
-                                className="absolute top-2.5 right-3 text-gray-500 focus:outline-none"
-                                size="xs"
-                                onClick={() => setShowPassword(!showPassword)}
-                            >
-                                {showPassword ? (
-                                    <EyeIcon className="h-5 w-5" />
-                                ) : (
-                                    <EyeSlashIcon className="h-5 w-5" />
-                                )}
-                            </button>
+                            {touched.email && errors.email && (
+                                <div className="text-red-500 text-xs mt-1">{errors.email}</div>
+                            )}
                         </div>
-                        {touched.password && errors.password && (
-                            <div className="text-red-500 text-xs mt-1">{errors.password}</div>
-                        )}
-                    </div>
-                    <div className="mb-3">
-                        <Checkbox
-                            id="acceptTerms"
-                            name="acceptTerms"
-                            checked={values.acceptTerms}
-                            onChange={handleChange}
-                            className="border border-gray-200"
-                            containerProps={{className: "-ml-2.5"}}
-                            label={
-                                <Typography
-                                    variant="small"
-                                    color="white"
-                                    className="flex items-center justify-start font-medium"
+
+                        {/* Password field */}
+                        <div className="space-y-2">
+                            <label className="text-sm text-gray-600 uppercase tracking-wide">
+                                Password
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Password"
+                                    className="h-12 border-gray-200 w-full rounded-md"
+                                    name="password"
+                                    value={values.password}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                 >
-                                    I agree to the&nbsp;
-                                    <Link
-                                        to="#"
-                                        className="font-normal transition-colors hover:text-blue-900 underline"
-                                    >
-                                        Terms and Conditions
-                                    </Link>
-                                </Typography>
-                            }
-                        />
-                        {touched.acceptTerms && errors.acceptTerms && (
-                            <div className="text-red-500 text-sm mt-1">{errors.acceptTerms}</div>
-                        )}
-                    </div>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        className="mt-6 bg-blue-trasparant border border-white text-white hover:shadow-md hover:shadow-gray-500 ring-1 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 hover:!border-white hover:!border-t-white"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? (
-                            <div className="flex justify-center items-center space-x-2">
-                                <span>Logging In</span>
-                                <svg
-                                    className="animate-spin h-5 w-5 text-white"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle
-                                        className="opacity-25"
-                                        cx="12"
-                                        cy="12"
-                                        r="10"
-                                        stroke="currentColor"
-                                        strokeWidth="4"
-                                    ></circle>
-                                    <path
-                                        className="opacity-75"
-                                        fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                    ></path>
-                                </svg>
+                                    {showPassword ? (
+                                        <EyeOff className="h-5 w-5" />
+                                    ) : (
+                                        <Eye className="h-5 w-5" />
+                                    )}
+                                </button>
+                                {touched.password && errors.password && (
+                                    <div className="text-red-500 text-xs mt-1">
+                                        {errors.password}
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            "Log In"
-                        )}
-                    </Button>
-                </form>
+                        </div>
+
+                        {/* Remember me checkbox */}
+                        <div className="mb-4">
+                            <div
+                                className="g-recaptcha scale-[0.88] transform origin-left inline-block"
+                                data-sitekey={RECAPTCHA_SITE_KEY}
+                            ></div>
+                            {errors.general && (
+                                <p className="text-red-500 text-sm mt-1">{errors.general}</p>
+                            )}
+                        </div>
+
+                        {/* Submit button */}
+
+                        <Button
+                            type="submit"
+                            className="w-full h-12 bg-black hover:bg-black/90 text-white rounded-md"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <div className="flex justify-center items-center space-x-2">
+                                    <span>Logging In</span>
+                                    <svg
+                                        className="animate-spin h-5 w-5 text-white"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
+                                    </svg>
+                                </div>
+                            ) : (
+                                "Log in now"
+                            )}
+                        </Button>
+                    </form>
+                </div>
             </div>
             <LoginAuthOtpModel
                 open={otpModalOpen}
@@ -235,8 +268,8 @@ const SignIn = () => {
                 handleSubmit={handleOtpSubmit}
                 onCancel={() => setOtpModalOpen(false)}
             />
-        </section>
+        </div>
     );
 };
 
-export default SignIn;
+export default Index;

@@ -1,6 +1,6 @@
 import {useEffect, useState, useRef} from "react";
 import {useAppDispatch, useAppSelector} from "../../store";
-import {Link} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {config} from "../../utils/util";
 import {FaPaperclip, FaStar, FaEllipsisV, FaRegStar} from "react-icons/fa";
 import {toast} from "react-toastify";
@@ -15,6 +15,7 @@ import {RotateCcw} from "lucide-react";
 
 const Starred = () => {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} =
         useAppSelector((state) => state.email);
     const [selectedEmails, setSelectedEmails] = useState([]);
@@ -30,7 +31,7 @@ const Starred = () => {
     const handleCheckboxChange = (emailId) => {
         setSelectedEmails((prevSelected) =>
             prevSelected.includes(emailId)
-                ? prevSelected.filter((id) => id !== emailId)
+                ? prevSelected?.filter((id) => id !== emailId)
                 : [...prevSelected, emailId],
         );
     };
@@ -49,7 +50,7 @@ const Starred = () => {
     };
 
     const handleStarToggle = (emailId) => {
-        const isCurrentlyStarred = emails.find((email) => email._id === emailId)?.star_status;
+        const isCurrentlyStarred = emails?.find((email) => email?._id === emailId)?.star_status;
         const newStarStatus = !isCurrentlyStarred;
         const payload = {
             email_id: [emailId],
@@ -73,7 +74,7 @@ const Starred = () => {
             return;
         }
         const actionMap = {
-            star: {star_status: false},
+            unstar: {star_status: false},
             archive: {archive_status: true},
             markAsUnread: {read_status: false},
             trash: {trash_status: true},
@@ -123,6 +124,23 @@ const Starred = () => {
 
     const refreshInbox = () => {
         dispatch(getAllEmailbyUser({page: currentPage, limit, status: "star_status=true"}));
+    };
+
+    const handleEmailClick = (email) => {
+        if (!email.read_status) {
+            const payload = {
+                email_id: [email._id],
+                read_status: true,
+            };
+            dispatch(changeEmailStatus(payload))
+                .unwrap()
+                .then(() => {
+                    console.log(`Email marked as read successfully!`);
+                })
+                .catch((error) => {
+                    toast.error(error || "Failed to update email status");
+                });
+        }
     };
 
     if (isLoading)
@@ -179,7 +197,7 @@ const Starred = () => {
                         >
                             <div className="py-1">
                                 <button
-                                    onClick={() => handleDropdownAction("star")}
+                                    onClick={() => handleDropdownAction("unstar")}
                                     className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                     Unstar
@@ -214,142 +232,136 @@ const Starred = () => {
                 </div>
             </div>
 
-            {emails.map((email) => (
-                <div
-                    key={email?._id}
-                    className={`flex flex-col px-5 py-4 border border-gray-200 hover:bg-gray-50 cursor-pointer transition-all duration-200 ease-in-out rounded-lg mt-2 ${
-                        !email.read_status ? "bg-lightblue-100" : "bg-white"
-                    }`}
-                >
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <input
-                                type="checkbox"
-                                checked={selectedEmails.includes(email?._id)}
-                                onChange={() => handleCheckboxChange(email?._id)}
-                                className="form-checkbox h-4 w-4 text-primary1 transition duration-150 ease-in-out"
-                            />
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleStarToggle(email?._id);
-                                }}
-                                className={`text-gray-600 hover:text-yellow-500 transition-colors duration-200 ${
-                                    email?.star_status ? "text-yellow-500" : ""
-                                }`}
-                            >
-                                {email?.star_status ? (
-                                    <FaStar size={18} />
-                                ) : (
-                                    <FaRegStar size={18} />
-                                )}
-                            </button>
-                            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                                {email?.profilePic ? (
-                                    <img
-                                        src={
-                                            email?.avatar.startsWith("http")
-                                                ? email?.avatar
-                                                : `${config.BASE_URL}/${email?.avatar}`
-                                        }
-                                        className="w-8 h-8 rounded-full object-cover"
-                                    />
-                                ) : (
-                                    <span className="text-white font-semibold text-xl">
-                                        {email?.sender_email?.charAt(0).toUpperCase()}
-                                    </span>
+            {emails.map((email) => {
+                const handleNavigate = () => {
+                    handleEmailClick(email);
+                    navigate(`/dashboard/starred/${email._id}`, {state: {...email}});
+                };
+
+                return (
+                    <div
+                        onClick={handleNavigate}
+                        key={email._id}
+                        className={`flex flex-col px-5 py-4 border border-gray-200 hover:bg-gray-50 cursor-pointer transition-all duration-200 ease-in-out rounded-lg mt-2 ${
+                            !email.read_status ? "bg-[#e2f7f5]" : "bg-white"
+                        }`}
+                    >
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedEmails.includes(email?._id)}
+                                    onChange={() => handleCheckboxChange(email?._id)}
+                                    className="form-checkbox h-4 w-4 text-primary1 transition duration-150 ease-in-out"
+                                />
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleStarToggle(email?._id);
+                                    }}
+                                    className={`text-gray-600 hover:text-yellow-500 transition-colors duration-200 ${
+                                        email?.star_status ? "text-yellow-500" : ""
+                                    }`}
+                                >
+                                    {email?.star_status ? (
+                                        <FaStar size={18} />
+                                    ) : (
+                                        <FaRegStar size={18} />
+                                    )}
+                                </button>
+                                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                                    {email?.profilePic ? (
+                                        <img
+                                            src={
+                                                email?.avatar.startsWith("http")
+                                                    ? email?.avatar
+                                                    : `${config.BASE_URL}/${email?.avatar}`
+                                            }
+                                            className="w-8 h-8 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="text-white font-semibold text-xl">
+                                            {email?.sender_email?.charAt(0).toUpperCase()}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex flex-col flex-grow ml-4">
+                                <h4 className="font-semibold text-base text-gray-900 hover:text-primary-700 truncate">
+                                    {email?.sender_email}
+                                </h4>
+                            </div>
+                            <div className="flex items-center gap-3 relative">
+                                <p className="text-xs text-gray-400">
+                                    {email?.updatedAt ? email?.updatedAt.split("T")[0] : ""}
+                                </p>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDropdownToggle(email?._id);
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                                >
+                                    <FaEllipsisV />
+                                </button>
+
+                                {dropdownOpen === email?._id && (
+                                    <div
+                                        ref={dropdownRef}
+                                        className="absolute right-3 top-5 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <div className="py-1">
+                                            {[
+                                                "unstar",
+                                                "archive",
+                                                "markAsUnread",
+                                                "trash",
+                                                "spam",
+                                            ].map((action) => (
+                                                <button
+                                                    key={action}
+                                                    onClick={() =>
+                                                        handleDropdownAction(action, email?._id)
+                                                    }
+                                                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                >
+                                                    {action
+                                                        .replace(/([A-Z])/g, " $1")
+                                                        .replace(/^./, (str) => str.toUpperCase())}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>
-                        <div className="flex flex-col flex-grow ml-4">
-                            <h4 className="font-semibold text-base text-gray-900 hover:text-primary-700 truncate">
-                                {email?.sender_email}
-                            </h4>
-                        </div>
-                        <div className="flex items-center gap-3 relative">
-                            <p className="text-xs text-gray-400">
-                                {email?.updatedAt ? email?.updatedAt.split("T")[0] : ""}
-                            </p>
-                            <button
-                                onClick={() => handleDropdownToggle(email?._id)}
-                                className="text-gray-400 hover:text-gray-600 focus:outline-none"
-                            >
-                                <FaEllipsisV />
-                            </button>
-                            {dropdownOpen === email?._id && (
-                                <div
-                                    ref={dropdownRef}
-                                    className="absolute right-3 top-5 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
-                                >
-                                    <div className="py-1">
-                                        <button
-                                            onClick={() => handleDropdownAction("star", email?._id)}
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Unstar
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                handleDropdownAction("archive", email?._id)
-                                            }
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Archive
-                                        </button>
-                                        <button
-                                            onClick={() =>
-                                                handleDropdownAction("markAsUnread", email?._id)
-                                            }
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Mark as Unread
-                                        </button>
-                                        <button
-                                            onClick={() => handleDropdownAction("trash", email?._id)}
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Move to Trash
-                                        </button>
-                                        <button
-                                            onClick={() => handleDropdownAction("spam", email?._id)}
-                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Mark as Spam
-                                        </button>
-                                    </div>
+                        <div className="mt-2 flex items-center gap-3">
+                            <h5 className="text-sm font-light text-gray-700 line-clamp-2 overflow-hidden">
+                                <span className="text-sm text-gray-800 font-semibold">
+                                    {email?.subject.slice(0, 30)}
+                                </span>{" "}
+                                {email?.body ? (
+                                    <span
+                                        dangerouslySetInnerHTML={{
+                                            __html: DOMPurify.sanitize(email?.body.slice(0, 100)),
+                                        }}
+                                    />
+                                ) : (
+                                    <span>No content available</span>
+                                )}
+                                ...
+                            </h5>
+                            {email?.attachments?.length > 0 && (
+                                <div className="flex items-center text-sm text-gray-500 mt-1">
+                                    <FaPaperclip className="mr-1" /> {email?.attachments?.length}{" "}
+                                    Attachment&apos;s
                                 </div>
                             )}
                         </div>
                     </div>
-                    <Link
-                        to={`/dashboard/starred/${email?._id}`}
-                        state={{...email}}
-                        className="mt-2 flex items-center gap-3"
-                    >
-                        <h5 className="text-sm font-light text-gray-700 line-clamp-2 overflow-hidden">
-                            <span className="text-sm text-gray-800 font-semibold">
-                                {email?.subject.slice(0, 30)}
-                            </span>{" "}
-                            {email?.body ? (
-                                <span
-                                    dangerouslySetInnerHTML={{
-                                        __html: DOMPurify.sanitize(email?.body.slice(0, 100)),
-                                    }}
-                                />
-                            ) : (
-                                <span>No content available</span>
-                            )}
-                            ...
-                        </h5>
-                        {email?.attachments?.length > 0 && (
-                            <div className="flex items-center text-sm text-gray-500 mt-1">
-                                <FaPaperclip className="mr-1" /> {email?.attachments?.length}{" "}
-                                Attachment&apos;s
-                            </div>
-                        )}
-                    </Link>
-                </div>
-            ))}
+                );
+            })}
             <Box sx={{position: "relative"}}>
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25, 50]}

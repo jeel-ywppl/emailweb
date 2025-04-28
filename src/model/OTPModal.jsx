@@ -2,11 +2,12 @@ import {useState, useRef, useEffect, useCallback} from "react";
 import PropTypes from "prop-types";
 import {useAppDispatch, useAppSelector} from "../store";
 import {verifyOTPFor2FA, getUserInfo} from "../store/auth";
-import {Button, Dialog} from "@material-tailwind/react";
+import {Dialog} from "@material-tailwind/react";
+import MyButton from "../componets/MyButton";
 
-const OtpModal = ({ open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode, onClose }) => {
+const OtpModal = ({open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode, onClose}) => {
     const dispatch = useAppDispatch();
-    const { loading, user } = useAppSelector((state) => state.auth);
+    const {loading, user} = useAppSelector((state) => state.auth);
     const inputRefs = useRef([]);
     const [otp, setOtp] = useState(Array(6).fill(""));
     const [errorMessage, setErrorMessage] = useState("");
@@ -27,7 +28,6 @@ const OtpModal = ({ open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode
         }
     };
 
-    // ✅ Wrap `handleSubmit` in `useCallback` to avoid re-renders
     const handleSubmit = useCallback(async () => {
         const otpCode = otp.join("");
         if (otpCode.length !== 6) return;
@@ -38,7 +38,7 @@ const OtpModal = ({ open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode
                 email: user.email,
                 otp: otpCode,
                 tfaStatus: !is2FAEnabled,
-            })
+            }),
         );
 
         if (!response?.error?.message) {
@@ -63,7 +63,6 @@ const OtpModal = ({ open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode
         }
     }, [open]);
 
-    // ✅ Wrap `onCancel` in `useCallback`
     const handleCancel = useCallback(() => {
         onCancel();
     }, [onCancel]);
@@ -71,9 +70,9 @@ const OtpModal = ({ open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === "Enter") {
-                handleSubmit(); // ✅ Submit OTP when Enter is pressed
+                handleSubmit();
             } else if (event.key === "Escape") {
-                handleCancel(); // ✅ Close modal when Escape is pressed
+                handleCancel();
             }
         };
 
@@ -84,7 +83,7 @@ const OtpModal = ({ open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, [open, handleSubmit, handleCancel]); 
+    }, [open, handleSubmit, handleCancel]);
 
     return (
         <Dialog size="xs" open={open} onClose={onCancel}>
@@ -120,26 +119,27 @@ const OtpModal = ({ open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode
                 )}
 
                 <div className="flex justify-end gap-2 mt-6">
-                    <Button
+                    <MyButton
+                        label="Nevermind"
                         onClick={onCancel}
-                        color="gray"
-                        className="py-3 text-xs font-medium"
+                        type="outlineGray"
                         disabled={loading}
-                    >
-                        Nevermind
-                    </Button>
-                    <Button
+                        className="py-3 text-xs font-medium"
+                    />
+
+                    <MyButton
+                        label={
+                            loading
+                                ? "Verifying..."
+                                : mode === "enable"
+                                ? "Disable two-factor authentication"
+                                : "Enable two-factor authentication"
+                        }
                         onClick={handleSubmit}
-                        color={mode === "enable" ? "red" : "blue"}
-                        className="py-3 text-xs font-medium"
+                        type={mode === "enable" ? "danger" : "primary"}
                         disabled={loading}
-                    >
-                        {loading
-                            ? "Verifying..."
-                            : mode === "enable"
-                            ? "Disable two-factor authentication"
-                            : "Enable two-factor authentication"}
-                    </Button>
+                        className="py-3 text-xs font-medium"
+                    />
                 </div>
             </div>
         </Dialog>
@@ -150,7 +150,7 @@ OtpModal.propTypes = {
     open: PropTypes.bool.isRequired,
     mode: PropTypes.bool.isRequired,
     onConfirm: PropTypes.func.isRequired,
-    onClose:PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     set2FAEnabled: PropTypes.func,
     is2FAEnabled: PropTypes.bool,

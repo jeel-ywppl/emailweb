@@ -1,16 +1,10 @@
 import {useState, useEffect} from "react";
 import PropTypes from "prop-types";
-import {
-    Dialog,
-    DialogBody,
-    DialogFooter,
-    Button,
-    Input,
-    Typography,
-} from "@material-tailwind/react";
+import {Dialog, DialogBody, DialogFooter, Input, Typography} from "@material-tailwind/react";
 import {useDispatch} from "react-redux";
 import {toast} from "react-toastify";
 import {createModule, editModule, findModules} from "../store/modules";
+import MyButton from "../componets/MyButton";
 
 const CreateModual = ({onClose, open, roleToEdit, isEditMode}) => {
     const dispatch = useDispatch();
@@ -28,9 +22,9 @@ const CreateModual = ({onClose, open, roleToEdit, isEditMode}) => {
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === "Escape") {
-                onClose(); 
+                onClose();
             } else if (e.key === "Enter" && moduleName) {
-                handleSubmit(); 
+                handleSubmit();
             }
         };
         document.addEventListener("keydown", handleKeyDown);
@@ -74,22 +68,24 @@ const CreateModual = ({onClose, open, roleToEdit, isEditMode}) => {
                     />
                 </div>
             </DialogBody>
-            <DialogFooter className="flex justify-between gap-4 p-4">
-                <Button
-                    color="gray"
+            <DialogFooter className="flex items-center justify-end gap-4 p-4">
+                <MyButton
+                    label="Cancel"
+                    htmlType="button"
                     onClick={onClose}
                     disabled={loading}
+                    type="outlineGray"
                     className="w-full md:w-auto"
-                >
-                    Cancel
-                </Button>
-                <Button
+                />
+
+                <MyButton
+                    label={isEditMode ? "Update" : "Create"}
                     onClick={handleSubmit}
                     disabled={loading || !moduleName}
+                    isLoading={loading}
+                    type="primary"
                     className="w-full md:w-auto"
-                >
-                    {isEditMode ? "Update" : "Create"}
-                </Button>
+                />
             </DialogFooter>
         </Dialog>
     );

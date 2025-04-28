@@ -1,7 +1,8 @@
-import { Dialog, Button, Typography } from "@material-tailwind/react";
+import {Dialog, Typography} from "@material-tailwind/react";
 import PropTypes from "prop-types";
+import MyButton from "../componets/MyButton";
 
-const DeleteRoleModal = ({ open, onClose, onConfirm, roleId }) => {
+const DeleteRoleModal = ({open, onClose, onConfirm, roleId}) => {
     return (
         <Dialog open={open} onClose={onClose}>
             <div className="p-5">
@@ -12,18 +13,22 @@ const DeleteRoleModal = ({ open, onClose, onConfirm, roleId }) => {
                     Are you sure you want to delete this role? This action cannot be undone.
                 </Typography>
                 <div className="flex justify-end space-x-2">
-                    <Button onClick={onClose} color="red">
-                        Cancel
-                    </Button>
-                    <Button
+                    <MyButton
+                        label="Cancel"
+                        htmlType="button"
+                        onClick={onClose}
+                        type="outlineGray"
+                        className="w-full sm:w-auto"
+                    />
+                    <MyButton
+                        label="delete"
                         onClick={() => {
                             onConfirm(roleId);
                             onClose();
                         }}
-                        color="green"
-                    >
-                        Confirm
-                    </Button>
+                        type="danger" 
+                        className="w-full sm:w-auto"
+                    />
                 </div>
             </div>
         </Dialog>

@@ -1,20 +1,14 @@
 import {useEffect} from "react";
 import PropTypes from "prop-types";
 import {useAppDispatch} from "../store";
-import {
-    Dialog,
-    DialogHeader,
-    DialogBody,
-    DialogFooter,
-    Input,
-    Button,
-} from "@material-tailwind/react";
+import {Dialog, DialogHeader, DialogBody, DialogFooter, Input} from "@material-tailwind/react";
 import {useFormik} from "formik";
 import {toast} from "react-toastify";
 import {companyValidationSchema} from "../validation/companyValidationScheama";
 import {createCompany, editCompany, findCompany} from "../store/company";
+import MyButton from "../componets/MyButton";
 
-const CompanyModal = ({open, handleOpen, editIndex, initialValues}) => {
+const CompanyModal = ({open, handleOpen, editIndex, initialValues, onSuccess}) => {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -45,16 +39,18 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues}) => {
         onSubmit: async (values, {setSubmitting, setFieldError}) => {
             try {
                 if (editIndex !== null) {
-                    if (!initialValues._id) {
+                    if (!initialValues?._id) {
                         toast.error("Company ID is missing!");
                         return;
                     }
                     const response = await dispatch(
-                        editCompany({id: initialValues._id, updatedData: values}),
+                        editCompany({id: initialValues?._id, updatedData: values}),
                     ).unwrap();
 
                     if (response?.success) {
                         await dispatch(findCompany());
+                        onSuccess?.();
+                        toast.success("Company updated successfully!");
                     } else {
                         setFieldError("general", response?.message || "Failed to update company.");
                     }
@@ -63,6 +59,7 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues}) => {
                     if (response?.success) {
                         await dispatch(findCompany());
                         toast.success("Company created successfully!");
+                        onSuccess?.();
                     } else {
                         setFieldError("general", response?.message || "Failed to create company.");
                     }
@@ -227,16 +224,26 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues}) => {
                         )}
                     </div>
                     <DialogFooter>
-                        <Button variant="text" color="red" onClick={handleOpen} className="mr-2">
-                            Cancel
-                        </Button>
-                        <Button type="submit" color="primary" disabled={isSubmitting}>
-                            {isSubmitting
-                                ? "Processing..."
-                                : editIndex !== null
-                                ? "Update"
-                                : "Submit"}
-                        </Button>
+                        <MyButton
+                            label="Cancel"
+                            onClick={handleOpen}
+                            type="outlineGray"
+                            className="mr-2"
+                        />
+
+                        <MyButton
+                            htmlType="submit"
+                            disabled={isSubmitting}
+                            isLoading={isSubmitting}
+                            label={
+                                isSubmitting
+                                    ? "Processing..."
+                                    : editIndex !== null
+                                    ? "Update"
+                                    : "Submit"
+                            }
+                            type="primary"
+                        />
                     </DialogFooter>
                 </form>
             </DialogBody>
@@ -248,6 +255,7 @@ CompanyModal.propTypes = {
     open: PropTypes.bool.isRequired,
     handleOpen: PropTypes.func.isRequired,
     handleSubmit: PropTypes.func.isRequired,
+    onSuccess: PropTypes.func,
     editIndex: PropTypes.number,
     initialValues: PropTypes.shape({
         _id: PropTypes.string,

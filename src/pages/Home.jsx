@@ -2,8 +2,8 @@ import {useState} from "react";
 import {HiOutlinePlus} from "react-icons/hi";
 import {FaRegCalendarAlt, FaUser} from "react-icons/fa";
 import RegisterNewUser from "../model/RegisterNewUser";
-import StatisticsCharts from "../componets/StatisticsCharts";
 import DashboardOverview from "../componets/DashboardOverview";
+import DashboardChart from "../componets/StatisticsCharts";
 
 
 const Home = () => {
@@ -69,7 +69,7 @@ const Home = () => {
                     </div>
                 ))}
             </div>
-            <StatisticsCharts />
+            <DashboardChart />
             <DashboardOverview  />
             {showModal && (
                 <RegisterNewUser

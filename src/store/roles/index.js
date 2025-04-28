@@ -11,9 +11,6 @@ export const getAllRoles = createAsyncThunk(
                     values?.limit || 10
                 }&company_id=${values?.company_id || ""}`,
             );
-
-            console.log("🍿 response", response);
-
             if (response?.data?.message) return response?.data;
         } catch (error) {
             toast.error(error?.response?.data?.message);

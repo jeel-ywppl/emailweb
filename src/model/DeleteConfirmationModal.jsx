@@ -1,4 +1,5 @@
-import {Dialog, DialogHeader, DialogBody, DialogFooter, Button} from "@material-tailwind/react";
+import {Dialog, DialogHeader, DialogBody, DialogFooter} from "@material-tailwind/react";
+import MyButton from "../componets/MyButton";
 
 const DeleteConfirmationModal = ({open, handleClose, handleConfirm}) => {
     return (
@@ -16,12 +17,14 @@ const DeleteConfirmationModal = ({open, handleClose, handleConfirm}) => {
                 <p>Are you sure you want to delete this company? This action cannot be undone.</p>
             </DialogBody>
             <DialogFooter>
-                <Button color="gray" onClick={handleClose}>
-                    Cancel
-                </Button>
-                <Button color="red" onClick={handleConfirm} className="ml-2">
-                    Delete
-                </Button>
+                <MyButton label="Cancel" onClick={handleClose} type="outlineGray" />
+
+                <MyButton
+                    label="Delete"
+                    onClick={handleConfirm}
+                    type="danger" 
+                    className="ml-2"
+                />
             </DialogFooter>
         </Dialog>
     );

@@ -9,8 +9,7 @@ export const getAllEmailbyUser = createAsyncThunk(
             const response = await api.get(
                 `/api/v1/mail/get/sent/by_user?page=${values?.page}&limit=${values?.limit}&${values?.status}`,
             );
-            if (response?.data?.message) 
-            return response.data;
+            if (response?.data?.message) return response.data;
         } catch (error) {
             toast.error(error?.response?.data?.message || "Failed to fetch emails");
             return rejectWithValue(error?.response?.data || "Failed to fetch emails");
@@ -69,5 +68,3 @@ export const replyMail = createAsyncThunk(
         }
     },
 );
-
-

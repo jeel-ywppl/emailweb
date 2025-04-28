@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import {config} from "../utils/util";
+import MyButton from "../componets/MyButton";
 
 const NavUserModal = ({isOpen, onClose, user, onLogout}) => {
     const navigate = useNavigate();
@@ -71,24 +72,25 @@ const NavUserModal = ({isOpen, onClose, user, onLogout}) => {
                         {user.fname} {user.lname}
                     </h2>
                     <p className="text-sm text-gray-500">{user.email}</p>
-                    <button
+                    <MyButton
+                        label="Profile"
                         onClick={() => {
                             onClose();
                             navigate("/dashboard/profile");
                         }}
-                        className="mt-2 w-full px-4 py-2 bg-secondary2 text-white rounded-lg hover:bg-primary1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    >
-                        Profile
-                    </button>
-                    <button
-                        className="w-full px-4 py-2 bg-secondary2 text-white rounded-lg hover:bg-primary1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        type="outlineBlack"
+                        fullWidth
+                    />
+
+                    <MyButton
+                        label="Logout"
                         onClick={() => {
                             onClose();
                             onLogout();
                         }}
-                    >
-                        Logout
-                    </button>
+                        type="outlineBlack"
+                        fullWidth
+                    />
                 </div>
             </div>
         </div>

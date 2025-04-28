@@ -1,11 +1,11 @@
 import {Card, Typography} from "@material-tailwind/react";
 import {useEffect, useState} from "react";
-import {useLocation, useNavigate, useParams} from "react-router-dom";
+import {Link, useLocation, useNavigate, useParams} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../store";
 import {addUpdatePermissions, getRolePermissions, resetUserPermissions} from "../store/permissions";
 import {toast} from "react-toastify";
 import {SwitchCustomStyles} from "../componets/SwitchCustomStyles";
-import {ArrowLeft} from "lucide-react";
+import {ChevronLeft} from "lucide-react";
 
 const Permission = () => {
     const {id} = useParams();
@@ -75,15 +75,15 @@ const Permission = () => {
 
     return (
         <div className="p-6 space-y-6">
-            <Card className="p-2">
-                <button
+            <div className="flex items-center mb-6">
+                <Link
                     onClick={() => navigate(-1)}
-                    className="text-gray-600 hover:text-black"
-                    title="Go Back"
+                    className="inline-flex items-center text-sm text-blue-gray-600 hover:text-blue-500"
                 >
-                    <ArrowLeft className="w-6 h-6" />
-                </button>
-            </Card>
+                    <ChevronLeft className="mr-1 h-4 w-4" />
+                    Go back 
+                </Link>
+            </div>
             {pathname.includes("dashboard/user") && (
                 <div className="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded-md shadow-md">
                     <p className="text-sm font-medium">

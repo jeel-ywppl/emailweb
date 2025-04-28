@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import {useAppDispatch, useAppSelector} from "../store";
 import {verifyPasswordFor2FA} from "../store/auth";
 import {toast} from "react-toastify";
+import MyButton from "../componets/MyButton";
 
 const PasswordModal = ({
     open,
@@ -114,18 +115,19 @@ const PasswordModal = ({
                     <Button onClick={onCancel} color="gray" className="py-3 text-xs font-medium">
                         Nevermind
                     </Button>
-                    <Button
+                    <MyButton
+                        label={
+                            loading
+                                ? "Verifying..."
+                                : mode === "enable"
+                                ? "Disable two-factor authentication"
+                                : "Enable two-factor authentication"
+                        }
                         onClick={handleConfirm}
-                        color={mode === "enable" ? "red" : "blue"}
-                        className="py-3 text-xs font-medium"
+                        type={mode === "enable" ? "danger" : "primary"}
                         disabled={loading}
-                    >
-                        {loading
-                            ? "Verifying..."
-                            : mode === "enable"
-                            ? "Disable two-factor authentication"
-                            : "Enable two-factor authentication"}
-                    </Button>
+                        className="py-3 text-xs font-medium"
+                    />
                 </div>
             </div>
         </Dialog>

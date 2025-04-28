@@ -8,14 +8,14 @@ import {EyeIcon, EyeOffIcon} from "lucide-react";
 import {findDomainWithoutFilter} from "../store/Domain";
 import {findRoleWithoutFilter} from "../store/roles";
 import {Autocomplete, TextField} from "@mui/material";
-import { findCompanyWithoutFilter } from "../store/company";
+import {findCompanyWithoutFilter} from "../store/company";
+import MyButton from "../componets/MyButton";
 
 const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
     const dispatch = useAppDispatch();
     const [showPassword, setShowPassword] = useState(false);
     const {noFilterData} = useAppSelector((state) => state.domain);
     const {noFilterRole} = useAppSelector((state) => state.roles);
-    console.log("🦐 noFilterRole", noFilterRole);
 
     const {noFilterCompany} = useAppSelector((state) => state.company);
 
@@ -167,7 +167,7 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                                         onChange={(event, selectedOption) => {
                                             const companyId = selectedOption?._id || "";
                                             setFieldValue("companyId", companyId);
-                                            setFieldValue("domain_id", ""); 
+                                            setFieldValue("domain_id", "");
                                             dispatch(
                                                 findRoleWithoutFilter({company_id: companyId}),
                                             );
@@ -243,7 +243,7 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                                             }`}
                                         >
                                             <option value="">Select domain</option>
-                                            {noFilterData.map((domain) => (
+                                            {noFilterData?.map((domain) => (
                                                 <option key={domain?._id} value={domain?._id}>
                                                     {domain?.domain_name}
                                                 </option>
@@ -355,13 +355,13 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                             </div>
 
                             <div className="mt-8">
-                                <button
-                                    type="submit"
+                                <MyButton
+                                    label={isSubmitting ? "Creating..." : "Create User"}
+                                    htmlType="submit"
+                                    fullWidth
                                     disabled={isSubmitting}
-                                    className="w-full py-2.5 px-5 text-sm text-white bg-secondary2 rounded-lg hover:bg-primary1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                                >
-                                    {isSubmitting ? "Creating..." : "Create User"}
-                                </button>
+                                    type="primary"
+                                />
                             </div>
                         </form>
                     </div>

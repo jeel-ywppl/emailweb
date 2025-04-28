@@ -2,8 +2,9 @@ import PropTypes from "prop-types";
 import {useAppDispatch} from "../store";
 import {send2FARecoveryOTP} from "../store/auth";
 import {useEffect, useState, useCallback} from "react";
-import {Dialog, Button} from "@material-tailwind/react";
+import {Dialog} from "@material-tailwind/react";
 import RecovryOTPVerify from "./RecovryOTPVerify";
+import MyButton from "../componets/MyButton";
 
 const LostAccessModal = ({open, onClose, email, user, set2FAEnabled, is2FAEnabled}) => {
     const dispatch = useAppDispatch();
@@ -55,17 +56,14 @@ const LostAccessModal = ({open, onClose, email, user, set2FAEnabled, is2FAEnable
                     </p>
                 </div>
                 <div className="flex items-center justify-end">
-                    <Button variant="outlined" color="gray" onClick={onClose}>
-                        Cancel
-                    </Button>
-                    <Button
-                        color="primary1"
-                        className="ml-2"
+                    <MyButton label="Cancel" onClick={onClose} type="outlineGray" />
+
+                    <MyButton
+                        label={loading ? "Processing..." : "Continue"}
                         onClick={handleContinue}
                         disabled={loading}
-                    >
-                        {loading ? "Processing..." : "Continue"}
-                    </Button>
+                        type="primary"
+                    />
                 </div>
             </Dialog>
 

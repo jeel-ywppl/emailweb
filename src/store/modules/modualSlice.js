@@ -22,8 +22,6 @@ const moduleSlice = createSlice({
         builder.addCase(findModules.fulfilled, (state, action) => {
             state.isLoading = false;
             state.modules = action?.payload?.data;
-            console.log("🍅  state.module",  state.modules);
-
             state.status = "success";
         });
         builder.addCase(findModules.rejected, (state) => {

@@ -131,8 +131,8 @@ const DynamicStatsBoxes = () => {
 };
 
 DynamicStatsBoxes.propTypes = {
-    closeModal: PropTypes.func.isRequired,
-    handleNewUserRegistration: PropTypes.func.isRequired,
+    closeModal: PropTypes.func,
+    handleNewUserRegistration: PropTypes.func,
 };
 
 export default DynamicStatsBoxes;

@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import {
-    Button,
     Dialog,
     DialogBody,
     DialogFooter,
@@ -9,6 +8,7 @@ import {
 } from "@material-tailwind/react";
 import {deleteUser, findUser} from "../store/user";
 import {useAppDispatch} from "../store";
+import MyButton from "../componets/MyButton";
 
 const DeleteUserModal = ({isOpen, onClose, user}) => {
     const dispatch = useAppDispatch();
@@ -18,9 +18,8 @@ const DeleteUserModal = ({isOpen, onClose, user}) => {
 
         await dispatch(deleteUser(user._id));
         dispatch(findUser());
-        onClose(); 
+        onClose();
     };
-
 
     return (
         <>
@@ -41,15 +40,11 @@ const DeleteUserModal = ({isOpen, onClose, user}) => {
                     <Typography>Do you want to backup the user before deletation?</Typography>
                 </DialogBody>
                 <DialogFooter>
-                    <Button color="gray" onClick={onClose} className="mr-2">
-                        Cancel
-                    </Button>
-                    <Button color="red" onClick={handleDelete} className="mr-2">
-                        Delete
-                    </Button>
-                    <Button color="green" >
-                        Backup
-                    </Button>
+                    <MyButton  label="Cancel" onClick={onClose} type="outlineGray" className="mr-2" />
+
+                    <MyButton label="Delete" onClick={handleDelete} type="danger" className="mr-2" />
+
+                    <MyButton label="Backup" type="outlineBlack" />
                 </DialogFooter>
             </Dialog>
         </>

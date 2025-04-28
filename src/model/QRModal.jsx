@@ -1,5 +1,6 @@
-import {Button, Dialog} from "@material-tailwind/react";
+import {Dialog} from "@material-tailwind/react";
 import PropTypes from "prop-types";
+import MyButton from "../componets/MyButton";
 
 const QRModal = ({imageUrl, onConfirm, open, onCancel}) => {
     return (
@@ -17,13 +18,12 @@ const QRModal = ({imageUrl, onConfirm, open, onCancel}) => {
                     Use an authenticator app like Google Authenticator or Authy to scan the QR code.
                 </p>
                 <div className="flex justify-center mt-10">
-                    <Button
+                    <MyButton
+                        label="Confirm"
                         onClick={onConfirm}
-                        color="primary1"
+                        type="primary"
                         className="w-full sm:w-auto py-2 text-sm font-medium"
-                    >
-                        Confirm
-                    </Button>
+                    />
                 </div>
             </div>
         </Dialog>

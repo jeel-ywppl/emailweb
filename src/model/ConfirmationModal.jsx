@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-import { Button, Dialog} from "@material-tailwind/react";
+import {Dialog} from "@material-tailwind/react";
+import MyButton from "../componets/MyButton";
 
 const ConfirmationModal = ({isOpen, onClose, onConfirm}) => {
     return (
@@ -8,12 +9,14 @@ const ConfirmationModal = ({isOpen, onClose, onConfirm}) => {
                 <h2 className="text-lg font-bold">Confirm Deletion</h2>
                 <p>Are you sure you want to delete this backup email?</p>
                 <div className="flex justify-end mt-4">
-                    <Button color="red" onClick={onConfirm}>
-                        Delete
-                    </Button>
-                    <Button color="gray" onClick={onClose} className="ml-2">
-                        Cancel
-                    </Button>
+                    <MyButton label="Delete" onClick={onConfirm} type="danger" />
+
+                    <MyButton
+                        label="Cancel"
+                        onClick={onClose}
+                        type="outlineGray"
+                        className="ml-2"
+                    />
                 </div>
             </div>
         </Dialog>

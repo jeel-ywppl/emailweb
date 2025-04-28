@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
 import {useState, useEffect} from "react";
-import {Button, Input, Dialog} from "@material-tailwind/react";
+import {Input, Dialog} from "@material-tailwind/react";
 import {useAppDispatch} from "../store";
 import {backupData} from "../store/backup";
+import MyButton from "../componets/MyButton";
 
 const BackupUserModal = ({isOpen, onClose, user}) => {
     const dispatch = useAppDispatch();
@@ -12,7 +13,7 @@ const BackupUserModal = ({isOpen, onClose, user}) => {
     useEffect(() => {
         if (isOpen) {
             setBackupEmail("");
-            setErrorMessage(""); 
+            setErrorMessage("");
         }
     }, [isOpen]);
 
@@ -28,7 +29,7 @@ const BackupUserModal = ({isOpen, onClose, user}) => {
             return;
         }
 
-        setErrorMessage(""); 
+        setErrorMessage("");
 
         const value = {
             user_id: user?._id,
@@ -40,7 +41,7 @@ const BackupUserModal = ({isOpen, onClose, user}) => {
 
             if (response?.payload?.success) {
                 console.log(response?.message || "Email sent successfully!");
-                onClose(); 
+                onClose();
             } else {
                 setErrorMessage(
                     response?.payload?.message ||
@@ -72,12 +73,9 @@ const BackupUserModal = ({isOpen, onClose, user}) => {
                 {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
 
                 <div className="flex justify-end gap-2 mt-3">
-                    <Button color="gray" onClick={onClose}>
-                        Cancel
-                    </Button>
-                    <Button color="blue" onClick={handleBackup}>
-                        Send
-                    </Button>
+                    <MyButton label="Cancel" onClick={onClose} type="outlineGray" />
+
+                    <MyButton label="Send" onClick={handleBackup} type="primary" />
                 </div>
             </div>
         </Dialog>

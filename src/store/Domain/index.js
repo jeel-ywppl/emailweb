@@ -12,7 +12,6 @@ export const findDomain = createAsyncThunk(
                 }`,
             );
 
-            console.log("🍄 response", response);
 
             return response?.data;
         } catch (error) {

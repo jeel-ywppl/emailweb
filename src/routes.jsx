@@ -1,33 +1,43 @@
-import Domain from "./pages/Domain";
-import Roles from "./pages/Roles";
-import Tables from "./pages/Tables";
-import Home from "./pages/Home";
-import Inbox from "./pages/email/Inbox";
-import Trash from "./pages/email/Trash";
-import Sent from "./pages/email/Sent";
-import StarredEmails from "./pages/email/Starred";
-import Profile from "./pages/Profile";
-import DnsSetting from "./pages/DnsSetting";
+import {
+    Archive,
+    Building2,
+    Globe,
+    HomeIcon,
+    Mail,
+    Notebook,
+    SendHorizonal,
+    Star,
+    Table,
+    Trash2Icon,
+    UploadCloud,
+    User,
+    UserCog,
+} from "lucide-react";
 import AccountSettings from "./pages/AccountSettings";
-import DomainTable from "./pages/CompanyData";
-import {HomeIcon, TableCellsIcon} from "@heroicons/react/24/solid";
-import {SiAwwwards} from "react-icons/si";
-import {IoMailUnreadOutline} from "react-icons/io5";
-import {GoStar} from "react-icons/go";
-import {TbBuildingBank} from "react-icons/tb";
-import {BsSendCheck} from "react-icons/bs";
-import {CgTrash} from "react-icons/cg";
-import EmailView from "./componets/emailView/EmailView";
-import {Archive, Notebook, UploadCloud} from "lucide-react";
-import Backup from "./pages/Backup";
-import BackupMail from "./pages/email/BackupMail";
+import Home from "./pages/Home";
+import Permission from "./pages/Permission";
+import Profile from "./pages/Profile";
+import CreateClientForm from "./pages/clients/Create/Index";
+import Index from "./pages/clients/Index";
 import ArchiveMail from "./pages/email/ArchiveMail";
 import Draft from "./pages/email/Draft";
+import Inbox from "./pages/email/Inbox";
+import Sent from "./pages/email/Sent";
+import StarredEmails from "./pages/email/Starred";
+import Trash from "./pages/email/Trash";
+import UserModule from "./pages/user/Index";
+import UserView from "./pages/user/View/Index";
+import ClientDetail from "./pages/clients/View/Index";
+import Roles from "./pages/roles/Index";
+import Domain from "./pages/domain/Index";
+import DnsSetting from "./pages/domain/View/Index";
+import Backup from "./pages/backup/Index";
 import {Drafts} from "@mui/icons-material";
-import Permission from "./pages/Permission";
-import Modules from "./pages/Modules";
-import UserView from "./pages/UserView";
-
+import BackupMail from "./pages/backup/View/Index";
+import EmailView from "./pages/email/emailView/EmailView";
+import Company from "./pages/company/Index";
+import CompanyView from "./pages/company/View";
+import Modules from "./pages/modules/Index";
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -45,14 +55,28 @@ export const routes = [
                 isSideNav: true,
             },
             {
-                icon: <TableCellsIcon {...icon} />,
-                name: "user",
-                path: "/user",
-                element: <Tables />,
+                icon: <User {...icon} />,
+                name: "client",
+                path: "/client",
+                element: <Index />,
                 isSideNav: true,
             },
             {
-                icon: <SiAwwwards {...icon} />,
+                name: "client",
+                path: "/client/create",
+                element: <CreateClientForm />,
+                isSideNav: false,
+            },
+            {
+                icon: <Table {...icon} />,
+                name: "user",
+                path: "/user",
+                element: <UserModule />,
+                isSideNav: true,
+            },
+
+            {
+                icon: <Globe {...icon} />,
                 name: "domain",
                 path: "/domain",
                 element: <Domain />,
@@ -66,35 +90,35 @@ export const routes = [
                 isSideNav: true,
             },
             {
-                icon: <Notebook {...icon} />,
+                icon: <UserCog {...icon} />,
                 name: "role",
                 path: "/role",
                 element: <Roles />,
                 isSideNav: true,
             },
             {
-                icon: <TbBuildingBank {...icon} />,
+                icon: <Building2 {...icon} />,
                 name: "company",
                 path: "/company",
-                element: <DomainTable />,
+                element: <Company />,
                 isSideNav: true,
             },
             {
-                icon: <IoMailUnreadOutline {...icon} />,
+                icon: <Mail {...icon} />,
                 name: "inbox",
                 path: "/inbox",
                 element: <Inbox />,
                 isSideNav: true,
             },
             {
-                icon: <GoStar {...icon} />,
+                icon: <Star {...icon} />,
                 name: "starred",
                 path: "/starred",
                 element: <StarredEmails />,
                 isSideNav: true,
             },
             {
-                icon: <BsSendCheck {...icon} />,
+                icon: <SendHorizonal {...icon} />,
                 name: "sent",
                 path: "/sent",
                 element: <Sent />,
@@ -115,7 +139,7 @@ export const routes = [
                 isSideNav: true,
             },
             {
-                icon: <CgTrash {...icon} />,
+                icon: <Trash2Icon {...icon} />,
                 name: "trash",
                 path: "/trash",
                 element: <Trash />,
@@ -153,9 +177,21 @@ export const routes = [
                 isSideNav: false,
             },
             {
+                path: "/client/:id",
+                name: "client",
+                element: <ClientDetail />,
+                isSideNav: false,
+            },
+            {
                 path: "/domain/:id",
                 name: "domain",
                 element: <DnsSetting />,
+                isSideNav: false,
+            },
+            {
+                path: "/company/:id",
+                name: "company",
+                element: <CompanyView />,
                 isSideNav: false,
             },
             {

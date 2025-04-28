@@ -9,7 +9,6 @@ export function Dashboard() {
     const {user} = useAppSelector((state) => state.auth);
     const dispatch = useAppDispatch();
 
-    console.log("useruser", user , );
 
     const onLogout = () => {
         dispatch(logoutUserFromLoacal());

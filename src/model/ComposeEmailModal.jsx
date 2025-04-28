@@ -63,7 +63,7 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
     const extractEmails = (recipientsArray) =>
         recipientsArray
             .map((r) => (typeof r === "object" && r.email ? r.email : r))
-            .filter((email) => typeof email === "string" && email.trim() !== "");
+            ?.filter((email) => typeof email === "string" && email.trim() !== "");
 
     const handleSubmit = (actionType) => {
         if (isSending) return;
@@ -80,33 +80,49 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
             recipientEmailsBcc.length === 0 &&
             actionType === "send"
         ) {
-            console.error("At least one recipient is required.");
-            toast.error("At least one recipient is required."); // Notify user
+            toast.error("At least one recipient is required.");
             setIsSending(false);
             return;
         }
 
-        const newEmail = {
-            recipient_emails_to: recipientEmailsTo,
-            recipient_emails_cc: recipientEmailsCc,
-            recipient_emails_bcc: recipientEmailsBcc,
-            subject,
-            body,
-            files: attachments,
-        };
+        const formData = new FormData();
+
+        // Append recipients with explicit index format
+        recipientEmailsTo.forEach((email, index) =>
+            formData.append(`recipient_emails_to[${index}]`, email),
+        );
+        recipientEmailsCc.forEach((email, index) =>
+            formData.append(`recipient_emails_cc[${index}]`, email),
+        );
+        recipientEmailsBcc.forEach((email, index) =>
+            formData.append(`recipient_emails_bcc[${index}]`, email),
+        );
+
+        formData.append("subject", subject);
+        formData.append("body", body);
+
+        // Append files under the same 'files' key, multiple times
+        attachments
+            .filter((file) => file instanceof File)
+            .forEach((file) => {
+                formData.append("files", file);
+            });
 
         if (actionType === "save" && draft_id) {
-            newEmail.draft_id = draft_id;
+            formData.append("draft_id", draft_id);
         }
 
-        const formData = new FormData();
-        Object.keys(newEmail).forEach((key) => {
-            if (Array.isArray(newEmail[key])) {
-                newEmail[key]?.forEach((item, index) => formData.append(`${key}[${index}]`, item));
+        // Debug log
+        const formDataLog = {};
+        formData.forEach((value, key) => {
+            if (key === "files" && value.name) {
+                if (!formDataLog[key]) formDataLog[key] = [];
+                formDataLog[key].push(value.name);
             } else {
-                formData.append(key, newEmail[key]);
+                formDataLog[key] = value;
             }
         });
+        console.log("FormData Payload before submitting:", formDataLog);
 
         const action = actionType === "send" ? sendMail(formData) : updateDraft(formData);
 
@@ -116,8 +132,7 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
                 if (actionType === "send") {
                     dispatch(getAllEmailbyUser({}));
                     if (draft_id) {
-                        const draftIdsArray = [draft_id];
-                        dispatch(deleteDraft({draft_ids: draftIdsArray}));
+                        dispatch(deleteDraft({draft_ids: [draft_id]}));
                     }
                 } else {
                     dispatch(getAllDraftsbyUser({}));

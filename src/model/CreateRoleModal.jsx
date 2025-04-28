@@ -1,9 +1,10 @@
 import {useFormik} from "formik";
-import {Input, Select, Option, Button, Dialog} from "@material-tailwind/react";
+import {Input, Select, Option, Dialog} from "@material-tailwind/react";
 import {useAppDispatch, useAppSelector} from "../store";
 import PropTypes from "prop-types";
 import {createRoleValidationSchema} from "../validation/createRoleValidationSchema";
 import {createRoles, editRole, getAllRoles} from "../store/roles";
+import MyButton from "../componets/MyButton";
 
 const CreateRoleForm = ({open, onClose, roleToEdit}) => {
     const dispatch = useAppDispatch();
@@ -110,8 +111,8 @@ const CreateRoleForm = ({open, onClose, roleToEdit}) => {
                                 error={touched.company_id && Boolean(errors.company_id)}
                                 className="w-full"
                             >
-                                {Array.isArray(noFilterCompany) && noFilterCompany.length > 0 ? (
-                                    noFilterCompany.map((company) => (
+                                {Array.isArray(noFilterCompany) && noFilterCompany?.length > 0 ? (
+                                    noFilterCompany?.map((company) => (
                                         <Option key={company?._id} value={company?._id}>
                                             {company?.name}
                                         </Option>
@@ -124,28 +125,30 @@ const CreateRoleForm = ({open, onClose, roleToEdit}) => {
                     )}
 
                     <div className="flex justify-end space-x-2 mt-6">
-                        <Button
-                            type="button"
+                        <MyButton
+                            label="Cancel"
+                            htmlType="button"
                             onClick={onClose}
-                            color="red"
+                            type="outlineGray"
                             className="w-full sm:w-auto"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            color="green"
-                            className="ml-2 w-full sm:w-auto"
+                        />
+
+                        <MyButton
+                            htmlType="submit"
                             disabled={isSubmitting}
-                        >
-                            {isSubmitting
-                                ? roleToEdit
-                                    ? "Saving Changes..."
-                                    : "Creating Role..."
-                                : roleToEdit
-                                ? "Save Changes"
-                                : "Create Role"}
-                        </Button>
+                            isLoading={isSubmitting}
+                            label={
+                                isSubmitting
+                                    ? roleToEdit
+                                        ? "Saving Changes..."
+                                        : "Creating Role..."
+                                    : roleToEdit
+                                    ? "Save Changes"
+                                    : "Create Role"
+                            }
+                            type="primary"
+                            className="ml-2 w-full sm:w-auto"
+                        />
                     </div>
                 </form>
             </div>

@@ -20,23 +20,18 @@ const roleSlice = createSlice({
     initialState,
     reducers: {
         setLimit: (state, action) => {
-            state.limit = action.payload.limit;
-            console.log("🚀 state.limit", state.limit);
-
+            state.limit = action?.payload?.limit;
             state.status = "idle";
         },
         setSkip: (state, action) => {
-            state.skip = action.payload.skip;
-            console.log("💣 state.skip", state.skip);
-
+            state.skip = action?.payload?.skip;
             state.status = "idle";
         },
         setCurrentPage: (state, action) => {
-            state.currentPage = action.payload.currentPage;
-            console.log("🫒 state.currentPage", state.currentPage);
+            state.currentPage = action?.payload?.currentPage;
         },
         setStatus: (state, action) => {
-            state.status = action.payload.status;
+            state.status = action?.payload?.status;
         },
         reset: () => initialState,
     },

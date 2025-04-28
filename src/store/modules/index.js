@@ -5,8 +5,6 @@ import {toast} from "react-toastify";
 export const findModules = createAsyncThunk("modules/findModules", async (_, {rejectWithValue}) => {
     try {
         const response = await api.get("/api/v1/module/get/all");
-        console.log("🌽 response", response?.data);
-
         return response?.data;
     } catch (error) {
         toast.error(error?.response?.data?.message);

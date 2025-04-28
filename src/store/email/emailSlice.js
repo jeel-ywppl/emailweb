@@ -20,7 +20,7 @@ const emailSlice = createSlice({
     initialState,
     reducers: {
         setLimit: (state, action) => {
-            state.pageSize = action.payload.pageSize;
+            state.limit = action.payload.limit;
             state.status = "idle";
         },
         setSkip: (state, action) => {

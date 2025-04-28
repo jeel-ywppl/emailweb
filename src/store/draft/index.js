@@ -23,7 +23,6 @@ export const updateDraft = createAsyncThunk(
     async (formData, {rejectWithValue}) => {
         try {
             const response = await api.post("/api/v1/mail/draft/save", formData);
-            // toast.success("Email sent successfully!");
             return response?.data;
         } catch (error) {
             toast.error(error?.response?.data?.message || "Failed to send draft");
@@ -37,7 +36,6 @@ export const getDraftById = createAsyncThunk(
     async (draft_id, {rejectWithValue}) => {
         try {
             const response = await api.get(`/api/v1/mail/draft/get/${draft_id}`);
-            console.log("🍪 response.data", response?.data);
             return response?.data;
         } catch (error) {
             toast.error(error?.response?.data?.message || "Failed to fetch draft");

@@ -34,7 +34,7 @@ const RecipientInput = ({label, recipients, setRecipients}) => {
     };
 
     const removeRecipient = (index) => {
-        setRecipients(recipients.filter((_, i) => i !== index));
+        setRecipients(recipients?.filter((_, i) => i !== index));
     };
 
     return (
@@ -69,9 +69,9 @@ const RecipientInput = ({label, recipients, setRecipients}) => {
 };
 
 RecipientInput.propTypes = {
-    label: PropTypes.string.isRequired,
-    recipients: PropTypes.array.isRequired,
-    setRecipients: PropTypes.func.isRequired,
+    label: PropTypes.string,
+    recipients: PropTypes.array,
+    setRecipients: PropTypes.func,
 };
 
 export default RecipientInput;

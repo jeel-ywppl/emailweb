@@ -12,6 +12,11 @@ const user = {
         role_id: null,
         role_name: "",
     },
+    company_id: {
+        _id: "",
+        name: "",
+        email: "",
+    },
     email: "",
     password: "",
     recovery: {
@@ -19,7 +24,11 @@ const user = {
         recovery_otp: null,
         otp_expire_time: "",
     },
+    permissions: [],
+    backup_emails: [],
     loginAllowed: false,
+    designation: "",
+    bio: "",
     country: "",
     phone_number: "",
     avatar: "",

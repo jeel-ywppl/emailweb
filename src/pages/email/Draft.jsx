@@ -19,7 +19,7 @@ const Draft = () => {
         drafts,
         totalData,
         pageNumber: currentPage,
-        pageSize: limit,
+        limit,
         isLoading,
         isError,
         errorMessage,
@@ -39,7 +39,7 @@ const Draft = () => {
     }, [dispatch, currentPage, limit]);
 
     useEffect(() => {
-        setStarredEmails(drafts.filter((email) => email?.star_status).map((email) => email?._id));
+        setStarredEmails(drafts?.filter((email) => email?.star_status).map((email) => email?._id));
     }, [drafts]);
 
     const handleCompose = (draft) => {
@@ -50,23 +50,23 @@ const Draft = () => {
     const handleCheckboxChange = (emailId) => {
         setSelectedEmails((prevSelected) =>
             prevSelected.includes(emailId)
-                ? prevSelected.filter((id) => id !== emailId)
+                ? prevSelected?.filter((id) => id !== emailId)
                 : [...prevSelected, emailId],
         );
     };
 
     const habdleDelete = (draft_id) => {
         const draftIdsArray = [draft_id];
-            dispatch(deleteDraft({draft_ids: draftIdsArray}))
-                .unwrap()
-                .then(() => {
-                    console.log("Email Deleted successfully!");
-                        dispatch(getAllDraftsbyUser({page: currentPage, limit}));
-                })
-                .catch((error) => {
-                    toast.error(error || "Failed to update email status");
-                });
-        };
+        dispatch(deleteDraft({draft_ids: draftIdsArray}))
+            .unwrap()
+            .then(() => {
+                console.log("Email Deleted successfully!");
+                dispatch(getAllDraftsbyUser({page: currentPage, limit}));
+            })
+            .catch((error) => {
+                toast.error(error || "Failed to update email status");
+            });
+    };
 
     const handleSelectAll = () => {
         if (selectAll) {
@@ -78,7 +78,7 @@ const Draft = () => {
     };
 
     const handleStarToggle = (emailId) => {
-        const isCurrentlyStarred = drafts.find((email) => email._id === emailId)?.star_status;
+        const isCurrentlyStarred = drafts?.find((email) => email?._id === emailId)?.star_status;
         const newStarStatus = !isCurrentlyStarred;
         const payload = {
             email_id: [emailId],
@@ -133,7 +133,7 @@ const Draft = () => {
     };
 
     const handleRowsPerPageChange = (event) => {
-        dispatch(setLimit({pageSize: event.target.value}));
+        dispatch(setLimit({limit: event.target.value}));
     };
 
     const refreshInbox = () => {

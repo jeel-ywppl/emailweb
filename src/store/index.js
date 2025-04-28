@@ -8,8 +8,10 @@ import companyReducer from "./company/companySlice";
 import backupReducer from "./backup/backupSlice";
 import draftReducer from "./draft/draftSlice";
 import roleReducer from "./roles/rolesSlice";
-import permissionRedicers from "./permissions/permissionSlice";
-import moduleRedicers from "./modules/modualSlice";
+import permissionReducers from "./permissions/permissionSlice";
+import moduleReducers from "./modules/modualSlice";
+import clientReducers from "./client/clientSlice";
+import chartReducers from "./charts/chartSlice"
 
 const reducers = {
     auth: authReducer,
@@ -20,8 +22,10 @@ const reducers = {
     backup: backupReducer,
     draft: draftReducer,
     roles: roleReducer,
-    permission: permissionRedicers,
-    modules: moduleRedicers,
+    permission: permissionReducers,
+    modules: moduleReducers,
+    client: clientReducers,
+    chart: chartReducers,
 };
 
 export const rootReducer = combineReducers(reducers);

@@ -6,7 +6,7 @@ const initialState = {
     totalData: 0,
     totalPages: 0,
     pageNumber: 1,
-    pageSize: 10,
+    limit: 10,
     status: "idle",
     isError: false,
     isLoading: false,
@@ -19,7 +19,7 @@ const draftSlice = createSlice({
     initialState,
     reducers: {
         setLimit: (state, action) => {
-            state.pageSize = action.payload.pageSize;
+            state.limit = action.payload.limit;
             state.status = "idle";
         },
         setSkip: (state, action) => {
@@ -44,10 +44,10 @@ const draftSlice = createSlice({
         builder.addCase(getAllDraftsbyUser.fulfilled, (state, action) => {
             state.isLoading = false;
             state.drafts = action?.payload?.data || [];
-            state.totalData = action?.payload?.totalData;
-            state.totalPages = action?.payload?.totalPages;
-            state.pageNumber = action?.payload?.pageNumber;
-            state.pageSize = action?.payload?.pageSize;
+            state.totalData = action?.payload?.pagination?.totalData;
+            state.totalPages = action?.payload?.pagination?.totalPages;
+            state.pageNumber = action?.payload?.pagination?.pageNumber;
+            state.pageSize = action?.payload?.pagination?.pageSize;
             state.status = "success";
         });
         builder.addCase(getAllDraftsbyUser.rejected, (state) => {

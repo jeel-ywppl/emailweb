@@ -32,7 +32,6 @@ export const findUserWithoutFilter = createAsyncThunk(
 export const getUser = createAsyncThunk("user/getUser", async (id, {rejectWithValue}) => {
     try {
         const response = await api.get(`/api/v1/user/get/${id}`);
-        console.log("🌽 response", response);
         return response?.data;
     } catch (error) {
         toast.error(error?.response?.data?.message);
