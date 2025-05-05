@@ -1,15 +1,13 @@
 import {useState, useEffect, useRef, useCallback} from "react";
 import {useNavigate, useParams} from "react-router-dom";
-import {MdOutlineFileDownload} from "react-icons/md";
-import DOMPurify from "dompurify";
-import {Archive, ArrowLeft, Forward, Mail, Reply, Trash} from "lucide-react";
-import {RiSpam2Line} from "react-icons/ri";
-import {FaStar, FaRegStar} from "react-icons/fa";
 import {useAppDispatch, useAppSelector} from "../../../store";
 import {changeEmailStatus, getSinglMail, replyMail} from "../../../store/email";
 import Loader from "../../../componets/Loader";
-import {config} from "../../../utils/util";
-import ReplyMail from "../../../model/ReplyMail";
+import EmailHeader from "./EmailHeader";
+import EmailDetails from "./EmailDetails";
+import RepliesList from "./RepliesList";
+import ReplySection from "./ReplySection";
+import ComposeEmailModal from "../../../model/ComposeEmailModal";
 
 const EmailView = () => {
     const {id} = useParams();
@@ -17,43 +15,21 @@ const EmailView = () => {
     const dispatch = useAppDispatch();
     const replyRef = useRef(null);
     const {selectedEmail: email, isLoading} = useAppSelector((state) => state.email);
+    const loggedInUserEmail = useAppSelector((state) => state.auth.user?.email);
 
     const [isReplying, setIsReplying] = useState(false);
     const [replyDetails, setReplyDetails] = useState(null);
-    console.log("🤖 replyDetails", replyDetails);
 
     const [isStarred, setIsStarred] = useState(false);
     const [isArchived, setIsArchived] = useState(false);
     const [isSpam, setIsSpam] = useState(false);
     const [isUnread, setIsUnread] = useState(false);
+    const [showCompose, setShowCompose] = useState(false);
+    const [forwardData, setForwardData] = useState(null);
 
     useEffect(() => {
         dispatch(getSinglMail(id));
     }, [dispatch, id]);
-
-    const getSenderInitials = (fname) => {
-        if (!fname) {
-            return "";
-        }
-        const nameParts = fname.split(" ");
-        const firstInitial = nameParts[0]?.charAt(0).toUpperCase() || "";
-        const lastInitial = nameParts[1]?.charAt(0).toUpperCase() || "";
-        return firstInitial + lastInitial;
-    };
-
-    const handleDownload = async (imageUrl, filename) => {
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = blobUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(blobUrl);
-    };
 
     const handleReply = async (formData) => {
         try {
@@ -70,35 +46,61 @@ const EmailView = () => {
         }
     };
 
+    const handleForwardClick = () => {
+        setForwardData({
+            subject: `Fwd: ${email?.subject}`,
+            content: email?.body,
+            user: email?.from,
+            createdAt: email?.createdAt,
+            id: email?._id,
+        });
+        setShowCompose(true);
+    };
+
     const handleReplyClick = useCallback(
         (reply) => {
+            let recipientEmail = email?.recipient_emails_to || [];
+            if (reply) {
+                recipientEmail = reply?.recipient_emails_to || [];
+            }
+
+            const isLoggedInUserInRecipients = recipientEmail.includes(loggedInUserEmail);
+
+            const filteredRecipients = isLoggedInUserInRecipients
+                ? [reply ? reply.sender_email : email.sender_email]
+                : recipientEmail.filter((email) => email !== loggedInUserEmail);
+
             if (reply) {
                 setReplyDetails({
-                    senderEmail: reply?.sender_email,
-                    recipientEmail: reply?.recipient_emails_to,
+                    senderEmail: filteredRecipients,
+                    recipientEmail: filteredRecipients,
                     senderEmailCC: reply?.recipient_emails_cc,
                     senderEmailBCC: reply?.recipient_emails_bcc,
-                    subject: email?.subject,
+                    subject: reply?.subject || email?.subject,
+                    user: reply?.from,
                     createdAt: reply?.createdAt,
                     content: reply?.body,
+                    id: email?._id,
                 });
             } else {
                 setReplyDetails({
-                    recipientEmail: email?.sender_email,
-                    senderEmail: email?.sender_email,
+                    recipientEmail: filteredRecipients,
+                    senderEmail: filteredRecipients,
                     senderEmailCC: email?.recipient_emails_cc,
                     senderEmailBCC: email?.recipient_emails_bcc,
                     subject: email?.subject,
+                    user: email?.from,
                     createdAt: email?.createdAt,
                     content: email?.body,
+                    id: email?._id,
                 });
             }
             setIsReplying(true);
             setTimeout(() => {
-                replyRef.current?.scrollIntoView({behavior: "smooth", block: "start"});
+                replyRef?.current?.scrollIntoView({behavior: "smooth", block: "start"});
             }, 300);
         },
-        [email],
+        [email, loggedInUserEmail],
     );
 
     const handleEmailAction = async (action) => {
@@ -141,264 +143,37 @@ const EmailView = () => {
 
     return (
         <div className="pt-5 pl-5">
-            <div className="w-full h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 font-sans rounded-lg">
-                <div className="flex justify-between items-center border-b px-4 py-3 bg-white shadow-sm">
-                    <div className="flex items-center sm:space-x-10 space-x-2">
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="text-gray-600 hover:text-black"
-                            title="Go Back"
-                        >
-                            <ArrowLeft className="w-6 h-6" />
-                        </button>
-                        <button
-                            onClick={() => handleEmailAction("archive")}
-                            className="text-gray-600 hover:text-black"
-                            title="Archive"
-                        >
-                            <Archive className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => handleEmailAction("trash")}
-                            className="text-gray-600 hover:text-black"
-                            title="trash"
-                        >
-                            <Trash className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => handleEmailAction("spam")}
-                            className="text-gray-600 hover:text-black"
-                            title="Mark as Spam"
-                        >
-                            <RiSpam2Line className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => handleEmailAction("unread")}
-                            className="text-gray-600 hover:text-black"
-                            title="Mark as Unread"
-                        >
-                            <Mail className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
+            <div className="w-full h-full overflow-y-auto font-sans rounded-lg scrollbar-thin">
+                <EmailHeader
+                    onBack={() => navigate(-1)}
+                    onAction={handleEmailAction}
+                    isStarred={isStarred}
+                />
+                <EmailDetails
+                    email={email}
+                    onReply={handleReplyClick}
+                    onForward={handleForwardClick}
+                    onStar={handleEmailAction.bind(null, "star")}
+                    isStarred={isStarred}
+                />
 
-                <div className="bg-white rounded-b-lg shadow-md p-4">
-                    <div className="flex flex-col sm:flex-row justify-between items-center pb-4 border-b">
-                        <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                                {email?.profilePic ? (
-                                    <img
-                                        src={email?.profilePic}
-                                        alt={email?.sender_email}
-                                        className="w-12 h-12 rounded-full object-cover"
-                                    />
-                                ) : (
-                                    <span className="text-white font-semibold text-lg">
-                                        {getSenderInitials(email?.sender_email)}
-                                    </span>
-                                )}
-                            </div>
-                            <div>
-                                <h4 className="text-lg font-semibold text-gray-900">
-                                    {email?.sender_email}
-                                </h4>
-                                <p className="text-xs text-gray-500">{email?.sender_name}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center text-gray-500 space-x-3">
-                            <span className="text-sm">
-                                {new Date(email?.updatedAt).toLocaleString()}
-                            </span>
-                            <button
-                                onClick={() => handleReplyClick(null)}
-                                className="p-2 rounded-full hover:bg-gray-200"
-                            >
-                                <Reply size={22} />
-                            </button>
-                            <button
-                                onClick={() => handleEmailAction("star")}
-                                className={`text-gray-600 hover:text-yellow-500 transition-colors duration-200 ${
-                                    isStarred ? "text-yellow-500" : ""
-                                }`}
-                            >
-                                {isStarred ? <FaStar size={18} /> : <FaRegStar size={18} />}
-                            </button>
-                            <button className="p-2 rounded-full hover:bg-gray-200">
-                                <Forward size={22} />
-                            </button>
-                        </div>
-                    </div>
-
-                    <h1 className="mt-6 text-lg font-semibold text-gray-800 break-words break-all">
-                        {email?.subject}
-                    </h1>
-
-                    <div className="mt-4 text-gray-700 leading-relaxed break-words break-all">
-                        {email?.body ? (
-                            <div
-                                className="break-words break-all"
-                                dangerouslySetInnerHTML={{
-                                    __html: DOMPurify.sanitize(email?.body),
-                                }}
-                            />
-                        ) : (
-                            <p>No content available</p>
-                        )}
-                    </div>
-
-                    {email?.attachments?.length > 0 && (
-                        <div className="mt-4">
-                            <h3 className="font-semibold">Attachments:</h3>
-                            <div className="flex flex-wrap gap-3 mt-2">
-                                {email?.attachments.map((file, index) => (
-                                    <div key={index} className="border p-2 rounded-lg">
-                                        {file?.contentType?.startsWith("image/") &&
-                                        file?.showData ? (
-                                            <img
-                                                src={file?.showData}
-                                                alt={file?.filename || "Attachment"}
-                                                className="w-24 h-24 object-cover rounded cursor-pointer"
-                                            />
-                                        ) : (
-                                            <p>{file?.filename || "Unknown File"}</p>
-                                        )}
-                                        {file?.showData && (
-                                            <a
-                                                href={file?.showData}
-                                                download={file?.filename}
-                                                className="block mt-1 text-blue-500"
-                                            >
-                                                <MdOutlineFileDownload className="w-5 h-5" />
-                                            </a>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {email?.replies?.length > 0 && (
-                    <div className="mt-2">
-                        {email?.replies?.map((reply, index) => (
-                            <div key={index} className="bg-white rounded-lg shadow-md p-4 mt-2">
-                                <div className="flex flex-col sm:flex-row justify-between items-center pb-4 border-b">
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center">
-                                            <span className="text-white font-semibold text-lg">
-                                                {getSenderInitials(reply?.sender_email)}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <h4 className="text-sm font-semibold text-gray-900">
-                                                {reply?.sender_email}
-                                            </h4>
-                                            <p className="text-xs text-gray-500">
-                                                {reply?.sender_name}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center text-gray-500 space-x-3">
-                                        <span className="text-xs">
-                                            {new Date(reply?.createdAt).toLocaleString()}
-                                        </span>
-                                        <button
-                                            onClick={() => handleReplyClick(reply, index)}
-                                            className="p-2 rounded-full hover:bg-gray-200"
-                                        >
-                                            <Reply size={22} />
-                                        </button>
-                                        <button className="p-2 rounded-full hover:bg-gray-200">
-                                            <Forward size={22} />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <h1 className="mt-6 text-lg font-semibold text-gray-800 break-words break-all">
-                                    {reply?.subject}
-                                </h1>
-
-                                <div className="mt-4 text-gray-700 leading-relaxed break-words break-all">
-                                    {reply?.body ? (
-                                        <div
-                                            className="break-words break-all"
-                                            dangerouslySetInnerHTML={{
-                                                __html: DOMPurify.sanitize(reply?.body),
-                                            }}
-                                        />
-                                    ) : (
-                                        <p>No content available</p>
-                                    )}
-                                </div>
-
-                                {reply?.attachments?.length > 0 && (
-                                    <div className="mt-4">
-                                        <h3 className="font-semibold">Attachments:</h3>
-                                        <div className="flex flex-wrap gap-3 mt-2">
-                                            {reply?.attachments.map((file, index) => (
-                                                <div key={index} className="border p-2 rounded-lg">
-                                                    {file?.file_type?.startsWith("image/") ? (
-                                                        <img
-                                                            src={
-                                                                file?.file_path.startsWith("http")
-                                                                    ? file?.file_path
-                                                                    : `${config.LIVE_URL}/${file?.file_path}`
-                                                            }
-                                                            alt={file?.original_name}
-                                                            className="w-24 h-24 object-cover rounded cursor-pointer"
-                                                        />
-                                                    ) : (
-                                                        <div className="flex flex-col items-center">
-                                                            <p>
-                                                                {file?.original_name ||
-                                                                    "Unknown File"}
-                                                            </p>
-                                                            <div
-                                                                onClick={() =>
-                                                                    handleDownload(
-                                                                        `${config.LIVE_URL}/${file?.file_path}`,
-                                                                        file?.original_name,
-                                                                    )
-                                                                }
-                                                                className="block mt-1 text-blue-500 cursor-pointer"
-                                                            >
-                                                                <MdOutlineFileDownload className="w-5 h-5" />
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-
+                <RepliesList replies={email?.replies} onReplyClick={handleReplyClick} />
                 {isReplying && replyDetails && (
                     <div ref={replyRef}>
-                        <ReplyMail
-                            originalEmailId={email?._id}
-                            recipientEmail={
-                                Array.isArray(email?.recipient_emails_to)
-                                    ? email?.recipient_emails_to
-                                    : [email?.recipient_emails_to]
-                            }
-                            senderEmailCC={replyDetails?.recipient_emails_cc}
-                            senderEmailBCC={replyDetails?.recipient_emails_bcc}
-                            senderEmail={replyDetails?.sender_email}
-                            subject={replyDetails?.subject}
-                            createdAt={replyDetails?.createdAt}
-                            user={email?.sender_name}
-                            content={replyDetails?.content}
+                        <ReplySection
+                            replyDetails={replyDetails}
+                            email={email}
                             onSend={handleReply}
                             onClose={() => setIsReplying(false)}
-                            index={replyDetails?.index}
                         />
                     </div>
                 )}
             </div>
+            <ComposeEmailModal
+                isOpen={showCompose}
+                onClose={() => setShowCompose(false)}
+                forwardData={forwardData}
+            />
         </div>
     );
 };

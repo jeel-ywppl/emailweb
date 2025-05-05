@@ -17,7 +17,6 @@ import {
     Typography,
 } from "@material-tailwind/react";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
-import {toast} from "react-toastify";
 import {findCompanyWithoutFilter} from "../../store/company";
 import {Box, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../../store/Domain/domainSlice";
@@ -84,11 +83,11 @@ const Domain = () => {
                     dns_id: "",
                 };
                 const response = await dispatch(deleteDomain(payload)).unwrap();
-                toast.success(response?.message || "DNS record deleted successfully!");
+                console.log(response?.message || "DNS record deleted successfully!");
                 dispatch(findDomain());
             } catch (error) {
                 console.error("Delete Error:", error);
-                toast.error(error);
+                console.error(error);
             } finally {
                 setDeleteModalOpen(false);
                 setSelectedDomainId(null);
@@ -120,17 +119,17 @@ const Domain = () => {
                     const response = await dispatch(
                         updateDomain({domainId: editingDomainId, records: values}),
                     ).unwrap();
-                    toast.success(response?.payload?.message || "Domain updated successfully!");
+                    console.log(response?.payload?.message || "Domain updated successfully!");
                 } else {
                     const response = await dispatch(createDomain(values)).unwrap();
-                    toast.success(response?.payload?.message || "Domain created successfully!");
+                    console.log(response?.payload?.message || "Domain created successfully!");
                 }
                 resetForm();
                 handleClose();
                 dispatch(findDomain());
             } catch (error) {
                 console.error("API Error:", error);
-                toast.error(error);
+                console.error(error);
             } finally {
                 console.log("setSubmitting(false) called");
                 setSubmitting(false);
@@ -174,7 +173,7 @@ const Domain = () => {
                         label="+ Domain Name"
                         onClick={handleOpen}
                         type="primary"
-                        className="w-full sm:w-auto" 
+                        className="w-full sm:w-auto"
                     />
                 )}
             </div>

@@ -13,6 +13,7 @@ import {useAppDispatch, useAppSelector} from "../store";
 import {useEffect, useState} from "react";
 import {findChartData} from "../store/charts";
 import {findClientWithoutFilter} from "../store/client";
+import useCheckAccess from "../utils/useCheckAccess";
 
 const timeOptions = [
     {label: "All", value: "all"},
@@ -24,6 +25,7 @@ const timeOptions = [
 
 export default function ChartWithFilters() {
     const dispatch = useAppDispatch();
+    const checkAccess = useCheckAccess();
     const {chart, isLoading} = useAppSelector((state) => state.chart);
     const {noFilterClient} = useAppSelector((state) => state.client);
 
@@ -62,7 +64,7 @@ export default function ChartWithFilters() {
     } else {
         let chartKey = "daily";
         if (timeFilter === "week") chartKey = "daily";
-        else if (timeFilter === "month") chartKey = "weekly"; 
+        else if (timeFilter === "month") chartKey = "weekly";
 
         if (chart?.growth) {
             if (chart?.growth[chartKey]?.length > 0) {
@@ -122,18 +124,20 @@ export default function ChartWithFilters() {
                         </div>
                     )}
 
-                    <select
-                        value={client}
-                        onChange={(e) => setClient(e.target.value)}
-                        className="w-48 border px-2 py-1 rounded"
-                    >
-                        <option value="">All Clients</option>
-                        {noFilterClient.map((c) => (
-                            <option key={c?._id} value={c?._id}>
-                                {c?.company_name}
-                            </option>
-                        ))}
-                    </select>
+                    {checkAccess("home", "create") && (
+                        <select
+                            value={client}
+                            onChange={(e) => setClient(e.target.value)}
+                            className="w-48 border px-2 py-1 rounded"
+                        >
+                            <option value="">All Clients</option>
+                            {noFilterClient.map((c) => (
+                                <option key={c?._id} value={c?._id}>
+                                    {c?.company_name}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                 </div>
 
                 <div className="w-full h-72">

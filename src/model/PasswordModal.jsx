@@ -4,7 +4,6 @@ import {HiEye, HiEyeOff} from "react-icons/hi";
 import PropTypes from "prop-types";
 import {useAppDispatch, useAppSelector} from "../store";
 import {verifyPasswordFor2FA} from "../store/auth";
-import {toast} from "react-toastify";
 import MyButton from "../componets/MyButton";
 
 const PasswordModal = ({
@@ -43,13 +42,13 @@ const PasswordModal = ({
                     setShowQRModal(false);
                 }
             } else {
-                toast.error("No QR code returned from the server.");
+                console.error("No QR code returned from the server.");
                 setShowQRModal(false);
                 setShowPasswordModal(false);
                 setShowOTPModal(true);
             }
         } catch {
-            toast.error("Failed to verify password.");
+            console.error("Failed to verify password.");
         }
     }, [
         password,

@@ -1,6 +1,5 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {api} from "../../utils/api";
-import {toast} from "react-toastify";
 
 export const findUser = createAsyncThunk("user/findUser", async (values, {rejectWithValue}) => {
     try {
@@ -11,7 +10,7 @@ export const findUser = createAsyncThunk("user/findUser", async (values, {reject
         );
         return response?.data;
     } catch (error) {
-        toast.error(error?.response?.data?.message);
+        console.error(error?.response?.data?.message);
         return rejectWithValue(error?.response?.data?.message);
     }
 });
@@ -23,7 +22,7 @@ export const findUserWithoutFilter = createAsyncThunk(
             const response = await api.get("/api/v1/user/get/all/without_filter");
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -34,7 +33,7 @@ export const getUser = createAsyncThunk("user/getUser", async (id, {rejectWithVa
         const response = await api.get(`/api/v1/user/get/${id}`);
         return response?.data;
     } catch (error) {
-        toast.error(error?.response?.data?.message);
+        console.error(error?.response?.data?.message);
         return rejectWithValue(error?.response?.data?.message);
     }
 });
@@ -47,7 +46,7 @@ export const createUser = createAsyncThunk("user/createUser", async (values, {re
         }
         return response?.data;
     } catch (error) {
-        toast.error(error?.response?.data?.message);
+        console.error(error?.response?.data?.message);
         return rejectWithValue(error?.response?.data?.message);
     }
 });
@@ -60,7 +59,7 @@ export const editUser = createAsyncThunk(
             return response?.data;
         } catch (error) {
             console.error("Error updating user:", error?.response?.data);
-            toast.error(error?.response?.data?.message || "Failed to update user");
+            console.error(error?.response?.data?.message || "Failed to update user");
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -72,7 +71,7 @@ export const deleteUser = createAsyncThunk("user/deleteUser", async (id, {reject
         return response?.data;
     } catch (error) {
         console.error("Delete user error:", error);
-        toast.error(error?.response?.data?.message);
+        console.error(error?.response?.data?.message);
         return rejectWithValue(error?.response?.data?.message);
     }
 });

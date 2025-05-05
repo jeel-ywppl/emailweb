@@ -3,7 +3,6 @@ import {useEffect, useState} from "react";
 import {Link, useLocation, useNavigate, useParams} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../store";
 import {addUpdatePermissions, getRolePermissions, resetUserPermissions} from "../store/permissions";
-import {toast} from "react-toastify";
 import {SwitchCustomStyles} from "../componets/SwitchCustomStyles";
 import {ChevronLeft} from "lucide-react";
 
@@ -28,7 +27,7 @@ const Permission = () => {
                     }
                 })
                 .catch(() => {
-                    toast.error("Failed to fetch permissions");
+                    console.error("Failed to fetch permissions");
                 });
         }
     }, [id, dispatch]);
@@ -40,7 +39,7 @@ const Permission = () => {
             await dispatch(resetUserPermissions(id)).unwrap();
             dispatch(getRolePermissions(object));
         } catch (error) {
-            toast.error(error || "Failed to reset permissions");
+            console.error(error || "Failed to reset permissions");
         }
     };
 
@@ -67,7 +66,7 @@ const Permission = () => {
                         }
                     })
                     .catch(() => {
-                        toast.error("Failed to update permissions");
+                        console.error("Failed to update permissions");
                     });
             }
         }

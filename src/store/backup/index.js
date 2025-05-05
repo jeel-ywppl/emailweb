@@ -1,6 +1,5 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {api} from "../../utils/api";
-import {toast} from "react-toastify";
 
 export const findBackupEmails = createAsyncThunk(
     "backup/findBackupEmails",
@@ -14,7 +13,7 @@ export const findBackupEmails = createAsyncThunk(
             return response?.data;
         } catch (error) {
             console.error("Error fetching backup emails:", error);
-            toast.error(error?.response?.data?.message || "Failed to fetch backup emails");
+            console.error(error?.response?.data?.message || "Failed to fetch backup emails");
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -27,7 +26,7 @@ export const backupData = createAsyncThunk(
             const response = await api.put("/api/v1/mail/backup", values);
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -38,11 +37,11 @@ export const deleteBackupData = createAsyncThunk(
     async ({backup_email}, {rejectWithValue}) => {
         try {
             const response = await api.delete("/api/v1/mail/delete/backup", {
-                data: {backup_email}, 
+                data: {backup_email},
             });
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message || "Failed to delete backup!");
+            console.error(error?.response?.data?.message || "Failed to delete backup!");
             return rejectWithValue(error?.response?.data?.message);
         }
     },

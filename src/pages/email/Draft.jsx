@@ -3,7 +3,6 @@ import {useAppDispatch, useAppSelector} from "../../store";
 import ComposeEmailModal from "../../model/ComposeEmailModal";
 import {config} from "../../utils/util";
 import {FaPaperclip, FaStar, FaEllipsisV, FaRegStar} from "react-icons/fa";
-import {toast} from "react-toastify";
 import {MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank} from "react-icons/md";
 import DOMPurify from "dompurify";
 import {Box, TablePagination} from "@mui/material";
@@ -64,7 +63,7 @@ const Draft = () => {
                 dispatch(getAllDraftsbyUser({page: currentPage, limit}));
             })
             .catch((error) => {
-                toast.error(error || "Failed to update email status");
+                console.error(error || "Failed to update email status");
             });
     };
 
@@ -90,14 +89,14 @@ const Draft = () => {
                 dispatch(getAllDraftsbyUser({page: currentPage, limit}));
             })
             .catch((error) => {
-                toast.error(error || "Failed to update email status");
+                console.error(error || "Failed to update email status");
             });
     };
 
     const handleDropdownAction = async (action, emailId = null) => {
         let emailIds = selectedEmails.length > 0 ? selectedEmails : emailId ? [emailId] : [];
         if (emailIds.length === 0) {
-            toast.error("Please select at least one email.");
+            console.error("Please select at least one email.");
             return;
         }
         const actionMap = {
@@ -121,7 +120,7 @@ const Draft = () => {
                 console.error("Failed to send reply:", response.message || "Unknown error");
             }
         } catch (error) {
-            toast.error(error || "Failed to update email status");
+            console.error(error || "Failed to update email status");
         }
     };
 

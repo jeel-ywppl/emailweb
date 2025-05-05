@@ -10,10 +10,9 @@ import {FiMaximize, FiMinimize2} from "react-icons/fi";
 import {useAppDispatch, useAppSelector} from "../store";
 import {deleteDraft, getAllDraftsbyUser, getDraftById, updateDraft} from "../store/draft";
 import {getAllEmailbyUser, sendMail} from "../store/email";
-import {toast} from "react-toastify";
 import {TrashIcon} from "lucide-react";
 
-const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
+const ComposeEmailModal = ({isOpen, onClose, draft_id, forwardData}) => {
     const dispatch = useAppDispatch();
     const {isLoading} = useAppSelector((state) => state.email);
     const [recipients, setRecipients] = useState([]);
@@ -36,11 +35,36 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
     }, [isOpen]);
 
     useEffect(() => {
+        if (isOpen && forwardData) {
+            setRecipients([]);
+            setCcRecipients([]);
+            setBccRecipients([]);
+            setSubject(forwardData?.subject || "");
+            setBody(() => {
+                const formattedForward = `
+                    <br/><br/>
+                    ---------- Forwarded message ---------<br/>
+                    <strong>From:</strong> ${forwardData?.user || ""} &lt;${
+                    forwardData?.user?.email || ""
+                }&gt;<br/>
+                    <strong>Sent:</strong> ${new Date(forwardData?.createdAt).toLocaleString()}<br/>
+                    <strong>Subject:</strong> ${forwardData?.subject}<br/><br/>
+                    ${forwardData?.content || ""}
+                `;
+                return formattedForward;
+            });
+
+                    console.log("🍯 forwardData", forwardData);
+
+        }
+    }, [isOpen, forwardData]);
+
+    useEffect(() => {
         if (isOpen && draft_id && !hasFetchedDraft) {
             dispatch(getDraftById(draft_id))
                 .unwrap()
                 .then((response) => {
-                    if (response.success) {
+                    if (response?.success) {
                         const draft = response?.draft;
                         setRecipients(draft?.recipient_emails_to || []);
                         setCcRecipients(draft?.recipient_emails_cc || []);
@@ -50,12 +74,11 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
                         setAttachments(draft?.attachments || []);
                         setHasFetchedDraft(true);
                     } else {
-                        toast.error("Failed to fetch draft. Please try again.");
+                        console.error("Failed to fetch draft. Please try again.");
                     }
                 })
                 .catch((error) => {
                     console.error("Error fetching draft:", error);
-                    toast.error("Failed to fetch draft. Please try again.");
                 });
         }
     }, [isOpen, draft_id, dispatch, hasFetchedDraft]);
@@ -80,14 +103,12 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
             recipientEmailsBcc.length === 0 &&
             actionType === "send"
         ) {
-            toast.error("At least one recipient is required.");
             setIsSending(false);
             return;
         }
 
         const formData = new FormData();
 
-        // Append recipients with explicit index format
         recipientEmailsTo.forEach((email, index) =>
             formData.append(`recipient_emails_to[${index}]`, email),
         );
@@ -101,7 +122,6 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
         formData.append("subject", subject);
         formData.append("body", body);
 
-        // Append files under the same 'files' key, multiple times
         attachments
             .filter((file) => file instanceof File)
             .forEach((file) => {
@@ -112,7 +132,6 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
             formData.append("draft_id", draft_id);
         }
 
-        // Debug log
         const formDataLog = {};
         formData.forEach((value, key) => {
             if (key === "files" && value.name) {
@@ -122,6 +141,11 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
                 formDataLog[key] = value;
             }
         });
+
+        formData.append("is_reply", actionType === "send" && forwardData ? "false" : "true");
+        if (forwardData?.id) {
+            formData.append("email_id", forwardData?.id);
+        }
         console.log("FormData Payload before submitting:", formDataLog);
 
         const action = actionType === "send" ? sendMail(formData) : updateDraft(formData);
@@ -142,7 +166,6 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
             })
             .catch((error) => {
                 console.error("Failed to send email:", error);
-                toast.error("Failed to send email. Please try again.");
             })
             .finally(() => {
                 setIsSending(false);
@@ -190,7 +213,6 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
                 })
                 .catch((error) => {
                     console.error("Failed to delete draft:", error);
-                    toast.error("Failed to delete draft. Please try again.");
                 });
         }
     };
@@ -227,7 +249,7 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
                     <RecipientInput
                         label="To"
                         recipients={recipients.map((r) =>
-                            typeof r === "object" && r.email ? r.email : r,
+                            typeof r === "object" && r?.email ? r?.email : r,
                         )}
                         setRecipients={setRecipients}
                     />
@@ -255,7 +277,7 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id}) => {
                         <RecipientInput
                             label="CC"
                             recipients={ccRecipients.map((r) =>
-                                typeof r === "object" && r.email ? r.email : r,
+                                typeof r === "object" && r?.email ? r?.email : r,
                             )}
                             setRecipients={setCcRecipients}
                         />
@@ -310,6 +332,16 @@ ComposeEmailModal.propTypes = {
     isOpen: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     draft_id: PropTypes.string,
+    forwardData: PropTypes.shape({
+        subject: PropTypes.string,
+        content: PropTypes.string, 
+        id: PropTypes.string, 
+        createdAt: PropTypes.string,
+        user: PropTypes.shape({
+            name: PropTypes.string,
+            email: PropTypes.string,
+        }),
+    }),
 };
 
 export default ComposeEmailModal;

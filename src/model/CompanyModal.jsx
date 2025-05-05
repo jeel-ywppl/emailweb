@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import {useAppDispatch} from "../store";
 import {Dialog, DialogHeader, DialogBody, DialogFooter, Input} from "@material-tailwind/react";
 import {useFormik} from "formik";
-import {toast} from "react-toastify";
 import {companyValidationSchema} from "../validation/companyValidationScheama";
 import {createCompany, editCompany, findCompany} from "../store/company";
 import MyButton from "../componets/MyButton";
@@ -40,7 +39,6 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues, onSuccess}) =
             try {
                 if (editIndex !== null) {
                     if (!initialValues?._id) {
-                        toast.error("Company ID is missing!");
                         return;
                     }
                     const response = await dispatch(
@@ -50,7 +48,6 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues, onSuccess}) =
                     if (response?.success) {
                         await dispatch(findCompany());
                         onSuccess?.();
-                        toast.success("Company updated successfully!");
                     } else {
                         setFieldError("general", response?.message || "Failed to update company.");
                     }
@@ -58,7 +55,6 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues, onSuccess}) =
                     const response = await dispatch(createCompany(values)).unwrap();
                     if (response?.success) {
                         await dispatch(findCompany());
-                        toast.success("Company created successfully!");
                         onSuccess?.();
                     } else {
                         setFieldError("general", response?.message || "Failed to create company.");
@@ -67,7 +63,7 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues, onSuccess}) =
                 handleOpen();
                 resetForm();
             } catch (error) {
-                toast.error(error || "Something went wrong!");
+                console.error("Error submitting form:", error);
             } finally {
                 setSubmitting(false);
             }

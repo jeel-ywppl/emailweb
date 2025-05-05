@@ -1,5 +1,4 @@
 import {Chip} from "@material-tailwind/react";
-import {Typography} from "@mui/material";
 import {EyeIcon, Pencil, Trash2} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import useCheckAccess from "../../../utils/useCheckAccess";
@@ -10,39 +9,39 @@ const Index = ({item, index, openEditModal, openDeleteModal}) => {
     const checkAccess = useCheckAccess();
 
     return (
-        <tr key={index} className="hover:bg-gray-50">
+        <tr key={index} className="">
             <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography className="text-xs font-semibold text-blue-gray-600">
+                <tr className="text-xs font-semibold text-blue-gray-600">
                     {index + 1}
-                </Typography>
+                </tr>
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography className="text-xs font-semibold text-blue-gray-600">
+                <tr className="text-xs font-semibold text-blue-gray-600">
                     {item?.name}
-                </Typography>
+                </tr>
 
-                <Typography className="text-xs text-blue-gray-500">{item?.phone}</Typography>
+                <tr className="text-xs text-blue-gray-500">{item?.phone}</tr>
             </td>
 
             <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography className="text-xs font-semibold text-blue-gray-600">
+                <tr className="text-xs font-semibold text-blue-gray-600">
                     {item?.email}
-                </Typography>
+                </tr>
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
-                <Typography className="text-xs font-semibold text-blue-gray-600">
+                <tr className="text-xs font-semibold text-blue-gray-600">
                     {item?.industry}
-                </Typography>
+                </tr>
             </td>
             <td className="py-3  border-b border-blue-gray-50">
-                <Typography className="text-xs font-semibold text-blue-gray-600">
+                <tr className="text-xs font-semibold text-blue-gray-600">
                     <Chip
                         variant="gradient"
                         color={item?.active_status ? "green" : "blue-gray"}
                         value={item?.active_status ? "active" : "inactive"}
                         className="py-0.5 px-2 text-[11px] w-fit"
                     />
-                </Typography>
+                </tr>
             </td>
             <td className="flex space-x-4 px-4 items-center justify-start flex-nowrap py-5 border-b border-blue-gray-50">
                 {checkAccess("company", "view") && (

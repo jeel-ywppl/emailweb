@@ -4,7 +4,6 @@ import {Link, useNavigate} from "react-router-dom";
 import ComposeEmailModal from "../../model/ComposeEmailModal";
 import {config} from "../../utils/util";
 import {FaPaperclip, FaEllipsisV, FaTrashAlt} from "react-icons/fa";
-import {toast} from "react-toastify";
 import {changeEmailStatus, getAllEmailbyUser} from "../../store/email";
 import DOMPurify from "dompurify";
 import {MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank} from "react-icons/md";
@@ -72,7 +71,7 @@ const Trash = () => {
                 );
             })
             .catch((error) => {
-                toast.error(error || "Failed to update email status");
+                console.error(error || "Failed to update email status");
             });
     };
 
@@ -83,7 +82,7 @@ const Trash = () => {
     const handleDropdownAction = async (action, emailId = null) => {
         let emailIds = selectedEmails.length > 0 ? selectedEmails : emailId ? [emailId] : [];
         if (emailIds.length === 0) {
-            toast.error("Please select at least one email.");
+            console.error("Please select at least one email.");
             return;
         }
 
@@ -111,7 +110,7 @@ const Trash = () => {
                 console.error("Failed to send reply:", response.message || "Unknown error");
             }
         } catch (error) {
-            toast.error(error || "Failed to update email status");
+            console.error(error || "Failed to update email status");
         }
     };
 
@@ -142,7 +141,7 @@ const Trash = () => {
                     console.log(`Email marked as read successfully!`);
                 })
                 .catch((error) => {
-                    toast.error(error || "Failed to update email status");
+                    console.error(error || "Failed to update email status");
                 });
         }
     };

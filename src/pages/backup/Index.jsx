@@ -18,12 +18,12 @@ const Backup = () => {
 
     const {user, isLoading} = useAppSelector((state) => state.auth);
 
-    useEffect(() => {
-        if (!user || !user.backup_emails || user.backup_emails.length === 0) {
-            console.log("Dispatching getUserInfo...");
-            dispatch(getUserInfo());
-        }
-    }, [dispatch, user]);
+    // useEffect(() => {
+    //     if (!user || !user.backup_emails || user.backup_emails.length === 0) {
+    //         console.log("Dispatching getUserInfo...");
+    //         dispatch(getUserInfo());
+    //     }
+    // }, [dispatch, user]);
 
     const handleEdit = async (backupEmail) => {
         await dispatch(findBackupEmails({userEmail: backupEmail}));

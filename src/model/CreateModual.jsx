@@ -2,7 +2,6 @@ import {useState, useEffect} from "react";
 import PropTypes from "prop-types";
 import {Dialog, DialogBody, DialogFooter, Input, Typography} from "@material-tailwind/react";
 import {useDispatch} from "react-redux";
-import {toast} from "react-toastify";
 import {createModule, editModule, findModules} from "../store/modules";
 import MyButton from "../componets/MyButton";
 
@@ -45,7 +44,7 @@ const CreateModual = ({onClose, open, roleToEdit, isEditMode}) => {
             setModuleName("");
             onClose();
         } catch {
-            toast.error("An error occurred. Please try again.");
+            console.error("An error occurred. Please try again.");
         } finally {
             setLoading(false);
         }

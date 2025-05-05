@@ -3,7 +3,6 @@ import {useAppDispatch, useAppSelector} from "../../store";
 import {useNavigate} from "react-router-dom";
 import {config} from "../../utils/util";
 import {FaPaperclip, FaStar, FaEllipsisV, FaRegStar} from "react-icons/fa";
-import {toast} from "react-toastify";
 import {changeEmailStatus, getAllEmailbyUser} from "../../store/email";
 import {MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank} from "react-icons/md";
 import DOMPurify from "dompurify";
@@ -63,14 +62,14 @@ const Starred = () => {
                 dispatch(getAllEmailbyUser({page: currentPage, limit, status: "star_status=true"}));
             })
             .catch((error) => {
-                toast.error(error || "Failed to update email status");
+                console.error(error || "Failed to update email status");
             });
     };
 
     const handleDropdownAction = async (action, emailId = null) => {
         let emailIds = selectedEmails.length > 0 ? selectedEmails : emailId ? [emailId] : [];
         if (emailIds.length === 0) {
-            toast.error("Please select at least one email.");
+            console.error("Please select at least one email.");
             return;
         }
         const actionMap = {
@@ -95,7 +94,7 @@ const Starred = () => {
                 console.error("Failed to send reply:", response.message || "Unknown error");
             }
         } catch (error) {
-            toast.error(error || "Failed to update email status");
+            console.error(error || "Failed to update email status");
         }
     };
 
@@ -138,7 +137,7 @@ const Starred = () => {
                     console.log(`Email marked as read successfully!`);
                 })
                 .catch((error) => {
-                    toast.error(error || "Failed to update email status");
+                    console.error(error || "Failed to update email status");
                 });
         }
     };

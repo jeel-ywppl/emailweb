@@ -1,6 +1,5 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {api} from "../../utils/api";
-import {toast} from "react-toastify";
 
 export const findClient = createAsyncThunk(
     "client/findClient",
@@ -9,19 +8,18 @@ export const findClient = createAsyncThunk(
             const response = await api.get("/api/v1/superadmin/clients/get/all", values);
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
 );
 
 export const getClient = createAsyncThunk("client/getClient", async (id, {rejectWithValue}) => {
-    
     try {
         const response = await api.get(`/api/v1/superadmin/clients/data/${id}`);
         return response?.data;
     } catch (error) {
-        toast.error(error?.response?.data?.message);
+        console.error(error?.response?.data?.message);
         return rejectWithValue(error?.response?.data?.message);
     }
 });
@@ -33,7 +31,7 @@ export const findClientWithoutFilter = createAsyncThunk(
             const response = await api.get("/api/v1/superadmin/clients/get/nofilter");
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -46,7 +44,7 @@ export const createClient = createAsyncThunk(
             const response = await api.post("/api/v1/superadmin/clients/create", values);
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -59,7 +57,7 @@ export const deleteClient = createAsyncThunk(
             const response = await api.delete(`/api/v1/superadmin/clients/delete/${id}`);
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -73,7 +71,7 @@ export const editClient = createAsyncThunk(
             return response?.data;
         } catch (error) {
             console.error("Error updating user:", error?.response?.data);
-            toast.error(error?.response?.data?.message || "Failed to update user");
+            console.error(error?.response?.data?.message || "Failed to update user");
             return rejectWithValue(error?.response?.data?.message);
         }
     },

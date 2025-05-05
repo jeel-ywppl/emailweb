@@ -4,17 +4,9 @@ import {deleteCompany, findCompany} from "../../store/company";
 import {useAppDispatch, useAppSelector} from "../../store";
 import CompanyModal from "../../model/CompanyModal";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
-import {
-    Button,
-    Card,
-    CardBody,
-    CardHeader,
-    Input,
-    Typography,
-} from "@material-tailwind/react";
+import {Button, Card, CardBody, CardHeader, Input, Typography} from "@material-tailwind/react";
 import {TablePagination, Box} from "@mui/material";
 import DeleteConfirmationModal from "../../model/DeleteConfirmationModal";
-import {toast} from "react-toastify";
 import Loader from "../../componets/Loader";
 import useCheckAccess from "../../utils/useCheckAccess";
 import UserTableRow from "./TableRow/Index";
@@ -91,7 +83,7 @@ const Company = () => {
             await dispatch(deleteCompany(deleteCompanyId));
             dispatch(findCompany({page: currentPage, limit}));
         } catch (error) {
-            toast.error(error || "Failed to delete company.");
+            console.error(error || "Failed to delete company.");
         } finally {
             setDeleteModalOpen(false);
             setDeleteCompanyId(null);

@@ -1,4 +1,3 @@
-import {toast} from "react-toastify";
 import {api} from "../../utils/api";
 import {createAsyncThunk} from "@reduxjs/toolkit";
 
@@ -13,7 +12,7 @@ export const getAllRoles = createAsyncThunk(
             );
             if (response?.data?.message) return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data);
         }
     },
@@ -24,7 +23,7 @@ export const getRoleById = createAsyncThunk("roles/getRoleById", async (id, {rej
         const response = await api.get(`/api/v1/role/get/${id}`);
         return response?.data;
     } catch (error) {
-        toast.error(error?.response?.data?.message);
+        console.error(error?.response?.data?.message);
         return rejectWithValue(error?.response?.data?.message);
     }
 });
@@ -36,10 +35,9 @@ export const findRoleWithoutFilter = createAsyncThunk(
             const response = await api.get(
                 `/api/v1/role/get/all/without_filter?company_id=${values?.company_id || ""}`,
             );
-            if (response?.data?.message) 
-            return response?.data;
+            if (response?.data?.message) return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -55,7 +53,7 @@ export const createRoles = createAsyncThunk(
             }
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -69,7 +67,7 @@ export const editRole = createAsyncThunk(
             return response?.data;
         } catch (error) {
             console.error("Error updating roles:", error?.response?.data);
-            toast.error(error?.response?.data?.message || "Failed to update roles");
+            console.error(error?.response?.data?.message || "Failed to update roles");
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -81,7 +79,7 @@ export const deleteRole = createAsyncThunk("roles/deleteRole", async (id, {rejec
         return response?.data;
     } catch (error) {
         console.error("Delete roles error:", error);
-        toast.error(error?.response?.data?.message);
+        console.error(error?.response?.data?.message);
         return rejectWithValue(error?.response?.data?.message);
     }
 });

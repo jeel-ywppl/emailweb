@@ -10,12 +10,11 @@ import {
     Tooltip,
     Typography,
 } from "@material-tailwind/react";
-import {toast} from "react-toastify";
 import {Link, useNavigate, useParams} from "react-router-dom";
-import { ChevronLeft, Pencil, Trash2} from "lucide-react";
-import { useAppDispatch } from "../../../store";
-import { deleteDomain, getDomainById, updateDomain } from "../../../store/Domain";
-import { dnsValidationSchema } from "../../../validation/dnsValidationScheama";
+import {ChevronLeft, Pencil, Trash2} from "lucide-react";
+import {useAppDispatch} from "../../../store";
+import {deleteDomain, getDomainById, updateDomain} from "../../../store/Domain";
+import {dnsValidationSchema} from "../../../validation/dnsValidationScheama";
 import ConfirmDeleteDomainModal from "../../../model/ConfirmDeleteDomainModal";
 
 const recordTypes = ["A", "MX", "AAAA", "CNAME", "TXT"];
@@ -84,7 +83,7 @@ const DnsSetting = () => {
                         updateDomain({domainId: id, records: payload}),
                     ).unwrap();
                     if (response && response?.success) {
-                        toast.success("DNS record updated successfully");
+                        console.log("DNS record updated successfully");
                         resetForm();
                         const dnsResponse = await dispatch(getDomainById({_id: id}));
                         if (dnsResponse?.payload) {
@@ -92,10 +91,10 @@ const DnsSetting = () => {
                             setRecords(dnsResponse.payload.data?.dns_records || []);
                         }
                     } else {
-                        toast.error(response?.message || "Failed to update DNS record.");
+                        console.error(response?.message || "Failed to update DNS record.");
                     }
                 } catch (error) {
-                    toast.error(error?.message || "An error occurred while updating.");
+                    console.error(error?.message || "An error occurred while updating.");
                 } finally {
                     setSubmitting(false);
                 }
@@ -115,7 +114,7 @@ const DnsSetting = () => {
                     dns_id: selectedDomainId,
                 };
                 const response = await dispatch(deleteDomain(payload)).unwrap();
-                toast.success(response?.message || "DNS record deleted successfully!");
+                console.log(response?.message || "DNS record deleted successfully!");
                 const dnsResponse = await dispatch(getDomainById({_id: id}));
                 if (dnsResponse?.payload) {
                     setDnsSetting(dnsResponse.payload.data);
@@ -123,7 +122,7 @@ const DnsSetting = () => {
                 }
             } catch (error) {
                 console.error("Delete Error:", error);
-                toast.error(error);
+                console.error(error);
             } finally {
                 setDeleteModalOpen(false);
                 setSelectedDomainId(null);
@@ -132,7 +131,7 @@ const DnsSetting = () => {
     };
 
     const handleEditClick = (record) => {
-        setEditingRecord(record); 
+        setEditingRecord(record);
         setFieldValue("record_name", record.record_name);
         setFieldValue("type", record.type);
         setFieldValue("name", record.name);

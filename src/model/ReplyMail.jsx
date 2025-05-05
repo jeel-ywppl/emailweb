@@ -10,12 +10,12 @@ const ReplyMail = ({
     recipientEmail,
     onSend,
     senderEmail,
+    originalEmailId,
     subject,
     createdAt,
     user,
     content,
     onClose,
-    originalEmailId,
 }) => {
     const [replySubject, setReplySubject] = useState("");
     const [body, setBody] = useState("");
@@ -30,13 +30,12 @@ const ReplyMail = ({
 
     useEffect(() => {
         const filteredRecipients = Array.isArray(recipientEmail)
-            ? recipientEmail?.filter((email) => email !== senderEmail)
+            ? recipientEmail.filter((email) => email !== senderEmail)
             : recipientEmail !== senderEmail
             ? [recipientEmail]
             : [];
 
         setRecipientEmailsTo(filteredRecipients);
-        console.log("Updated recipientEmailsTo:", recipientEmailsTo);
 
         const formattedDate = new Date(createdAt).toLocaleString("en-US", {
             weekday: "short",
@@ -48,15 +47,15 @@ const ReplyMail = ({
             hour12: true,
         });
 
-        setReplySubject(subject);
-
         const quotedBody = `
             <br/><br/><br/><br/><br/><br/>
-            On ${formattedDate}, ${user} &lt;${recipientEmail}&gt; wrote:
+            On ${formattedDate}, ${user} &lt;${senderEmail}&gt; wrote:
             <blockquote style="margin:0 0 0 1em; padding-left:1em; border-left:2px solid #ccc;">
                 ${content}
             </blockquote>
         `;
+
+        setReplySubject(subject);
         setBody(quotedBody);
     }, [subject, recipientEmail, senderEmail, createdAt, user, content]);
 
@@ -112,8 +111,6 @@ const ReplyMail = ({
                 formDataLog[key] = value;
             }
         });
-
-        console.log("FormData Payload before submitting:", formDataLog);
 
         onSend(formData);
     };
@@ -260,10 +257,10 @@ ReplyMail.propTypes = {
     senderEmail: PropTypes.string.isRequired,
     subject: PropTypes.string.isRequired,
     createdAt: PropTypes.string.isRequired,
+    originalEmailId: PropTypes.string.isRequired,
     user: PropTypes.string.isRequired,
     content: PropTypes.string.isRequired,
     onClose: PropTypes.func.isRequired,
-    originalEmailId: PropTypes.string.isRequired,
 };
 
 export default ReplyMail;

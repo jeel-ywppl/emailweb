@@ -3,7 +3,6 @@ import {logoutUserFromLoacal} from "./authSlice.js";
 import {api, setAuthToken} from "../../utils/api.js";
 import {getItem} from "../../utils/localStorage.js";
 import {successToastHandler, toastHandler} from "../../utils/toastUtils.js";
-import {toast} from "react-toastify";
 
 export const authenticateUser = createAsyncThunk(
     "auth/authenticateUser",
@@ -57,7 +56,7 @@ export const verifyPasswordFor2FA = createAsyncThunk(
                 password,
                 onoff_status: onoffStatus,
             });
-            toast.success(response?.data?.message);
+            console.log(response?.data?.message);
             return response?.data;
         } catch (error) {
             toastHandler(error?.response?.data?.message);
@@ -75,7 +74,7 @@ export const verifyOTPFor2FA = createAsyncThunk(
                 otp,
                 tfa_status: tfaStatus,
             });
-            toast.success(response?.data?.message);
+            console.log(response?.data?.message);
             return response?.data;
         } catch (error) {
             toastHandler(error?.response?.data?.message);
@@ -89,10 +88,10 @@ export const send2FARecoveryOTP = createAsyncThunk(
     async ({onoff_status}, {rejectWithValue}) => {
         try {
             const response = await api.post("/api/v1/user/2fa_recovery_send_otp", {onoff_status});
-            toast.success(response?.data?.message);
+            console.log(response?.data?.message);
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message || "Failed to send OTP");
+            console.error(error?.response?.data?.message || "Failed to send OTP");
             return rejectWithValue(error?.response?.data?.message);
         }
     },

@@ -7,7 +7,6 @@ import {Button} from "@material-tailwind/react";
 import {authenticateUser, getUserInfo, verifyOTPFor2FA} from "../../store/auth";
 import {signInValidationSchema} from "../../validation/signInValidationSchema";
 import LoginAuthOtpModel from "./loginAuthOtpModel";
-import {toast} from "react-toastify";
 import {setItem} from "../../utils/localStorage";
 
 const Index = () => {
@@ -121,7 +120,7 @@ const Index = () => {
             navigate("/");
             setOtpModalOpen(false);
         } else {
-            toast.error(response?.data?.message);
+            console.error(response?.data?.message);
         }
     };
 

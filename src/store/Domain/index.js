@@ -1,6 +1,5 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {api} from "../../utils/api";
-import {toast} from "react-toastify";
 
 export const findDomain = createAsyncThunk(
     "domain/findDomain",
@@ -12,10 +11,9 @@ export const findDomain = createAsyncThunk(
                 }`,
             );
 
-
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -30,7 +28,7 @@ export const findDomainWithoutFilter = createAsyncThunk(
             );
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -41,7 +39,7 @@ export const getDomain = createAsyncThunk("domain/getDomain", async (id, {reject
         const response = await api.get(`/api/v1/domain/get/${id}`);
         return response?.data;
     } catch (error) {
-        toast.error(error?.response?.data?.message);
+        console.error(error?.response?.data?.message);
         return rejectWithValue(error?.response?.data?.message);
     }
 });
@@ -53,7 +51,7 @@ export const createDomain = createAsyncThunk(
             const response = await api.post("/api/v1/domain/create", values);
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -68,7 +66,7 @@ export const deleteDomain = createAsyncThunk(
             });
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message);
+            console.error(error?.response?.data?.message);
             return rejectWithValue(error?.response?.data?.message);
         }
     },

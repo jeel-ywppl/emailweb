@@ -1,10 +1,9 @@
 import {useEffect, useState, useRef} from "react";
 import {useAppDispatch, useAppSelector} from "../../store";
-import { useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import ComposeEmailModal from "../../model/ComposeEmailModal";
 import {config} from "../../utils/util";
 import {FaPaperclip, FaStar, FaEllipsisV, FaRegStar} from "react-icons/fa";
-import {toast} from "react-toastify";
 import {changeEmailStatus, getAllEmailbyUser} from "../../store/email";
 import {MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank} from "react-icons/md";
 import DOMPurify from "dompurify";
@@ -30,6 +29,22 @@ const Inbox = () => {
     useEffect(() => {
         dispatch(getAllEmailbyUser({page: currentPage, limit, status: "received_status=true"}));
     }, [dispatch, limit, currentPage]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleNewMail = (data) => {
+            console.log("New email received:", data);
+            dispatch(getAllEmailbyUser({page: currentPage, limit, status: "received_status=true"}));
+            // Optionally: show a toast, highlight new email, or auto-select
+        };
+
+        socket.on("new_mail", handleNewMail);
+
+        return () => {
+            socket.off("new_mail", handleNewMail);
+        };
+    }, [socket, dispatch, currentPage, limit]);
 
     useEffect(() => {
         setStarredEmails(emails?.filter((email) => email?.star_status).map((email) => email?._id));
@@ -80,7 +95,7 @@ const Inbox = () => {
                 );
             })
             .catch((error) => {
-                toast.error(error || "Failed to update email status");
+                console.error(error || "Failed to update email status");
             });
     };
 
@@ -91,7 +106,7 @@ const Inbox = () => {
     const handleDropdownAction = async (action, emailId = null) => {
         let emailIds = selectedEmails.length > 0 ? selectedEmails : emailId ? [emailId] : [];
         if (emailIds.length === 0) {
-            toast.error("Please select at least one email.");
+            console.error("Please select at least one email.");
             return;
         }
         const actionMap = {
@@ -118,7 +133,7 @@ const Inbox = () => {
                 console.error("Failed to send reply:", response.message || "Unknown error");
             }
         } catch (error) {
-            toast.error(error || "Failed to update email status");
+            console.error(error || "Failed to update email status");
         }
     };
 
@@ -145,7 +160,7 @@ const Inbox = () => {
                     console.log(`Email marked as read successfully!`);
                 })
                 .catch((error) => {
-                    toast.error(error || "Failed to update email status");
+                    console.error(error || "Failed to update email status");
                 });
         }
     };

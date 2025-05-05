@@ -1,6 +1,5 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {api} from "../../utils/api";
-import {toast} from "react-toastify";
 
 export const getAllDraftsbyUser = createAsyncThunk(
     "draft/getAllDraftsbyUser",
@@ -9,10 +8,9 @@ export const getAllDraftsbyUser = createAsyncThunk(
             const response = await api.get(
                 `/api/v1/mail/draft/get?page=${values?.page}&limit=${values?.limit}`,
             );
-            if (response?.data?.message) 
-            return response.data;
+            if (response?.data?.message) return response.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message || "Failed to fetch drafts");
+            console.error(error?.response?.data?.message || "Failed to fetch drafts");
             return rejectWithValue(error?.response?.data || "Failed to fetch drafts");
         }
     },
@@ -25,7 +23,7 @@ export const updateDraft = createAsyncThunk(
             const response = await api.post("/api/v1/mail/draft/save", formData);
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message || "Failed to send draft");
+            console.error(error?.response?.data?.message || "Failed to send draft");
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -38,7 +36,7 @@ export const getDraftById = createAsyncThunk(
             const response = await api.get(`/api/v1/mail/draft/get/${draft_id}`);
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message || "Failed to fetch draft");
+            console.error(error?.response?.data?.message || "Failed to fetch draft");
             return rejectWithValue(error?.response?.data?.message);
         }
     },
@@ -52,10 +50,10 @@ export const deleteDraft = createAsyncThunk(
                 data: {draft_ids},
             });
 
-            // toast.success(response?.data?.message || "Backup deleted successfully!");
+            // console.log(response?.data?.message || "Backup deleted successfully!");
             return response?.data;
         } catch (error) {
-            toast.error(error?.response?.data?.message || "Failed to delete draft!");
+            console.error(error?.response?.data?.message || "Failed to delete draft!");
             return rejectWithValue(error?.response?.data?.message);
         }
     },
