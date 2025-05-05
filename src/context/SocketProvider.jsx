@@ -24,7 +24,7 @@ const SocketContext = createContext(null);
 export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
-    const socket = useMemo(() => io("http://tushal.fun"), []);
+    const socket = useMemo(() => io("https://tushal.fun"), []);
     console.log("🍤 socket", socket);
     return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 

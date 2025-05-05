@@ -11,8 +11,11 @@ import {Box, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
 import Loader from "../../componets/Loader";
 import {RotateCcw} from "lucide-react";
+import { useSocket } from "../../context/SocketProvider";
+
 
 const Inbox = () => {
+    const socket = useSocket();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} =
