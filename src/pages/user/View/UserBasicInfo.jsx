@@ -4,6 +4,7 @@ import {Mail, Building, Flag, MessageSquareText, User as UserIcon} from "lucide-
 import PropTypes from "prop-types";
 
 const UserBasicInfo = ({user}) => {
+
     return (
         <div className="grid grid-cols-1 gap-6 space-y-6">
             <Card>
@@ -103,7 +104,7 @@ const UserBasicInfo = ({user}) => {
                             className="text-lg flex items-center gap-2 p-3"
                         >
                             <MessageSquareText className="h-5 w-5" />
-                            Biography
+                            Bio
                         </Typography>
                     </CardHeader>
                     <CardContent>

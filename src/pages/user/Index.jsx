@@ -63,7 +63,7 @@ const Tables = () => {
         dispatch(setCurrentPage({currentPage: newPage + 1}));
     };
 
-    const tableHeaders = ["#", "author", "email", "status", "employed", "Action"];
+    const tableHeaders = ["#", "author", "email", "role", "status", "employed", "Action"];
 
     const openModal = (type, user = null) => {
         setSelectedUser(user);
@@ -94,8 +94,9 @@ const Tables = () => {
                         options={noFilterCompany}
                         getOptionLabel={(option) => option?.name}
                         value={
-                            noFilterCompany?.find((company) => company?._id === filter?.companyId) ||
-                            null
+                            noFilterCompany?.find(
+                                (company) => company?._id === filter?.companyId,
+                            ) || null
                         }
                         onChange={(event, newValue) => {
                             handleChange("companyId")({
@@ -123,7 +124,9 @@ const Tables = () => {
                         }}
                         options={noFilterRole}
                         getOptionLabel={(option) => option?.role_name || ""}
-                        value={noFilterRole?.find((role) => role?.role_id === filter?.roleId) || null}
+                        value={
+                            noFilterRole?.find((role) => role?.role_id === filter?.roleId) || null
+                        }
                         onChange={(event, newValue) => {
                             handleChange("roleId")({
                                 target: {value: newValue ? newValue?.role_id : ""},
@@ -195,14 +198,20 @@ const Tables = () => {
                                                 ?.toLowerCase()
                                                 .includes(search.toLowerCase()),
                                     )
-                                    .map((item, idx) => (
-                                        <UserTableRow
-                                            item={item}
-                                            idx={idx}
-                                            key={idx * Math.random()}
-                                            openModal={openModal}
-                                        />
-                                    ))}
+
+                                    .map((item, idx) => {
+                                        const pageIndex = Math.max(currentPage, 1); 
+                                        const index = (pageIndex - 1) * Number(limit) + idx + 1;
+
+                                        return (
+                                            <UserTableRow
+                                                key={item._id}
+                                                item={item}
+                                                idx={index}
+                                                openModal={openModal}
+                                            />
+                                        );
+                                    })}
                             </tbody>
                         </table>
                     </CardBody>

@@ -51,7 +51,6 @@ const Profile = () => {
                 formData.append("bio", values?.bio);
                 formData.append("designation", values?.designation);
                 const response = await dispatch(editUser({id: user._id, updatedData: formData}));
-                console.log("Edit User Response:", response);
                 if (response?.payload?.success) {
                     dispatch(getUserInfo());
                     setPreviewAvatar(

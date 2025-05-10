@@ -12,7 +12,7 @@ const Index = ({item, idx, openModal}) => {
 
     return (
         <tr key={item?._id}>
-            <td className="py-3 px-5 border-b border-blue-gray-50 text-sm">{idx + 1}</td>
+            <td className="py-3 px-5 border-b border-blue-gray-50 text-sm">{idx}</td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
                 <div className="flex items-center gap-4">
                     {item?.img ? (
@@ -44,6 +44,9 @@ const Index = ({item, idx, openModal}) => {
             <td className="py-3 px-5 border-b border-blue-gray-50 text-xs font-semibold">
                 {item?.email}
             </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50 text-xs font-semibold">
+                {item?.role_id?.role_name}
+            </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Chip
                     variant="gradient"
@@ -53,7 +56,7 @@ const Index = ({item, idx, openModal}) => {
                 />
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50 text-xs">
-                {item?.updatedAt ? new Date(item?.updatedAt).toISOString().split("T")[0] : "N/A"}
+                {new Date(item?.createdAt).toLocaleDateString()  || "N/A"} 
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
                 <div className="flex items-center gap-3 text-black">

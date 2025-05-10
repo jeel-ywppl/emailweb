@@ -65,7 +65,6 @@ const Trash = () => {
         dispatch(changeEmailStatus(payload))
             .unwrap()
             .then(() => {
-                console.log("Email Deleted successfully!");
                 dispatch(
                     getAllEmailbyUser({page: currentPage, limit, status: "trash_status=true"}),
                 );
@@ -101,7 +100,6 @@ const Trash = () => {
         try {
             const response = await dispatch(changeEmailStatus(payload));
             if (response?.payload?.success) {
-                console.log(response?.message || `Emails ${action}d successfully!`);
                 setDropdownOpen(null);
                 dispatch(
                     getAllEmailbyUser({page: currentPage, limit, status: "trash_status=true"}),
@@ -284,7 +282,7 @@ const Trash = () => {
                             </div>
                             <div className="flex items-center gap-3 relative">
                                 <p className="text-xs text-gray-400">
-                                    {email?.updatedAt ? email?.updatedAt.split("T")[0] : ""}
+                                    {new Date(email?.updatedAt).toLocaleDateString() || "N/A"}
                                 </p>
                                 <button
                                     onClick={(e) => {

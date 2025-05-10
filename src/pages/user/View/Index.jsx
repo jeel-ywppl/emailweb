@@ -21,8 +21,7 @@ const UserView = () => {
         async (ID) => {
             try {
                 const response = await dispatch(getUser(ID)).unwrap();
-                setUserData(response.data);
-                console.log("Fetched user data:", response.data);
+                setUserData(response?.data);
             } catch (error) {
                 console.error("Error fetching user:", error);
             }
@@ -80,19 +79,19 @@ const UserView = () => {
                             activeTab === "permission" ? "text-white" : "text-black"
                         }`}
                     >
-                        permission
+                        Permission
                     </Tab>
                 </TabsHeader>
 
                 <TabsBody>
                     <TabPanel value="basic" className="mt-6 space-y-6">
-                        <UserBasicInfo />
+                        <UserBasicInfo user={userData}/>
                     </TabPanel>
                     <TabPanel value="security" className="mt-6 space-y-6">
-                        <UserSecurityInfo />
+                        <UserSecurityInfo user={userData}/>
                     </TabPanel>
                     <TabPanel value="permission" className="mt-6 space-y-6">
-                        <Permission />
+                        <Permission user={userData}/>
                     </TabPanel>
                 </TabsBody>
             </Tabs>

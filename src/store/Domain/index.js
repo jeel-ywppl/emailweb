@@ -96,3 +96,13 @@ export const getDomainById = createAsyncThunk(
         }
     },
 );
+
+export const checkDkim = createAsyncThunk("domain/checkDkim", async (values, {rejectWithValue}) => {
+    try {
+        const response = await api.post("/api/v1/domain/generatopendkim", values);
+        return response?.data;
+    } catch (error) {
+        console.error(error?.response?.data?.message);
+        return rejectWithValue(error?.response?.data?.message);
+    }
+});

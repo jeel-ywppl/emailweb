@@ -48,7 +48,6 @@ const Index = () => {
         setSelectedClient(null);
     };
 
-    console.log("🍕 client", client?.clients);
 
     useEffect(() => {
         dispatch(
@@ -132,7 +131,7 @@ const Index = () => {
                                     ?.map((item, idx) => (
                                         <UserTableRow
                                             item={item}
-                                            idx={idx}
+                                            idx={(currentPage - 1) * limit + idx}
                                             key={item._id}
                                             openModal={openModal}
                                         />

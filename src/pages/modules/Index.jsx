@@ -2,13 +2,13 @@ import {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "../../store";
 import {deleteModule, findModules} from "../../store/modules";
 import {Card, CardHeader, CardBody, Typography, Input} from "@material-tailwind/react";
-import {Loader2} from "lucide-react";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
 import CreateModual from "../../model/CreateModual";
 import DeleteModule from "../../model/DeleteModule";
 import useCheckAccess from "../../utils/useCheckAccess";
 import MyButton from "../../componets/MyButton";
 import UserTableRow from "./TableRow/Index";
+import Loader from "../../componets/Loader";
 
 const Modules = () => {
     const dispatch = useAppDispatch();
@@ -71,7 +71,7 @@ const Modules = () => {
     if (isLoading)
         return (
             <div className="fixed inset-0 flex justify-center items-center ">
-                <Loader2 />
+                <Loader />
             </div>
         );
 
@@ -111,7 +111,7 @@ const Modules = () => {
                     <table className="w-full min-w-[640px] text-nowrap table-auto">
                         <thead>
                             <tr>
-                                {["#", "Modules", "Action"].map((el) => (
+                                {["#", "Modules", "Date", "Action"].map((el) => (
                                     <th
                                         key={el}
                                         className="border-b border-blue-gray-50 py-3 px-5 text-left"

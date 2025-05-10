@@ -56,7 +56,6 @@ export const verifyPasswordFor2FA = createAsyncThunk(
                 password,
                 onoff_status: onoffStatus,
             });
-            console.log(response?.data?.message);
             return response?.data;
         } catch (error) {
             toastHandler(error?.response?.data?.message);
@@ -74,7 +73,6 @@ export const verifyOTPFor2FA = createAsyncThunk(
                 otp,
                 tfa_status: tfaStatus,
             });
-            console.log(response?.data?.message);
             return response?.data;
         } catch (error) {
             toastHandler(error?.response?.data?.message);
@@ -88,7 +86,6 @@ export const send2FARecoveryOTP = createAsyncThunk(
     async ({onoff_status}, {rejectWithValue}) => {
         try {
             const response = await api.post("/api/v1/user/2fa_recovery_send_otp", {onoff_status});
-            console.log(response?.data?.message);
             return response?.data;
         } catch (error) {
             console.error(error?.response?.data?.message || "Failed to send OTP");
@@ -109,6 +106,19 @@ export const verify2FARecoveryOTP = createAsyncThunk(
         } catch (error) {
             console.error("API Error Response:", error.response?.data);
             return rejectWithValue(error.response?.data?.message || "OTP verification failed");
+        }
+    },
+);
+
+export const reCaptcha = createAsyncThunk(
+    "auth/reCaptcha",
+    async ({captcha_text}, {rejectWithValue}) => {
+        try {
+            const response = await api.get("/captcha", {captcha_text});
+            return response.data;
+        } catch (error) {
+            console.error("API Error Response:", error.response?.data);
+            return rejectWithValue(error.response?.data?.message || "Failed to resend OTP");
         }
     },
 );

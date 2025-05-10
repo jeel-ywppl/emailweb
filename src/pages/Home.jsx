@@ -18,7 +18,8 @@ import {
 } from "recharts";
 import {findClientWithoutFilter} from "../store/client";
 import useCheckAccess from "../utils/useCheckAccess";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import Loader from "../componets/Loader";
 
 const timeOptions = [
     {label: "All", value: "all"},
@@ -38,8 +39,10 @@ const Home = () => {
 
     const [timeFilter, setTimeFilter] = useState("month");
     const [client, setClient] = useState("");
-    const [dates, setDates] = useState({start: "", end: ""});
-
+    const [dates, setDates] = useState({
+        start: "",
+        end: new Date().toISOString().split("T")[0],
+    });
     const [showModal, setShowModal] = useState(false);
 
     const closeModal = () => {
@@ -71,6 +74,8 @@ const Home = () => {
     }, [dispatch]);
 
     useEffect(() => {
+        if (timeFilter === "range" && !dates.start) return;
+
         const values = {
             filter: timeFilter,
             ...(timeFilter === "range" && {
@@ -81,7 +86,7 @@ const Home = () => {
         };
 
         dispatch(findChartData(values));
-    }, [timeFilter, dates, client, dispatch]);
+    }, [timeFilter === "range" ? dates.start : timeFilter, client, dispatch]);
 
     let chartData = [];
 
@@ -201,7 +206,9 @@ const Home = () => {
 
                     <div className="w-full h-72">
                         {isLoading ? (
-                            <p>Loading chart...</p>
+                            <div className="h-[40vh] flex items-center justify-center">
+                                <Loader />
+                            </div>
                         ) : chartData.length === 0 ? (
                             <p>No chart data available.</p>
                         ) : (

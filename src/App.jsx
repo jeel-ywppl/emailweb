@@ -1,16 +1,17 @@
-import { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import {useEffect} from "react";
+import {Routes, Route, Navigate} from "react-router-dom";
+import {ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Dashboard from "./layouts/dashbord";
 import SignIn from "./pages/auth/SignIn";
-import { useAppDispatch, useAppSelector } from "./store";
-import { getUserInfo } from "./store/auth";
+import {useAppDispatch, useAppSelector} from "./store";
+import {getUserInfo} from "./store/auth";
 import ProtectedRoute from "./componets/ProtectedRoute";
+import Loader from "./componets/Loader";
 
 const App = () => {
     const dispatch = useAppDispatch();
-    const { accessToken, user, isLoading } = useAppSelector((state) => state?.auth);
+    const {accessToken, user, isLoading} = useAppSelector((state) => state?.auth);
 
     useEffect(() => {
         if (accessToken) {
@@ -21,7 +22,7 @@ const App = () => {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <Loader />
             </div>
         );
     }
@@ -29,12 +30,7 @@ const App = () => {
     return (
         <>
             <Routes>
-                <Route
-                    path="/dashboard/*"
-                    element={
-                        <ProtectedRoute element={<Dashboard />} />
-                    }
-                />
+                <Route path="/dashboard/*" element={<ProtectedRoute element={<Dashboard />} />} />
 
                 <Route
                     path="/auth/*"

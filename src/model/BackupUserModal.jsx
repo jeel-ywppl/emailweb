@@ -40,7 +40,6 @@ const BackupUserModal = ({isOpen, onClose, user}) => {
             const response = await dispatch(backupData(value));
 
             if (response?.payload?.success) {
-                console.log(response?.message || "Email sent successfully!");
                 onClose();
             } else {
                 setErrorMessage(

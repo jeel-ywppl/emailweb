@@ -37,7 +37,7 @@ const Index = ({data, index, openEditModal, openDeleteModal}) => {
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
                 <Typography className="text-xs font-semibold text-blue-gray-600">
-                    {data?.expiration_date ? data?.expiration_date?.split("T")[0] : "N/A"}
+                    {new Date(data?.expiration_date).toLocaleDateString() || "N/A"}
                 </Typography>
             </td>
             <td className="py-3 px-5 border-blue-gray-50 flex gap-3">

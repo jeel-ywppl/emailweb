@@ -53,9 +53,6 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id, forwardData}) => {
                 `;
                 return formattedForward;
             });
-
-                    console.log("🍯 forwardData", forwardData);
-
         }
     }, [isOpen, forwardData]);
 
@@ -146,7 +143,6 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id, forwardData}) => {
         if (forwardData?.id) {
             formData.append("email_id", forwardData?.id);
         }
-        console.log("FormData Payload before submitting:", formDataLog);
 
         const action = actionType === "send" ? sendMail(formData) : updateDraft(formData);
 

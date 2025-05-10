@@ -75,7 +75,6 @@ const Sent = () => {
         dispatch(changeEmailStatus(payload))
             .unwrap()
             .then(() => {
-                console.log("API CALL ENTER... started");
                 dispatch(getAllEmailbyUser({page: currentPage, limit, status: "send_status=true"}));
             })
             .catch((error) => {
@@ -108,7 +107,6 @@ const Sent = () => {
         try {
             const response = await dispatch(changeEmailStatus(payload));
             if (response?.payload?.success) {
-                console.log(response?.message || `Emails ${action} successfully!`);
                 setDropdownOpen(null);
                 dispatch(getAllEmailbyUser({page: currentPage, limit, status: "send_status=true"}));
             } else {
@@ -295,7 +293,7 @@ const Sent = () => {
                             </div>
                             <div className=" flex items-center gap-3 relative">
                                 <p className="text-xs text-gray-400">
-                                    {email?.updatedAt ? email?.updatedAt.split("T")[0] : ""}
+                                    {new Date(email?.updatedAt).toLocaleDateString() || "N/A"}
                                 </p>
                                 <button
                                     onClick={(e) => {

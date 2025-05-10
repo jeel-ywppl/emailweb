@@ -11,15 +11,15 @@ import {Box, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
 import Loader from "../../componets/Loader";
 import {RotateCcw} from "lucide-react";
-import { useSocket } from "../../context/SocketProvider";
-
+import socket from "../../context/SocketProvider";
+import { toast } from "react-toastify";
 
 const Inbox = () => {
-    const socket = useSocket();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} =
         useAppSelector((state) => state.email);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmails, setSelectedEmails] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null);
@@ -33,21 +33,49 @@ const Inbox = () => {
         dispatch(getAllEmailbyUser({page: currentPage, limit, status: "received_status=true"}));
     }, [dispatch, limit, currentPage]);
 
+    const loggedInUserEmail = useAppSelector((state) => state.auth.user?.email);
+    console.log("🦊 loggedInUserEmail", loggedInUserEmail);
     useEffect(() => {
-        if (!socket) return;
+        // Join the room
+        const userEmail = loggedInUserEmail;
+        socket.emit("join_user", userEmail);
 
-        const handleNewMail = (data) => {
-            console.log("New email received:", data);
-            dispatch(getAllEmailbyUser({page: currentPage, limit, status: "received_status=true"}));
-            // Optionally: show a toast, highlight new email, or auto-select
-        };
-
-        socket.on("new_mail", handleNewMail);
+        // Listen for new_email
+        socket.on("new_email", (email) => {
+            console.log("📬 New email received:", email);
+            // Show toast notification
+            toast("📨 New Mail Received", {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: true,
+                closeOnClick: false,
+                pauseOnHover: false,
+                draggable: false,
+                closeButton: false,
+                style: {
+                    height: "22px",
+                    fontSize: "16px",
+                    background: "#FFE135",
+                    color: "#000000",
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: "5px",
+                },
+            });
+            dispatch(getAllEmailbyUser({
+                page: 1,
+                limit: 10,
+                status: "received_status=true",
+            }));
+        });
 
         return () => {
-            socket.off("new_mail", handleNewMail);
+            socket.off("new_email");
         };
-    }, [socket, dispatch, currentPage, limit]);
+    }, []);
+
 
     useEffect(() => {
         setStarredEmails(emails?.filter((email) => email?.star_status).map((email) => email?._id));
@@ -92,7 +120,6 @@ const Inbox = () => {
         dispatch(changeEmailStatus(payload))
             .unwrap()
             .then(() => {
-                console.log(`Email ${isCurrentlyStarred ? "unstarred" : "starred"} successfully!`);
                 dispatch(
                     getAllEmailbyUser({page: currentPage, limit, status: "received_status=true"}),
                 );
@@ -127,7 +154,6 @@ const Inbox = () => {
         try {
             const response = await dispatch(changeEmailStatus(payload));
             if (response?.payload?.success) {
-                console.log(response?.message || `Emails ${action} successfully!`);
                 setDropdownOpen(null);
                 dispatch(
                     getAllEmailbyUser({page: currentPage, limit, status: "received_status=true"}),
@@ -328,7 +354,7 @@ const Inbox = () => {
                             </div>
                             <div className="flex items-center gap-3 relative">
                                 <p className="text-xs text-gray-400">
-                                    {email?.updatedAt ? email?.updatedAt.split("T")[0] : ""}
+                                    {new Date(email?.updatedAt).toLocaleDateString() || "N/A"}
                                 </p>
                                 <button
                                     onClick={(e) => {

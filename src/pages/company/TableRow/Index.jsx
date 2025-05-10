@@ -11,27 +11,19 @@ const Index = ({item, index, openEditModal, openDeleteModal}) => {
     return (
         <tr key={index} className="">
             <td className="py-3 px-5 border-b border-blue-gray-50">
-                <tr className="text-xs font-semibold text-blue-gray-600">
-                    {index + 1}
-                </tr>
+                <tr className="text-xs font-semibold text-blue-gray-600">{index + 1}</tr>
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
-                <tr className="text-xs font-semibold text-blue-gray-600">
-                    {item?.name}
-                </tr>
+                <tr className="text-xs font-semibold text-blue-gray-600">{item?.name}</tr>
 
                 <tr className="text-xs text-blue-gray-500">{item?.phone}</tr>
             </td>
 
             <td className="py-3 px-5 border-b border-blue-gray-50">
-                <tr className="text-xs font-semibold text-blue-gray-600">
-                    {item?.email}
-                </tr>
+                <tr className="text-xs font-semibold text-blue-gray-600">{item?.email}</tr>
             </td>
             <td className="py-3 px-5 border-b border-blue-gray-50">
-                <tr className="text-xs font-semibold text-blue-gray-600">
-                    {item?.industry}
-                </tr>
+                <tr className="text-xs font-semibold text-blue-gray-600">{item?.industry}</tr>
             </td>
             <td className="py-3  border-b border-blue-gray-50">
                 <tr className="text-xs font-semibold text-blue-gray-600">

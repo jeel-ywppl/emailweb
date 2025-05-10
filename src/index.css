@@ -1,11 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Special+Gothic+Expanded+One&display=swap");
 
 /* Example with Inter */
 body {
-  font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
+}
+
+.Special_Gothic_Expanded_One {
+    font-family: "Special Gothic Expanded One", sans-serif;
+    font-weight: 400;
+    font-style: normal;
 }
 
 .ql-editor strong {
@@ -81,7 +88,6 @@ style-4::-webkit-scrollbar-track {
 .long-text-wrap {
     overflow-wrap: anywhere;
 }
-
 
 /* chart css */
 

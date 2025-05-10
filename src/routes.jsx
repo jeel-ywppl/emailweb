@@ -30,7 +30,6 @@ import UserView from "./pages/user/View/Index";
 import ClientDetail from "./pages/clients/View/Index";
 import Roles from "./pages/roles/Index";
 import Domain from "./pages/domain/Index";
-import DnsSetting from "./pages/domain/View/Index";
 import Backup from "./pages/backup/Index";
 import {Drafts} from "@mui/icons-material";
 import BackupMail from "./pages/backup/View/Index";
@@ -38,6 +37,7 @@ import EmailView from "./pages/email/emailView/EmailView";
 import Company from "./pages/company/Index";
 import CompanyView from "./pages/company/View";
 import Modules from "./pages/modules/Index";
+import DnsSetting from "./pages/domain/Manage/Index";
 
 const icon = {
     className: "w-5 h-5 text-inherit",
@@ -55,10 +55,24 @@ export const routes = [
                 isSideNav: true,
             },
             {
-                icon: <User {...icon} />,
-                name: "client",
-                path: "/client",
-                element: <Index />,
+                icon: <Building2 {...icon} />,
+                name: "company",
+                path: "/company",
+                element: <Company />,
+                isSideNav: true,
+            },
+            {
+                icon: <Globe {...icon} />,
+                name: "domain",
+                path: "/domain",
+                element: <Domain />,
+                isSideNav: true,
+            },
+            {
+                icon: <UserCog {...icon} />,
+                name: "role",
+                path: "/role",
+                element: <Roles />,
                 isSideNav: true,
             },
             {
@@ -74,14 +88,6 @@ export const routes = [
                 element: <UserModule />,
                 isSideNav: true,
             },
-
-            {
-                icon: <Globe {...icon} />,
-                name: "domain",
-                path: "/domain",
-                element: <Domain />,
-                isSideNav: true,
-            },
             {
                 icon: <Notebook {...icon} />,
                 name: "module",
@@ -90,17 +96,10 @@ export const routes = [
                 isSideNav: true,
             },
             {
-                icon: <UserCog {...icon} />,
-                name: "role",
-                path: "/role",
-                element: <Roles />,
-                isSideNav: true,
-            },
-            {
-                icon: <Building2 {...icon} />,
-                name: "company",
-                path: "/company",
-                element: <Company />,
+                icon: <User {...icon} />,
+                name: "client",
+                path: "/client",
+                element: <Index />,
                 isSideNav: true,
             },
             {

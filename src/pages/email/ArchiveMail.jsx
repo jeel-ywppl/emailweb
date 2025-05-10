@@ -73,7 +73,6 @@ const ArchiveMail = () => {
         dispatch(changeEmailStatus(payload))
             .unwrap()
             .then(() => {
-                console.log(`Email ${isCurrentlyStarred ? "unstarred" : "starred"} successfully!`);
                 dispatch(
                     getAllEmailbyUser({page: currentPage, limit, status: "archive_status=true"}),
                 );
@@ -108,7 +107,6 @@ const ArchiveMail = () => {
         try {
             const response = await dispatch(changeEmailStatus(payload));
             if (response?.payload?.success) {
-                console.log(response?.message || `Emails ${action} successfully!`);
                 setDropdownOpen(null);
                 dispatch(
                     getAllEmailbyUser({page: currentPage, limit, status: "archive_status=true"}),
@@ -304,7 +302,7 @@ const ArchiveMail = () => {
                             </div>
                             <div className=" flex items-center gap-3 relative">
                                 <p className="text-xs text-gray-400">
-                                    {email?.updatedAt ? email?.updatedAt.split("T")[0] : ""}
+                                    {new Date(email?.updatedAt).toLocaleDateString() || "N/A"}
                                 </p>
                                 <button
                                     onClick={(e) => {

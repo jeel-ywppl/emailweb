@@ -4,7 +4,7 @@ import {useNavigate} from "react-router-dom";
 import {useAppDispatch} from "../../store";
 import {useFormik} from "formik";
 import {Button} from "@material-tailwind/react";
-import {authenticateUser, getUserInfo, verifyOTPFor2FA} from "../../store/auth";
+import {authenticateUser, getUserInfo, reCaptcha, verifyOTPFor2FA} from "../../store/auth";
 import {signInValidationSchema} from "../../validation/signInValidationSchema";
 import LoginAuthOtpModel from "./loginAuthOtpModel";
 import {setItem} from "../../utils/localStorage";
@@ -15,24 +15,28 @@ const Index = () => {
     const [otp, setOtp] = useState(Array(6).fill(""));
     const [showPassword, setShowPassword] = useState(false);
     const [otpModalOpen, setOtpModalOpen] = useState(false);
+    const [captchaImage, setCaptchaImage] = useState("");
+    const [captchaText, setCaptchaText] = useState("");
+    const [captchaToken, setCaptchaToken] = useState("");
 
-    const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
-
-    const loadRecaptchaScript = () => {
-        const script = document.createElement("script");
-        script.src = "https://www.google.com/recaptcha/api.js";
-        script.async = true;
-        script.defer = true;
-        document.body.appendChild(script);
+    const fetchCaptcha = async () => {
+        try {
+            const response = await dispatch(reCaptcha({captcha_text: ""}));
+            console.log("CAPTCHA API Response:", response);
+            if (response?.payload) {
+                setCaptchaImage(response.payload.svg); 
+                setCaptchaToken(response.payload.captcha_token); 
+                console.log("🍯 Captcha Token:", response.payload.captcha_token);
+            } else {
+                console.warn("Invalid CAPTCHA response:", response);
+            }
+        } catch (error) {
+            console.error("Error fetching CAPTCHA:", error);
+        }
     };
-
     useEffect(() => {
-        loadRecaptchaScript();
+        fetchCaptcha();
     }, []);
-
-    const resetRecaptcha = () => {
-        window.grecaptcha.reset();
-    };
 
     const {
         handleChange,
@@ -51,24 +55,18 @@ const Index = () => {
         },
         validationSchema: signInValidationSchema,
         onSubmit: async (values) => {
-            if (!window.grecaptcha || !window.grecaptcha.getResponse) {
-                setFieldError("general", "reCAPTCHA is not ready. Please refresh the page.");
-                return;
-            }
-
-            const recaptchaToken = window.grecaptcha.getResponse();
-            if (!recaptchaToken) {
-                setFieldError("general", "Please complete the reCAPTCHA.");
-                return;
-            }
-
             try {
                 const payload = {
                     ...values,
-                    "g-recaptcha-response": recaptchaToken,
+                    captcha_text: captchaText,
+                    captcha_token: captchaToken, // Include the captcha token here
                 };
 
-                const response = await dispatch(authenticateUser(payload));
+                const response = await dispatch(
+                    authenticateUser({
+                        ...payload,
+                    }),
+                );
 
                 if (response?.payload?.otpRequired) {
                     setOtpModalOpen(true);
@@ -77,12 +75,12 @@ const Index = () => {
                     navigate("/");
                 } else {
                     setFieldError("general", response?.payload?.message || "Login failed.");
+                    fetchCaptcha(); // Refresh CAPTCHA on failure
                 }
-                resetRecaptcha();
             } catch (error) {
                 console.error(error);
-                resetRecaptcha();
                 setFieldError("general", "An unexpected error occurred.");
+                fetchCaptcha(); // Refresh CAPTCHA on failure
             } finally {
                 setSubmitting(false);
             }
@@ -120,36 +118,36 @@ const Index = () => {
             navigate("/");
             setOtpModalOpen(false);
         } else {
-            console.error(response?.data?.message);
+            console.error(response?.payload?.message);
         }
     };
 
     return (
         <div className="min-h-screen w-full flex">
-            <div className="hidden lg:flex lg:w-1/2 bg-[#f5f5f5] flex-col p-12 relative">
+            <div className="hidden lg:flex lg:w-1/2 bg-[url('/imgs/pattern.png')] bg-cover bg-center flex-col p-12 relative">
                 <div className="absolute top-6 left-6">
-                    <h1 className="text-4xl font-bold tracking-tight text-right">Welcome!</h1>
+                    <h1 className="text-4xl font-bold tracking-tight text-right text-white">
+                        Welcome!
+                    </h1>
                 </div>
 
-                <div className="flex  items-center justify-center h-full gap-6">
-                    <div className="text-5xl font-black text-center">Hive Mailer</div>
-
-                    <div className="">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 32 32"
-                            className="w-16 h-16 text-[#153e6d]"
-                        >
-                            <path
-                                d="M29 4H3a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h26a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm-.72 2L16 14.77 3.72 6zM2 24.59V7.23l10.12 7.23zM3.41 26l10.36-10.36 1.64 1.17a1 1 0 0 0 1.16 0l1.64-1.17L28.59 26zM30 24.59 19.88 14.46 30 7.23z"
-                                data-name="2-Email"
+                <div className="flex items-center justify-center h-full gap-6">
+                    <div className="flex items-center gap-4 bg-gradient-to-r from-zinc-800 to-zinc-700 p-6 rounded-md">
+                        <div className="bg-white p-2 rounded-md">
+                            <img
+                                src="/imgs/smalllogo.png"
+                                alt="Invoxx Logo"
+                                className="w-10 h-10"
                             />
-                        </svg>
+                        </div>
+
+                        <h1 className="text-white text-6xl font-[800] uppercase font-Special_Gothic_Expanded_One">
+                            INNVOXX
+                        </h1>
                     </div>
                 </div>
             </div>
 
-            {/* Right Section */}
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
                 <div className="w-full max-w-md space-y-8">
                     <div className="space-y-2">
@@ -157,14 +155,13 @@ const Index = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Email field */}
                         <div className="space-y-2">
                             <label className="text-sm text-gray-600 uppercase tracking-wide">
                                 Email
                             </label>
                             <input
                                 type="email"
-                                placeholder="Email "
+                                placeholder="Email"
                                 className="h-12 border-gray-200 w-full rounded-md"
                                 name="email"
                                 value={values.email}
@@ -176,7 +173,6 @@ const Index = () => {
                             )}
                         </div>
 
-                        {/* Password field */}
                         <div className="space-y-2">
                             <label className="text-sm text-gray-600 uppercase tracking-wide">
                                 Password
@@ -210,19 +206,29 @@ const Index = () => {
                             </div>
                         </div>
 
-                        {/* Remember me checkbox */}
-                        <div className="mb-4">
-                            <div
-                                className="g-recaptcha scale-[0.88] transform origin-left inline-block"
-                                data-sitekey={RECAPTCHA_SITE_KEY}
-                            ></div>
-                            {errors.general && (
-                                <p className="text-red-500 text-sm mt-1">{errors.general}</p>
-                            )}
+                        {/* CAPTCHA Section */}
+                        <div className="space-y-2">
+                            <label className="text-sm text-gray-600 uppercase tracking-wide">
+                                CAPTCHA
+                            </label>
+                            <div className="flex items-center gap-3">
+                                {captchaImage && (
+                                    <div
+                                        className="rounded"
+                                        dangerouslySetInnerHTML={{__html: captchaImage}}
+                                    />
+                                )}
+                                <input
+                                    type="text"
+                                    placeholder="Enter CAPTCHA"
+                                    className="h-12 border-gray-200 w-full rounded-md"
+                                    value={captchaText}
+                                    onChange={(e) => setCaptchaText(e.target.value)}
+                                />
+                            </div>
                         </div>
 
                         {/* Submit button */}
-
                         <Button
                             type="submit"
                             className="w-full h-12 bg-black hover:bg-black/90 text-white rounded-md"

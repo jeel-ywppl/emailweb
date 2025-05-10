@@ -35,7 +35,6 @@ const EmailView = () => {
         try {
             const response = await dispatch(replyMail(formData));
             if (response?.payload?.success) {
-                console.log(response?.message || "Email replied successfully!");
                 setIsReplying(false);
                 await dispatch(getSinglMail(id));
             } else {
@@ -120,7 +119,6 @@ const EmailView = () => {
         try {
             const response = await dispatch(changeEmailStatus(payload));
             if (response?.payload?.success) {
-                console.log(`Email marked as ${action}!`);
                 await dispatch(getSinglMail(id));
                 if (action === "star") setIsStarred(!isStarred);
                 if (action === "archive") setIsArchived(!isArchived);

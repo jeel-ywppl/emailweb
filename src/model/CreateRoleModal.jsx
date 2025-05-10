@@ -48,7 +48,6 @@ const CreateRoleForm = ({open, onClose, roleToEdit}) => {
                     );
 
                     if (response?.data?.success) {
-                        console.log("Role updated successfully:", response?.data);
                         resetForm();
                         setSubmitting(false);
                     }
@@ -56,7 +55,6 @@ const CreateRoleForm = ({open, onClose, roleToEdit}) => {
                     response = await dispatch(createRoles(requestBody));
 
                     if (response?.data?.success) {
-                        console.log("Role created successfully:", response?.data);
                         resetForm();
                         setSubmitting(false);
                     }

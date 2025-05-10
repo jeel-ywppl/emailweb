@@ -20,6 +20,9 @@ const Index = ({item, index, openEditModal, openDeleteModal}) => {
                     {item?.name}
                 </Typography>
             </td>
+            <td className="py-3 px-5 border-b border-blue-gray-50 text-blue-gray-600 font-semibold text-xs">
+                {new Date(item?.updatedAt).toLocaleDateString() || "N/A"}
+            </td>
             <td className={className}>
                 <div className="flex justify-start items-center gap-3 text-black">
                     {checkAccess("module", "edit") && (

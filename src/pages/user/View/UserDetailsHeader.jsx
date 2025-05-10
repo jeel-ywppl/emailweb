@@ -4,6 +4,7 @@ import {config} from "../../../utils/util";
 import PropTypes from "prop-types";
 
 const UserDetailsHeader = ({user}) => {
+
     const userInitials =
         user?.fname && user?.lname
             ? `${user?.fname.charAt(0)}${user?.lname.charAt(0)}`.toUpperCase()

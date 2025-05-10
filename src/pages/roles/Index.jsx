@@ -182,7 +182,7 @@ const Roles = () => {
                                 .map((item, index) => (
                                     <UserTableRow
                                         item={item}
-                                        index={index}
+                                        index={(currentPage - 1) * limit + index}
                                         key={index * Math.random()}
                                         openEditModal={openEditModal}
                                         openDeleteModal={openDeleteModal}

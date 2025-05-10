@@ -1,4 +1,4 @@
-import { Chip, Typography} from "@material-tailwind/react";
+import {Chip, Typography} from "@material-tailwind/react";
 import {EyeIcon, Pencil, Trash2} from "lucide-react";
 import PropTypes from "prop-types";
 import {useNavigate} from "react-router-dom";
@@ -56,7 +56,7 @@ const ClientRow = ({item, idx, openModal}) => {
             </td>
 
             <td className="py-3 px-5 border-b border-blue-gray-50 text-xs">
-                {item?.updatedAt ? new Date(item?.updatedAt).toISOString().split("T")[0] : "N/A"}
+                {new Date(item?.updatedAt).toLocaleDateString() || "N/A"}
             </td>
 
             <td className="py-3 px-5 border-b border-blue-gray-50">

@@ -59,7 +59,6 @@ const Draft = () => {
         dispatch(deleteDraft({draft_ids: draftIdsArray}))
             .unwrap()
             .then(() => {
-                console.log("Email Deleted successfully!");
                 dispatch(getAllDraftsbyUser({page: currentPage, limit}));
             })
             .catch((error) => {
@@ -165,7 +164,6 @@ const Draft = () => {
                     <button
                         className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
                         onClick={() => {
-                            console.log("Opening compose modal");
                             setIsModalOpen(true);
                         }}
                     >
@@ -281,9 +279,9 @@ const Draft = () => {
                             </h4>
                         </div>
                         <div className="flex items-center gap-3  flex-nowrap">
-                            <p className="text-xs text-gray-400">
-                                {email?.updatedAt ? email?.updatedAt.split("T")[0] : ""}
-                            </p>
+                            {/* <p className="text-xs text-gray-400">
+                                {email?.updatedAt ? email?.updatedAt.split("T")[0] : "na"}
+                            </p> */}
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();

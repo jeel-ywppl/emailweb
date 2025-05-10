@@ -61,10 +61,10 @@ const Domain = () => {
     const handleEdit = (domainId) => {
         const domainToEdit = data?.find((domain) => domain?._id === domainId);
         if (domainToEdit) {
-            setFieldValue("domain_name", domainToEdit.domain_name);
-            setFieldValue("company_id", domainToEdit.company_id?._id);
-            setFieldValue("expiration_date", domainToEdit.expiration_date);
-            setFieldValue("active_status", domainToEdit.active_status ? "true" : "false");
+            setFieldValue("domain_name", domainToEdit?.domain_name);
+            setFieldValue("company_id", domainToEdit?.company_id?._id);
+            setFieldValue("expiration_date", domainToEdit?.expiration_date);
+            setFieldValue("active_status", domainToEdit?.active_status ? "true" : "false");
             setEditingDomainId(domainId);
         }
         setOpen(true);
@@ -82,8 +82,7 @@ const Domain = () => {
                     id: selectedDomainId,
                     dns_id: "",
                 };
-                const response = await dispatch(deleteDomain(payload)).unwrap();
-                console.log(response?.message || "DNS record deleted successfully!");
+                await dispatch(deleteDomain(payload)).unwrap();
                 dispatch(findDomain());
             } catch (error) {
                 console.error("Delete Error:", error);
@@ -116,13 +115,11 @@ const Domain = () => {
         onSubmit: async (values, {setSubmitting}) => {
             try {
                 if (editingDomainId) {
-                    const response = await dispatch(
+                    await dispatch(
                         updateDomain({domainId: editingDomainId, records: values}),
                     ).unwrap();
-                    console.log(response?.payload?.message || "Domain updated successfully!");
                 } else {
-                    const response = await dispatch(createDomain(values)).unwrap();
-                    console.log(response?.payload?.message || "Domain created successfully!");
+                    await dispatch(createDomain(values)).unwrap();
                 }
                 resetForm();
                 handleClose();
@@ -131,7 +128,6 @@ const Domain = () => {
                 console.error("API Error:", error);
                 console.error(error);
             } finally {
-                console.log("setSubmitting(false) called");
                 setSubmitting(false);
             }
         },
@@ -156,9 +152,9 @@ const Domain = () => {
         );
 
     return (
-        <div className="p-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div className="relative w-full sm:w-72 mb-10">
+        <div className="p-6 space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-16">
+                <div className="relative w-full sm:w-72 ">
                     <Input
                         type="text"
                         label="Search Domain"
@@ -177,11 +173,11 @@ const Domain = () => {
                     />
                 )}
             </div>
-            <Card>
+            <Card className="">
                 <CardHeader
                     variant="gradient"
                     color="gray"
-                    className="mb-8 p-6 flex items-center gap-4 justify-between "
+                    className=" p-6 flex items-center gap-4 justify-between "
                 >
                     <Typography variant="h6" color="white">
                         Domain Table
@@ -230,7 +226,7 @@ const Domain = () => {
                                     .map((data, index) => (
                                         <UserTableRow
                                             data={data}
-                                            index={index}
+                                            index={(currentPage - 1) * limit + index}
                                             key={index * Math.random()}
                                             openEditModal={handleEdit}
                                             openDeleteModal={handleDeleteClick}

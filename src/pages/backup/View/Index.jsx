@@ -6,12 +6,12 @@ import {Box, TablePagination} from "@mui/material";
 import {ArrowLeft} from "lucide-react";
 import {Input} from "@material-tailwind/react";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
-import { useAppDispatch, useAppSelector } from "../../../store";
-import { findBackupEmails } from "../../../store/backup";
-import { setSkip } from "../../../store/backup/backupSlice";
-import { setCurrentPage, setLimit } from "../../../store/company/companySlice";
+import {useAppDispatch, useAppSelector} from "../../../store";
+import {findBackupEmails} from "../../../store/backup";
+import {setSkip} from "../../../store/backup/backupSlice";
+import {setCurrentPage, setLimit} from "../../../store/company/companySlice";
 import Loader from "../../../componets/Loader";
-import { config } from "../../../utils/util";
+import {config} from "../../../utils/util";
 
 const BackupMail = () => {
     const dispatch = useAppDispatch();
@@ -144,7 +144,7 @@ const BackupMail = () => {
                             </div>
                             <div className="flex items-center gap-3 relative">
                                 <p className="text-xs text-gray-400">
-                                    {email?.updatedAt ? email?.updatedAt.split("T")[0] : ""}
+                                    {new Date(email?.updatedAt).toLocaleDateString() || "N/A"}
                                 </p>
                             </div>
                         </div>
