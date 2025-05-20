@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import MyButton from "../componets/MyButton";
 
 const TopModal = ({onComplete, is2FAEnabled}) => {
+    
+
     return (
         <Dialog open={true} aria-labelledby="dialogTitle" aria-describedby="dialogDescription">
             <DialogHeader id="dialogTitle">

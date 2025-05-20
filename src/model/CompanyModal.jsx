@@ -238,7 +238,7 @@ const CompanyModal = ({open, handleOpen, editIndex, initialValues, onSuccess}) =
                                     ? "Update"
                                     : "Submit"
                             }
-                            type="primary"
+                            type="sidenav"
                         />
                     </DialogFooter>
                 </form>

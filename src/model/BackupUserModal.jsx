@@ -74,7 +74,7 @@ const BackupUserModal = ({isOpen, onClose, user}) => {
                 <div className="flex justify-end gap-2 mt-3">
                     <MyButton label="Cancel" onClick={onClose} type="outlineGray" />
 
-                    <MyButton label="Send" onClick={handleBackup} type="primary" />
+                    <MyButton label="Send" onClick={handleBackup} type="sidenav" />
                 </div>
             </div>
         </Dialog>

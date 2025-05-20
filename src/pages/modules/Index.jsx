@@ -9,10 +9,14 @@ import useCheckAccess from "../../utils/useCheckAccess";
 import MyButton from "../../componets/MyButton";
 import UserTableRow from "./TableRow/Index";
 import Loader from "../../componets/Loader";
+import {useMaterialTailwindController} from "../../context";
+import {cardHeaderColorMap} from "../../context/theme";
 
 const Modules = () => {
     const dispatch = useAppDispatch();
     const [search, setSearch] = useState("");
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [moduleIdToDelete, setModuleIdToDelete] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -92,18 +96,20 @@ const Modules = () => {
                     <MyButton
                         label="+ Add New Module"
                         onClick={openCreateModal}
-                        type="primary"
+                        type="sidenav"
                         className="w-full sm:w-auto"
                     />
                 )}
             </div>
             <Card>
                 <CardHeader
-                    variant="gradient"
-                    color="gray"
-                    className="mb-8 p-6 flex items-center gap-4 justify-between"
+                    color={cardHeaderColorMap[sidenavColor] || "gray"}
+                    className="mb-8 p-6 flex items-center justify-between"
                 >
-                    <Typography variant="h6" color="white">
+                    <Typography
+                        variant="h6"
+                        color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                    >
                         Module Table
                     </Typography>
                 </CardHeader>

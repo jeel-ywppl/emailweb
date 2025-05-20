@@ -22,6 +22,17 @@ const OtpModal = ({open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode,
         }
     };
 
+    const handlePaste = (e) => {
+        const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+        if (paste.length === 6) {
+            const digits = paste.split("");
+            setOtp(digits);
+            digits.forEach((digit, idx) => {
+                if (inputRefs.current[idx]) inputRefs.current[idx].value = digit;
+            });
+        }
+    };
+
     const handleBackspace = (event, index) => {
         if (event.key === "Backspace" && !event.target.value && index > 0) {
             inputRefs.current[index - 1].focus();
@@ -35,7 +46,7 @@ const OtpModal = ({open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode,
 
         const response = await dispatch(
             verifyOTPFor2FA({
-                email: user.email,
+                email: user?.email,
                 otp: otpCode,
                 tfaStatus: !is2FAEnabled,
             }),
@@ -86,12 +97,17 @@ const OtpModal = ({open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode,
     }, [open, handleSubmit, handleCancel]);
 
     return (
-        <Dialog size="xs" open={open} onClose={onCancel}>
+        <Dialog
+            open={open}
+            handler={onCancel}
+            aria-labelledby="2fa-dialog-title"
+            aria-describedby="2fa-dialog-description"
+        >
             <div className="bg-white p-6 rounded-lg shadow-lg w-full ">
                 <h3 className="text-xl font-semibold text-start text-gray-900">
                     {mode === "enable"
-                        ? "Disable Two-Factor Authentication"
-                        : "Enable Two-Factor Authentication"}
+                        ? "Enable Two-Factor Authentication"
+                        : "Disable Two-Factor Authentication"}
                 </h3>
 
                 <p className="text-gray-600 text-start mt-2">
@@ -103,6 +119,7 @@ const OtpModal = ({open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode,
                         <input
                             key={index}
                             type="text"
+                            onPaste={handlePaste}
                             placeholder="0"
                             maxLength={1}
                             className="w-12 h-12 text-center border border-gray-400 text-lg rounded-md focus:outline-none focus:ring-none  transition-all duration-150"
@@ -132,11 +149,11 @@ const OtpModal = ({open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode,
                             loading
                                 ? "Verifying..."
                                 : mode === "enable"
-                                ? "Disable two-factor authentication"
-                                : "Enable two-factor authentication"
+                                ? "Enable two-factor authentication"
+                                : "Disable two-factor authentication"
                         }
                         onClick={handleSubmit}
-                        type={mode === "enable" ? "danger" : "primary"}
+                        type={mode === "enable" ? "primary" : "danger"}
                         disabled={loading}
                         className="py-3 text-xs font-medium"
                     />
@@ -148,12 +165,12 @@ const OtpModal = ({open, onConfirm, onCancel, set2FAEnabled, is2FAEnabled, mode,
 
 OtpModal.propTypes = {
     open: PropTypes.bool.isRequired,
-    mode: PropTypes.bool.isRequired,
+    mode: PropTypes.oneOf(["enable", "disable"]),
     onConfirm: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
-    set2FAEnabled: PropTypes.func,
-    is2FAEnabled: PropTypes.bool,
+    set2FAEnabled: PropTypes.func.isRequired,
+    is2FAEnabled: PropTypes.bool.isRequired,
 };
 
 export default OtpModal;

@@ -122,3 +122,15 @@ export const reCaptcha = createAsyncThunk(
         }
     },
 );
+
+// export const loginSessoins = createAsyncThunk("auth/loginSessoins", async ({rejectWithValue}) => {
+//     try {
+//         const response = await api.get("/api/v1/user/active_sessions");
+//         console.log("🦄 response", response);
+
+//         return response.data;
+//     } catch (error) {
+//         console.error("API Error Response:", error.response?.data);
+//         return rejectWithValue(error.response?.data?.message || "Failed to resend OTP");
+//     }
+// });

@@ -1,23 +1,15 @@
-import {useEffect} from "react";
 import {Routes, Route, Navigate} from "react-router-dom";
 import {ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Dashboard from "./layouts/dashbord";
 import SignIn from "./pages/auth/SignIn";
-import {useAppDispatch, useAppSelector} from "./store";
-import {getUserInfo} from "./store/auth";
+import {useAppSelector} from "./store";
 import ProtectedRoute from "./componets/ProtectedRoute";
 import Loader from "./componets/Loader";
+import MailToast from "./pages/MailToast";
 
 const App = () => {
-    const dispatch = useAppDispatch();
     const {accessToken, user, isLoading} = useAppSelector((state) => state?.auth);
-
-    useEffect(() => {
-        if (accessToken) {
-            dispatch(getUserInfo());
-        }
-    }, [dispatch, accessToken]);
 
     if (isLoading) {
         return (
@@ -29,6 +21,7 @@ const App = () => {
 
     return (
         <>
+            <MailToast />
             <Routes>
                 <Route path="/dashboard/*" element={<ProtectedRoute element={<Dashboard />} />} />
 

@@ -1,6 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {getItem, removeItem, setItem} from "../../utils/localStorage";
-import {authenticateUser, getUserInfo, verifyOTPFor2FA} from "./index"; // Import OTP action
+import {authenticateUser, getUserInfo, logOutUser, verifyOTPFor2FA} from "./index";
 import {setAuthToken} from "../../utils/api";
 
 const user = {
@@ -60,15 +60,15 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        logoutUserFromLoacal: (state) => {
-            state.accessToken = "";
-            state.isError = false;
-            state.isLoading = false;
-            state.user = user;
-            state.isUserLoggedIn = false;
-            state.is2FAEnabled = false;
-            removeItem("AUTH_KEY");
-        },
+        // logoutUserFromLoacal: (state) => {
+        //     state.accessToken = "";
+        //     state.isError = false;
+        //     state.isLoading = false;
+        //     state.user = user;
+        //     state.isUserLoggedIn = false;
+        //     state.is2FAEnabled = false;
+        //     removeItem("AUTH_KEY");
+        // },
         login: (state, action) => {
             state.accessToken = action.payload.accessToken;
         },
@@ -140,6 +140,26 @@ const authSlice = createSlice({
             state.isError = true;
             state.isLoading = false;
             state.isSuccess = false;
+            state.status = "failed";
+        });
+        builder.addCase(logOutUser.pending, (state) => {
+            state.isLoading = true;
+            state.isError = false;
+            state.status = "pending";
+        });
+        builder.addCase(logOutUser.fulfilled, (state) => {
+            state.accessToken = "";
+            state.user = user;
+            state.isUserLoggedIn = false;
+            state.is2FAEnabled = false;
+            state.isLoading = false;
+            state.isError = false;
+            state.status = "succeeded";
+            removeItem("AUTH_KEY");
+        });
+        builder.addCase(logOutUser.rejected, (state) => {
+            state.isLoading = false;
+            state.isError = true;
             state.status = "failed";
         });
     },

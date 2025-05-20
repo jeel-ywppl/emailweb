@@ -6,12 +6,15 @@ import {useAppDispatch} from "../../../store";
 import {ChevronLeft, EyeIcon, EyeOffIcon} from "lucide-react";
 import MyButton from "../../../componets/MyButton";
 import {useState} from "react";
-import { createClientValidationSchema } from "../../../validation/createClientValidationSchema";
+import {createClientValidationSchema} from "../../../validation/createClientValidationSchema";
+import {useMaterialTailwindController} from "../../../context";
 
 const CreateClientForm = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     const togglePasswordVisibility = () => {
         setShowPassword((prev) => !prev);
@@ -147,7 +150,7 @@ const CreateClientForm = () => {
                             htmlType="submit"
                             fullWidth
                             disabled={isSubmitting}
-                            type="primary"
+                            type="sidenav"
                         />
                     </div>
                 </form>

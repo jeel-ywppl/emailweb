@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import {BUTTONS} from "../context/theme";
+import {useMaterialTailwindController} from "../context";
 
 const MyButton = ({
     label,
@@ -13,6 +14,15 @@ const MyButton = ({
     className = "",
     htmlType = "button",
 }) => {
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor = "midnight"} = controller;
+
+    // fallback to BUTTONS.primary if color is not found
+    const resolvedType =
+        type === "sidenav"
+            ? BUTTONS[sidenavColor] || BUTTONS["primary"]
+            : BUTTONS[type] || BUTTONS["primary"];
+
     return (
         <button
             type={htmlType}
@@ -21,6 +31,7 @@ const MyButton = ({
             disabled={disabled || isLoading}
             className={`
                 ${BUTTONS.base}
+                ${resolvedType}
                 ${BUTTONS[type]}
                 ${fullWidth ? "w-full" : ""}
                 ${disabled || isLoading ? "opacity-50 cursor-not-allowed" : ""}
@@ -53,11 +64,13 @@ MyButton.propTypes = {
         "outlineBlack",
         "ghost",
         "ghostBlue",
-        "danger", 
-        "blue", 
-        "gray", 
+        "danger",
+        "blue",
+        "gray",
         "green",
         "action",
+        "indigo",
+        "sidenav",
     ]),
     onClick: PropTypes.func,
     title: PropTypes.string,

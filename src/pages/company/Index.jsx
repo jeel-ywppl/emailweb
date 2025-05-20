@@ -4,16 +4,21 @@ import {deleteCompany, findCompany} from "../../store/company";
 import {useAppDispatch, useAppSelector} from "../../store";
 import CompanyModal from "../../model/CompanyModal";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
-import {Button, Card, CardBody, CardHeader, Input, Typography} from "@material-tailwind/react";
+import {Card, CardBody, CardHeader, Input, Typography} from "@material-tailwind/react";
 import {TablePagination, Box} from "@mui/material";
 import DeleteConfirmationModal from "../../model/DeleteConfirmationModal";
 import Loader from "../../componets/Loader";
 import useCheckAccess from "../../utils/useCheckAccess";
 import UserTableRow from "./TableRow/Index";
+import {cardHeaderColorMap} from "../../context/theme";
+import {useMaterialTailwindController} from "../../context";
+import MyButton from "../../componets/MyButton";
 
 const Company = () => {
     const dispatch = useAppDispatch();
     const checkAccess = useCheckAccess();
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
     const [openModal, setOpenModal] = useState(false);
     const [search, setSearch] = useState("");
     const [editIndex, setEditIndex] = useState(null);
@@ -111,9 +116,12 @@ const Company = () => {
                     <MagnifyingGlassIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
                 </div>
                 {checkAccess("company", "create") && (
-                    <Button color="primary" onClick={handleOpen} className="w-full sm:w-auto">
-                        + Add Company
-                    </Button>
+                    <MyButton
+                        label="+ Company"
+                        onClick={handleOpen}
+                        type={sidenavColor === "white" ? "black" : sidenavColor || "gray"}
+                        className="w-full sm:w-auto"
+                    />
                 )}
             </div>
 
@@ -122,11 +130,13 @@ const Company = () => {
             ) : (
                 <Card>
                     <CardHeader
-                        variant="gradient"
-                        color="gray"
-                        className="mb-8 p-6 flex items-center gap-4 justify-between"
+                        color={cardHeaderColorMap[sidenavColor] || "gray"}
+                        className="mb-8 p-6 flex items-center justify-between"
                     >
-                        <Typography variant="h6" color="white">
+                        <Typography
+                            variant="h6"
+                            color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                        >
                             Company Table
                         </Typography>
                     </CardHeader>

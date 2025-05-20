@@ -8,6 +8,7 @@ import {authenticateUser, getUserInfo, reCaptcha, verifyOTPFor2FA} from "../../s
 import {signInValidationSchema} from "../../validation/signInValidationSchema";
 import LoginAuthOtpModel from "./loginAuthOtpModel";
 import {setItem} from "../../utils/localStorage";
+import {encrypt} from "../../utils/IncryptDecrypt";
 
 const Index = () => {
     const navigate = useNavigate();
@@ -22,11 +23,9 @@ const Index = () => {
     const fetchCaptcha = async () => {
         try {
             const response = await dispatch(reCaptcha({captcha_text: ""}));
-            console.log("CAPTCHA API Response:", response);
             if (response?.payload) {
-                setCaptchaImage(response.payload.svg); 
-                setCaptchaToken(response.payload.captcha_token); 
-                console.log("🍯 Captcha Token:", response.payload.captcha_token);
+                setCaptchaImage(response.payload.svg);
+                setCaptchaToken(response.payload.captcha_token);
             } else {
                 console.warn("Invalid CAPTCHA response:", response);
             }
@@ -39,13 +38,13 @@ const Index = () => {
     }, []);
 
     const {
-        handleChange,
-        handleBlur,
-        handleSubmit,
         isSubmitting,
         values,
         errors,
         touched,
+        handleChange,
+        handleBlur,
+        handleSubmit,
         setFieldError,
         setSubmitting,
     } = useFormik({
@@ -56,10 +55,13 @@ const Index = () => {
         validationSchema: signInValidationSchema,
         onSubmit: async (values) => {
             try {
+                const encryptedPassword = encrypt(values.password);
+
                 const payload = {
                     ...values,
+                    password: encryptedPassword,
                     captcha_text: captchaText,
-                    captcha_token: captchaToken, // Include the captcha token here
+                    captcha_token: captchaToken,
                 };
 
                 const response = await dispatch(
@@ -75,12 +77,12 @@ const Index = () => {
                     navigate("/");
                 } else {
                     setFieldError("general", response?.payload?.message || "Login failed.");
-                    fetchCaptcha(); // Refresh CAPTCHA on failure
+                    fetchCaptcha();
                 }
             } catch (error) {
                 console.error(error);
                 setFieldError("general", "An unexpected error occurred.");
-                fetchCaptcha(); // Refresh CAPTCHA on failure
+                fetchCaptcha();
             } finally {
                 setSubmitting(false);
             }
@@ -133,12 +135,8 @@ const Index = () => {
 
                 <div className="flex items-center justify-center h-full gap-6">
                     <div className="flex items-center gap-4 bg-gradient-to-r from-zinc-800 to-zinc-700 p-6 rounded-md">
-                        <div className="bg-white p-2 rounded-md">
-                            <img
-                                src="/imgs/smalllogo.png"
-                                alt="Invoxx Logo"
-                                className="w-10 h-10"
-                            />
+                        <div className=" p-2 rounded-md">
+                            <img src="/imgs/smalllogo.png" alt="Invoxx Logo" className="w-10 h-10" />
                         </div>
 
                         <h1 className="text-white text-6xl font-[800] uppercase font-Special_Gothic_Expanded_One">

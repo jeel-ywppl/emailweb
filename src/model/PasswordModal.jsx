@@ -1,4 +1,4 @@
-import {Button, Dialog, Input} from "@material-tailwind/react";
+import {Dialog, Input} from "@material-tailwind/react";
 import {useState, useEffect, useRef, useCallback} from "react";
 import {HiEye, HiEyeOff} from "react-icons/hi";
 import PropTypes from "prop-types";
@@ -77,17 +77,22 @@ const PasswordModal = ({
     }, [open, handleConfirm, onCancel]);
 
     return (
-        <Dialog open={open} handler={onCancel} size="sm" className="w-full">
+        <Dialog
+            open={open}
+            handler={onCancel}
+            aria-labelledby="2fa-dialog-title"
+            aria-describedby="2fa-dialog-description"
+        >
             <div className="bg-white rounded-lg shadow-xl w-full p-6 space-y-4">
                 <h3 className="text-2xl font-normal capitalize text-start text-primary1">
                     {mode === "enable"
-                        ? "Disable Two-Factor Authentication"
-                        : "Enable Two-Factor Authentication"}
+                        ? "Enable Two-Factor Authentication"
+                        : " Disable Two-Factor Authentication"}
                 </h3>
                 <p>
                     {mode === "enable"
-                        ? "Please enter your password to confirm you would like to disable two-factor authentication for your account."
-                        : "Please enter your password to confirm you would like to enable two-factor authentication for your account."}
+                        ? "Please enter your password to confirm you would like to enable  two-factor authentication for your account."
+                        : "Please enter your password to confirm you would like to disable two-factor authentication for your account."}
                 </p>
                 <div className="relative mb-10">
                     <Input
@@ -111,19 +116,22 @@ const PasswordModal = ({
                     </button>
                 </div>
                 <div className="flex flex-wrap justify-end gap-4 mt-5">
-                    <Button onClick={onCancel} color="gray" className="py-3 text-xs font-medium">
-                        Nevermind
-                    </Button>
+                    <MyButton
+                        onClick={onCancel}
+                        type="outlineGray"
+                        label="Nevermind"
+                        className="py-3 text-xs font-medium"
+                    />
                     <MyButton
                         label={
                             loading
                                 ? "Verifying..."
                                 : mode === "enable"
-                                ? "Disable two-factor authentication"
-                                : "Enable two-factor authentication"
+                                ? "Enable two-factor authentication"
+                                : "Disable two-factor authentication"
                         }
                         onClick={handleConfirm}
-                        type={mode === "enable" ? "danger" : "primary"}
+                        type={mode === "enable" ? "primary" : "danger"}
                         disabled={loading}
                         className="py-3 text-xs font-medium"
                     />

@@ -3,6 +3,8 @@ import {Dialog, DialogHeader, DialogBody, DialogFooter} from "@material-tailwind
 import MyButton from "../componets/MyButton";
 
 const ConfirmDeleteDomainModal = ({open, onClose, onConfirm, title, message}) => {
+
+
     return (
         <Dialog
             open={open}

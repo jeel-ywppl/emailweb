@@ -3,17 +3,24 @@ import {CardContent} from "@mui/material";
 import {Mail, Shield} from "lucide-react";
 import {Key, AlertTriangle} from "lucide-react";
 import PropTypes from "prop-types";
+import { cardHeaderColorMap } from "../../../context/theme";
+import { useMaterialTailwindController } from "../../../context";
 
 const UserSecurityInfo = ({user}) => {
-    
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
+
     return (
         <div className="grid grid-cols-1 gap-6 space-y-6">
             <Card>
-                <CardHeader variant="gradient" color="gray">
+                <CardHeader
+                    color={cardHeaderColorMap[sidenavColor] || "gray"}
+                    className=" p-3 flex items-center justify-between"
+                >
                     <Typography
                         variant="h6"
-                        color="white"
-                        className="text-lg flex items-center gap-2 p-3"
+                        color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                        className="text-lg flex items-center gap-2 "
                     >
                         <Shield className="h-5 w-5" />
                         Account Security
@@ -55,11 +62,14 @@ const UserSecurityInfo = ({user}) => {
             </Card>
 
             <Card>
-                <CardHeader variant="gradient" color="gray">
+                <CardHeader
+                    color={cardHeaderColorMap[sidenavColor] || "gray"}
+                    className=" p-3 flex items-center justify-between"
+                >
                     <Typography
                         variant="h6"
-                        color="white"
-                        className="text-lg flex items-center gap-2 p-3"
+                        color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                        className="text-lg flex items-center gap-2 "
                     >
                         <Key className="h-5 w-5" />
                         Account Recovery
@@ -80,10 +90,19 @@ const UserSecurityInfo = ({user}) => {
 
             {!user?.active_status && (
                 <Card className="border-red-200 bg-red-50 dark:bg-red-950/10 dark:border-red-900">
-                    <CardHeader variant="gradient" color="gray">
+                    {/* <CardHeader variant="gradient" color="gray">
                         <Typography
                             variant="h6"
                             color="white"
+                            className="text-lg flex items-center gap-2 text-red-600 dark:text-red-400 p-3"
+                        > */}
+                    <CardHeader
+                        color={cardHeaderColorMap[sidenavColor] || "gray"}
+                        className=" p-3 flex items-center justify-between"
+                    >
+                        <Typography
+                            variant="h6"
+                            color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
                             className="text-lg flex items-center gap-2 text-red-600 dark:text-red-400 p-3"
                         >
                             <AlertTriangle className="h-5 w-5" />

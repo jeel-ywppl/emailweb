@@ -2,17 +2,24 @@ import {Card, CardHeader, Typography} from "@material-tailwind/react";
 import {CardContent} from "@mui/material";
 import {Mail, Building, Flag, MessageSquareText, User as UserIcon} from "lucide-react";
 import PropTypes from "prop-types";
+import {cardHeaderColorMap} from "../../../context/theme";
+import {useMaterialTailwindController} from "../../../context";
 
 const UserBasicInfo = ({user}) => {
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     return (
         <div className="grid grid-cols-1 gap-6 space-y-6">
             <Card>
-                <CardHeader variant="gradient" color="gray">
+                <CardHeader
+                    color={cardHeaderColorMap[sidenavColor] || "gray"}
+                    className=" p-3 flex items-center justify-between"
+                >
                     <Typography
                         variant="h6"
-                        color="white"
-                        className="text-lg flex items-center gap-2 p-3 bg-"
+                        color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                        className="text-lg flex items-center gap-2 "
                     >
                         <UserIcon className="h-5 w-5" />
                         Personal Information
@@ -67,11 +74,14 @@ const UserBasicInfo = ({user}) => {
             </Card>
 
             <Card>
-                <CardHeader variant="gradient" color="gray">
+                <CardHeader
+                    color={cardHeaderColorMap[sidenavColor] || "gray"}
+                    className=" p-3 flex items-center justify-between"
+                >
                     <Typography
                         variant="h6"
-                        color="white"
-                        className="text-lg flex items-center gap-2 p-3"
+                        color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                        className="text-lg flex items-center gap-2 "
                     >
                         <Building className="h-5 w-5" />
                         Company & Role
@@ -97,11 +107,14 @@ const UserBasicInfo = ({user}) => {
 
             {user?.bio && (
                 <Card>
-                    <CardHeader variant="gradient" color="gray">
+                    <CardHeader
+                        color={cardHeaderColorMap[sidenavColor] || "gray"}
+                        className=" p-3 flex items-center justify-between"
+                    >
                         <Typography
                             variant="h6"
-                            color="white"
-                            className="text-lg flex items-center gap-2 p-3"
+                            color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                            className="text-lg flex items-center gap-2 "
                         >
                             <MessageSquareText className="h-5 w-5" />
                             Bio

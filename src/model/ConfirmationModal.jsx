@@ -3,6 +3,8 @@ import {Dialog} from "@material-tailwind/react";
 import MyButton from "../componets/MyButton";
 
 const ConfirmationModal = ({isOpen, onClose, onConfirm}) => {
+    
+
     return (
         <Dialog open={isOpen} onClose={onClose}>
             <div className="p-5">

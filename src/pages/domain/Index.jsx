@@ -25,12 +25,16 @@ import Loader from "../../componets/Loader";
 import MyButton from "../../componets/MyButton";
 import ConfirmDeleteDomainModal from "../../model/ConfirmDeleteDomainModal";
 import UserTableRow from "./Table Row/Index";
+import {useMaterialTailwindController} from "../../context";
+import {cardHeaderColorMap} from "../../context/theme";
 
 const Domain = () => {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
     const dispatch = useAppDispatch();
     const checkAccess = useCheckAccess();
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     const [editingDomainId, setEditingDomainId] = useState(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -168,18 +172,20 @@ const Domain = () => {
                     <MyButton
                         label="+ Domain Name"
                         onClick={handleOpen}
-                        type="primary"
+                        type="sidenav"
                         className="w-full sm:w-auto"
                     />
                 )}
             </div>
             <Card className="">
                 <CardHeader
-                    variant="gradient"
-                    color="gray"
-                    className=" p-6 flex items-center gap-4 justify-between "
+                    color={cardHeaderColorMap[sidenavColor] || "gray"}
+                    className="mb-8 p-6 flex items-center justify-between"
                 >
-                    <Typography variant="h6" color="white">
+                    <Typography
+                        variant="h6"
+                        color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                    >
                         Domain Table
                     </Typography>
                 </CardHeader>
@@ -310,7 +316,7 @@ const Domain = () => {
                                 disabled={isSubmitting}
                                 isLoading={isSubmitting}
                                 label={editingDomainId ? "Save Changes" : "Submit"}
-                                type="primary"
+                                type="sidenav"
                                 className="px-4 py-3"
                             />
                         </DialogFooter>

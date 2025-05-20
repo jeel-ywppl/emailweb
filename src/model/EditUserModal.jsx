@@ -16,10 +16,13 @@ import {editUser} from "../store/user";
 import {editUserValidationSchema} from "../validation/editUserValidationSchema";
 import {findDomainWithoutFilter} from "../store/Domain";
 import MyButton from "../componets/MyButton";
+import {useMaterialTailwindController} from "../context";
 
 const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) => {
     const dispatch = useAppDispatch();
     const [showPassword, setShowPassword] = useState(false);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -159,15 +162,19 @@ const EditUserModal = ({isOpen, user, onClose, setIsEditModalOpen, fetchData}) =
             </DialogBody>
 
             <DialogFooter className="gap-3">
-                <MyButton label="Cancel" onClick={onClose} type="outlineGray" disabled={isSubmitting} />
+                <MyButton
+                    label="Cancel"
+                    onClick={onClose}
+                    type="outlineGray"
+                    disabled={isSubmitting}
+                />
 
                 <MyButton
                     htmlType="submit"
                     label={isSubmitting ? "Saving..." : "Save"}
                     onClick={handleSubmit}
-                    type="primary"
+                    type="sidenav"
                     disabled={isSubmitting}
-
                 />
             </DialogFooter>
         </Dialog>

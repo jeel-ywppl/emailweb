@@ -4,11 +4,14 @@ import {Dialog, DialogBody, DialogFooter, Input, Typography} from "@material-tai
 import {useDispatch} from "react-redux";
 import {createModule, editModule, findModules} from "../store/modules";
 import MyButton from "../componets/MyButton";
+import {useMaterialTailwindController} from "../context";
 
 const CreateModual = ({onClose, open, roleToEdit, isEditMode}) => {
     const dispatch = useDispatch();
     const [moduleName, setModuleName] = useState("");
     const [loading, setLoading] = useState(false);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     useEffect(() => {
         if (isEditMode && roleToEdit) {
@@ -82,7 +85,7 @@ const CreateModual = ({onClose, open, roleToEdit, isEditMode}) => {
                     onClick={handleSubmit}
                     disabled={loading || !moduleName}
                     isLoading={loading}
-                    type="primary"
+                    type="sidenav"
                     className="w-full md:w-auto"
                 />
             </DialogFooter>

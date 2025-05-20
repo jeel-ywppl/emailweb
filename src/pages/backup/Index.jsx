@@ -8,9 +8,13 @@ import {Card, CardHeader, CardBody, Typography, Input} from "@material-tailwind/
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
 import Loader from "../../componets/Loader";
 import UserTableRow from "./TableRow/Index";
+import {useMaterialTailwindController} from "../../context";
+import { cardHeaderColorMap } from "../../context/theme";
 
 const Backup = () => {
     const dispatch = useAppDispatch();
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
     const [isModalOpen, setModalOpen] = useState(false);
     const [emailToDelete, setEmailToDelete] = useState("");
     const [search, setSearch] = useState("");
@@ -54,11 +58,13 @@ const Backup = () => {
             {!isLoading && user && (
                 <Card>
                     <CardHeader
-                        variant="gradient"
-                        color="gray"
-                        className="mb-8 p-6 flex items-center gap-4 justify-between"
+                        color={cardHeaderColorMap[sidenavColor] || "gray"}
+                        className="mb-8 p-6 flex items-center justify-between"
                     >
-                        <Typography variant="h6" color="white">
+                        <Typography
+                            variant="h6"
+                            color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                        >
                             Backup Emails
                         </Typography>
                     </CardHeader>
@@ -90,16 +96,16 @@ const Backup = () => {
                                             .toLowerCase()
                                             .includes(search.toLowerCase()),
                                     )
-                                    .map((item,index) => {
+                                    .map((item, index) => {
                                         return (
                                             <UserTableRow
-                                            item={item}
-                                            index={index}
-                                            key={index * Math.random()}
-                                            openEditModal={handleEdit}
-                                            setModalOpen={setModalOpen}
-                                            setEmailToDelete={setEmailToDelete}
-                                        />
+                                                item={item}
+                                                index={index}
+                                                key={index * Math.random()}
+                                                openEditModal={handleEdit}
+                                                setModalOpen={setModalOpen}
+                                                setEmailToDelete={setEmailToDelete}
+                                            />
                                         );
                                     })}
                             </tbody>
@@ -115,6 +121,5 @@ const Backup = () => {
         </div>
     );
 };
-
 
 export default Backup;

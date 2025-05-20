@@ -15,15 +15,21 @@ import {getDomainById} from "../../../store/Domain";
 import DnsRecords from "./DNS Records";
 import OpenDkim from "./Open DKIM";
 import CheckDns from "./Check DNS";
+import {useMaterialTailwindController} from "../../../context";
 
 const DnsSetting = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
+
+    const isWhite = sidenavColor === "white";
+
     const {id} = useParams();
     const [dnsSetting, setDnsSetting] = useState();
 
     const [activeTab, setActiveTab] = useState("add_records");
-    const [dnsCheckData, setDnsCheckData] = useState(); 
+    const [dnsCheckData, setDnsCheckData] = useState();
     console.log("🔥 dnsCheckData", dnsCheckData);
 
     useEffect(() => {
@@ -31,7 +37,7 @@ const DnsSetting = () => {
             const response = await dispatch(getDomainById({_id: id}));
             if (response?.payload) {
                 setDnsSetting(response?.payload?.data);
-                setDnsCheckData(response?.payload?.dnsCheck); 
+                setDnsCheckData(response?.payload?.dnsCheck);
             }
         };
         fetchDnsSetting();
@@ -91,36 +97,37 @@ const DnsSetting = () => {
                 <TabsHeader
                     className="bg-transparent border border-gray-200 dark:border-gray-700 max-w-md"
                     indicatorProps={{
-                        className: "bg-black shadow-md rounded-md",
+                        className: `shadow-md rounded-md `,
+                        style: {
+                            backgroundColor:
+                                sidenavColor === "white"
+                                    ? "#fff"
+                                    : sidenavColor === "midnight"
+                                    ? "#1e293b"
+                                    : sidenavColor,
+                        },
                     }}
                 >
-                    <Tab
-                        value="add_records"
-                        onClick={() => setActiveTab("add_records")}
-                        className={`text-sm font-medium ${
-                            activeTab === "add_records" ? "text-white" : "text-black"
-                        }`}
-                    >
-                        Add Records
-                    </Tab>
-                    <Tab
-                        value="open_dkim"
-                        onClick={() => setActiveTab("open_dkim")}
-                        className={`text-sm font-medium ${
-                            activeTab === "open_dkim" ? "text-white" : "text-black"
-                        }`}
-                    >
-                        Open DKIM
-                    </Tab>
-                    <Tab
-                        value="check_dns"
-                        onClick={() => setActiveTab("check_dns")}
-                        className={`text-sm font-medium ${
-                            activeTab === "check_dns" ? "text-white" : "text-black"
-                        }`}
-                    >
-                        Check DNS
-                    </Tab>
+                    {["add_records", "open_dkim", "check_dns"].map((tab) => (
+                        <Tab
+                            key={tab}
+                            value={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`text-sm font-medium ${
+                                activeTab === tab
+                                    ? isWhite
+                                        ? "text-black"
+                                        : "text-white"
+                                    : "text-black dark:text-white"
+                            }`}
+                        >
+                            {tab === "add_records"
+                                ? "Add Records"
+                                : tab === "open_dkim"
+                                ? "Open DKIM"
+                                : "Check DNS"}
+                        </Tab>
+                    ))}
                 </TabsHeader>
 
                 <TabsBody>

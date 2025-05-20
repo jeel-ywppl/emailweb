@@ -11,10 +11,14 @@ import {Box, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
 import Loader from "../../componets/Loader";
 import {RotateCcw} from "lucide-react";
+import MyButton from "../../componets/MyButton";
+import { useMaterialTailwindController } from "../../context";
 
 const ArchiveMail = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const [controller] = useMaterialTailwindController();
+        const {sidenavColor} = controller;
     const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} =
         useAppSelector((state) => state.email);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -174,12 +178,11 @@ const ArchiveMail = () => {
                             }`}
                         />
                     </button>
-                    <button
-                        className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
+                    <MyButton
+                        label="Compose Email"
                         onClick={() => setIsModalOpen(true)}
-                    >
-                        Compose Email
-                    </button>
+                        type={sidenavColor === "white" ? "black" : sidenavColor || "midnight"}
+                    />
                     <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                 </div>
                 <div className="flex items-center gap-3 p-3 relative mr-5">

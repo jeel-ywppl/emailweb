@@ -1,133 +1,174 @@
 import {useEffect, useState} from "react";
-import {useAppSelector} from "../store";
-import {Typography, Button, Switch, Tooltip, Input} from "@material-tailwind/react";
+import {getUserInfo} from "../store/auth";
+import {editUser} from "../store/user";
+import {useAppDispatch, useAppSelector} from "../store";
+import {Typography, Switch, Tooltip, Input} from "@material-tailwind/react";
 import OtpModal from "../model/OTPModal";
 import QRModal from "../model/QRModal";
 import PasswordModal from "../model/PasswordModal";
 import TopModal from "../model/TopModal";
 import LostAccessModal from "../model/LostAccessModal";
+import MyButton from "../componets/MyButton";
+import {useMaterialTailwindController} from "../context";
+import {useFormik} from "formik";
+import EnvDashboard from "./EnvDashboard";
+
+const placeholderImage = "https://via.placeholder.com/200";
 
 const AccountSettings = () => {
+    const dispatch = useAppDispatch();
     const {user} = useAppSelector((state) => state.auth);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
+
     const [recoveryEmail, setRecoveryEmail] = useState(user?.recovery?.recovery_email || "");
     const [emailError, setEmailError] = useState("");
 
-    const [showPasswordModal, setShowPasswordModal] = useState(false);
-    const [showQRModal, setShowQRModal] = useState(false);
-    const [showOTPModal, setShowOTPModal] = useState(false);
-    const [showTopModal, setShowTopModal] = useState(false);
     const [qrCode, setQrCode] = useState(null);
     const [is2FAEnabled, set2FAEnabled] = useState(user?.twoFactorStatus);
-    const [isLostAccessModalOpen, setIsLostAccessModalOpen] = useState(false);
 
-    const placeholderImage = "https://via.placeholder.com/200";
+    const [modals, setModals] = useState({
+        password: false,
+        qr: false,
+        otp: false,
+        top: false,
+        lostAccess: false,
+    });
 
     useEffect(() => {
         setRecoveryEmail(user?.recovery?.recovery_email || "");
     }, [user]);
 
-    const saveEmail = () => {
-        if (!recoveryEmail.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
-            setEmailError("Invalid email address");
-        } else {
-            setEmailError("");
-        }
+    const toggleModal = (key, value) => {
+        setModals((prev) => ({...prev, [key]: value}));
     };
 
-    const handleEnable2FA = (event) => {
-        if (event.target.checked) {
-            setShowPasswordModal(true);
-        } else {
-            setShowPasswordModal(true);
-        }
-    };
+    const validateEmail = (email) => /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
 
-    const handlePasswordConfirm = (qrCode) => {
-        setShowPasswordModal(false);
-        setQrCode(qrCode);
+    const handleEnable2FA = () => toggleModal("password", true);
+
+    const handlePasswordConfirm = (qrCodeData) => {
+        setQrCode(qrCodeData);
+        toggleModal("password", false);
+        toggleModal("qr", true);
     };
 
     const handleQRConfirm = () => {
-        setShowQRModal(false);
-        setShowOTPModal(true);
+        toggleModal("qr", false);
+        toggleModal("otp", true);
     };
 
     const handleOTPConfirm = () => {
-        setShowOTPModal(false);
-        setShowTopModal(true);
-    };
-
-    const handleOTPCancel = () => {
-        setShowOTPModal(false);
+        toggleModal("otp", false);
+        toggleModal("top", true);
     };
 
     const handle2FAComplete = () => {
-        setShowTopModal(false);
-        set2FAEnabled((prevState) => !prevState);
+        toggleModal("top", false);
+        set2FAEnabled((prev) => !prev);
     };
 
+    const {handleSubmit, isSubmitting} = useFormik({
+        initialValues: {},
+        enableReinitialize: true,
+        onSubmit: async () => {
+            if (!validateEmail(recoveryEmail)) {
+                setEmailError("Please enter a valid email address.");
+                return;
+            }
+
+            setEmailError("");
+
+            const response = await dispatch(
+                editUser({
+                    id: user?._id,
+                    updatedData: {
+                        recovery_email: recoveryEmail,
+                    },
+                }),
+            );
+
+            if (response?.payload?.success) {
+                dispatch(getUserInfo());
+            }
+        },
+    });
+
     return (
-        <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2 ">
-            <div className="p-5">
-                <section className="border-b border-gray-200 pb-6 mb-6">
-                    <Typography variant="h4" color="primary1-gray" className="font-semibold mb-4">
-                        Two-factor authentication recovery
-                    </Typography>
-                    <div className="space-y-6">
+        <div className="">
+            <div className="w-full h-full border rounded-xl p-3 bg-white shadow-lg font-sans mt-2">
+                <div className="p-5">
+                    <section className="border-b border-gray-200 pb-6 mb-6">
+                        <Typography
+                            variant="h4"
+                            color="primary1-gray"
+                            className="font-semibold mb-4"
+                        >
+                            Two-factor authentication recovery
+                        </Typography>
                         <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
                             <Typography color="primary1" className="font-medium">
-                                Two-factor authentication recovery email address
+                                Recovery email address
                             </Typography>
                             <div className="col-span-2 flex flex-col gap-2">
                                 <div className="flex items-center gap-3">
                                     <Input
                                         type="email"
-                                        color="primary1-gray"
                                         placeholder="Enter email address"
                                         value={recoveryEmail}
                                         onChange={(e) => setRecoveryEmail(e.target.value)}
-                                        error={emailError ? true : false}
+                                        error={!!emailError}
                                     />
-                                    {emailError && (
-                                        <Typography color="red" className="text-xs">
-                                            {emailError}
-                                        </Typography>
-                                    )}
-                                    <Button color="primary1" onClick={saveEmail}>
-                                        Save
-                                    </Button>
+                                    <MyButton
+                                        htmlType="button"
+                                        label={isSubmitting ? "Saving..." : "Save"}
+                                        onClick={handleSubmit}
+                                        type={
+                                            sidenavColor === "white"
+                                                ? "black"
+                                                : sidenavColor || "primary"
+                                        }
+                                        disabled={
+                                            isSubmitting ||
+                                            recoveryEmail === user?.recovery?.recovery_email
+                                        }
+                                    />
                                 </div>
+                                {emailError && (
+                                    <Typography color="red" className="text-xs">
+                                        {emailError}
+                                    </Typography>
+                                )}
                             </div>
                         </div>
-                    </div>
-                </section>
-                <Typography variant="h4" color="primary1-gray" className="font-semibold mb-4">
-                    Two-factor authentication
-                </Typography>
-                <Typography color="gray" className="mb-6 text-sm">
-                    Add another layer of security to your account. You’ll need to verify yourself
-                    with 2FA every time you sign in.
-                </Typography>
-                <div className="space-y-6">
+                    </section>
+
+                    <Typography variant="h4" color="primary1-gray" className="font-semibold mb-4">
+                        Two-factor authentication
+                    </Typography>
+                    <Typography color="gray" className="mb-6 text-sm">
+                        Add another layer of security to your account. You’ll need to verify
+                        yourself with 2FA every time you sign in.
+                    </Typography>
+
                     {is2FAEnabled && (
-                        <div className="mt-2">
-                            <Typography
-                                color="red"
-                                className="text-sm cursor-pointer hover:underline"
-                                onClick={() => setIsLostAccessModalOpen(true)}
-                            >
-                                Lost access to 2FA?
-                            </Typography>
-                        </div>
+                        <Typography
+                            color="red"
+                            className="text-sm cursor-pointer hover:underline mt-2"
+                            onClick={() => toggleModal("lostAccess", true)}
+                        >
+                            Lost access to 2FA?
+                        </Typography>
                     )}
-                    <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4 mt-6">
                         <div className="flex items-center gap-1">
                             <Typography color="primary1-gray" className="font-medium">
                                 Authenticator app
                             </Typography>
                             <Tooltip
-                                className="max-w-[200px] text-center"
                                 content="Use an authenticator app like Google Authenticator or Authy to generate 6-digit codes."
+                                className="max-w-[200px] text-center"
                             >
                                 <span className="text-primary1-500 cursor-pointer text-sm">ⓘ</span>
                             </Tooltip>
@@ -139,54 +180,54 @@ const AccountSettings = () => {
                         />
                     </div>
                 </div>
-                {showPasswordModal && (
-                    <PasswordModal
-                        open={showPasswordModal}
-                        onConfirm={handlePasswordConfirm}
-                        onCancel={() => setShowPasswordModal(false)}
-                        setShowQRModal={setShowQRModal}
-                        setShowOTPModal={setShowOTPModal}
-                        is2FAEnabled={is2FAEnabled}
-                        setShowPasswordModal={setShowPasswordModal}
-                    />
-                )}
+            </div>
+            <hr />
+            {user?.role_id?.role_id === 0 && <EnvDashboard />}
 
-                {showQRModal && (
-                    <QRModal
-                        imageUrl={qrCode || placeholderImage}
-                        onConfirm={handleQRConfirm}
-                        open={showQRModal}
-                        onCancel={() => setShowQRModal(false)}
-                    />
-                )}
-
-                {showOTPModal && (
-                    <OtpModal
-                        open={showOTPModal}
-                        onConfirm={handleOTPConfirm}
-                        onCancel={handleOTPCancel}
-                        set2FAEnabled={set2FAEnabled}
-                        is2FAEnabled={is2FAEnabled}
-                    />
-                )}
-
-                {showTopModal && (
-                    <TopModal
-                        open={showTopModal}
-                        onComplete={handle2FAComplete}
-                        is2FAEnabled={is2FAEnabled}
-                    />
-                )}
-
+            {modals.password && (
+                <PasswordModal
+                    open
+                    mode={is2FAEnabled ? "disable" : "enable"}
+                    onConfirm={handlePasswordConfirm}
+                    onCancel={() => toggleModal("password", false)}
+                    setShowQRModal={(val) => toggleModal("qr", val)}
+                    setShowOTPModal={(val) => toggleModal("otp", val)}
+                    setShowPasswordModal={(val) => toggleModal("password", val)}
+                    is2FAEnabled={is2FAEnabled}
+                />
+            )}
+            {modals.qr && (
+                <QRModal
+                    open
+                    imageUrl={qrCode || placeholderImage}
+                    onConfirm={handleQRConfirm}
+                    onCancel={() => toggleModal("qr", false)}
+                />
+            )}
+            {modals.otp && (
+                <OtpModal
+                    open
+                    mode={is2FAEnabled ? "disable" : "enable"}
+                    onConfirm={handleOTPConfirm}
+                    onCancel={() => toggleModal("otp", false)}
+                    onClose={() => toggleModal("otp", false)}
+                    set2FAEnabled={set2FAEnabled}
+                    is2FAEnabled={is2FAEnabled}
+                />
+            )}
+            {modals.top && (
+                <TopModal open onComplete={handle2FAComplete} is2FAEnabled={is2FAEnabled} />
+            )}
+            {modals.lostAccess && (
                 <LostAccessModal
-                    open={isLostAccessModalOpen}
-                    onClose={() => setIsLostAccessModalOpen(false)}
+                    open
+                    onClose={() => toggleModal("lostAccess", false)}
                     email={recoveryEmail}
                     user={user}
                     set2FAEnabled={set2FAEnabled}
                     is2FAEnabled={is2FAEnabled}
                 />
-            </div>
+            )}
         </div>
     );
 };

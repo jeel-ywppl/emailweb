@@ -14,8 +14,8 @@ import {useMaterialTailwindController, setOpenSidenav} from "../context/index";
 import {useAppSelector} from "../store";
 import NavUserModal from "../model/NavUserModal";
 import {useDispatch} from "react-redux";
-import {logoutUserFromLoacal} from "../store/auth/authSlice";
 import {config} from "../utils/util";
+import {logOutUser} from "../store/auth";
 
 const DashboardNavbar = () => {
     const dispatch = useDispatch();
@@ -27,9 +27,11 @@ const DashboardNavbar = () => {
     const {accessToken, user: authUser} = useAppSelector((state) => state.auth);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleLogout = () => {
-        dispatch(logoutUserFromLoacal());
+    const handleLogout = async () => {
+        await dispatch(logOutUser());
+        localStorage.removeItem("sidenavColor");
         setIsModalOpen(false);
+        navigate("/auth/sign-in");
     };
 
     const handleOpenModal = () => setIsModalOpen(true);
@@ -39,7 +41,12 @@ const DashboardNavbar = () => {
 
     return (
         <Navbar
-            className="rounded-xl transition-all w-full px-4 md:px-6 lg:px-8"
+            color={fixedNavbar ? "white" : "transparent"}
+            className={`rounded-xl transition-all ${
+                fixedNavbar
+                    ? "sticky top-4 z-40 py-3 shadow-md shadow-blue-gray-500/5"
+                    : "px-0 py-1"
+            }`}
             fullWidth
             blurred={fixedNavbar}
         >

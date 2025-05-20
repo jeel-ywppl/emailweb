@@ -15,11 +15,15 @@ import {findUser} from "../../store/user";
 import {setCurrentPage, setLimit, setSkip} from "../../store/user/userSlice";
 import useCheckAccess from "../../utils/useCheckAccess";
 import UserTableRow from "./TableRow/Index";
+import {cardHeaderColorMap, textColorMap} from "../../context/theme";
+import {useMaterialTailwindController} from "../../context";
 
 const Tables = () => {
     const dispatch = useAppDispatch();
     const checkAccess = useCheckAccess();
     const [search, setSearch] = useState("");
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     const [modals, setModals] = useState({
         showRegister: false,
@@ -150,18 +154,20 @@ const Tables = () => {
                     <MyButton
                         label="+ Add New User"
                         onClick={() => openModal("showRegister")}
-                        type="primary"
+                        type={sidenavColor === "white" ? "black" : sidenavColor || "gray"}
                         className="w-full sm:w-auto"
                     />
                 )}
             </div>
             <Card>
                 <CardHeader
-                    variant="gradient"
-                    color="gray"
-                    className="mb-8 p-6 flex items-center justify-between"
+                    color={cardHeaderColorMap[sidenavColor] || "gray"}
+                    className=" p-6 flex items-center justify-between"
                 >
-                    <Typography variant="h6" color="white">
+                    <Typography
+                        variant="h6"
+                        color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                    >
                         Users Table
                     </Typography>
                 </CardHeader>
@@ -179,7 +185,10 @@ const Tables = () => {
                                         <th key={el} className="border-b py-3 px-5 text-left">
                                             <Typography
                                                 variant="small"
-                                                className="text-[11px] font-bold uppercase text-blue-gray-400"
+                                                className={`text-[11px] font-bold uppercase ${
+                                                    textColorMap[sidenavColor] ||
+                                                    "text-blue-gray-400"
+                                                }`}
                                             >
                                                 {el}
                                             </Typography>
@@ -200,7 +209,7 @@ const Tables = () => {
                                     )
 
                                     .map((item, idx) => {
-                                        const pageIndex = Math.max(currentPage, 1); 
+                                        const pageIndex = Math.max(currentPage, 1);
                                         const index = (pageIndex - 1) * Number(limit) + idx + 1;
 
                                         return (

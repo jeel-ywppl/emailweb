@@ -7,21 +7,15 @@ module.exports = withMT({
     theme: {
         extend: {
             colors: {
-                black: "#000000",
-                white: "#ffffff",
                 blue: {
-                    DEFAULT: "#2563EB", 
+                    DEFAULT: "#2563EB",
                     dark: "#1E40AF",
                 },
                 gray: {
-                    light: "#f3f4f6", // gray-100
-                    DEFAULT: "#6B7280", // gray-500
-                    dark: "#374151", // gray-700
+                    light: "#f3f4f6",
+                    DEFAULT: "#6B7280",
+                    dark: "#374151",
                 },
-                primary1: "#1C1F26", // Optional extra
-                secondary2: "#818592", // Optional extra
-                primary: "#4CAF50", // Green (optional)
-                secondary: "#388E3C", // Green dark (optional)
             },
             keyframes: {
                 bounceCustom: {

@@ -5,10 +5,13 @@ import PropTypes from "prop-types";
 import {createRoleValidationSchema} from "../validation/createRoleValidationSchema";
 import {createRoles, editRole, getAllRoles} from "../store/roles";
 import MyButton from "../componets/MyButton";
+import {useMaterialTailwindController} from "../context";
 
 const CreateRoleForm = ({open, onClose, roleToEdit}) => {
     const dispatch = useAppDispatch();
     const {noFilterCompany} = useAppSelector((state) => state.company);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     const {
         handleChange,
@@ -144,7 +147,7 @@ const CreateRoleForm = ({open, onClose, roleToEdit}) => {
                                     ? "Save Changes"
                                     : "Create Role"
                             }
-                            type="primary"
+                            type="sidenav"
                             className="ml-2 w-full sm:w-auto"
                         />
                     </div>

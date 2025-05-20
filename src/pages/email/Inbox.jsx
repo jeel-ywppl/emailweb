@@ -11,12 +11,14 @@ import {Box, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
 import Loader from "../../componets/Loader";
 import {RotateCcw} from "lucide-react";
-import socket from "../../context/SocketProvider";
-import { toast } from "react-toastify";
+import MyButton from "../../componets/MyButton";
+import {useMaterialTailwindController} from "../../context";
 
 const Inbox = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
     const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} =
         useAppSelector((state) => state.email);
 
@@ -32,50 +34,6 @@ const Inbox = () => {
     useEffect(() => {
         dispatch(getAllEmailbyUser({page: currentPage, limit, status: "received_status=true"}));
     }, [dispatch, limit, currentPage]);
-
-    const loggedInUserEmail = useAppSelector((state) => state.auth.user?.email);
-    console.log("🦊 loggedInUserEmail", loggedInUserEmail);
-    useEffect(() => {
-        // Join the room
-        const userEmail = loggedInUserEmail;
-        socket.emit("join_user", userEmail);
-
-        // Listen for new_email
-        socket.on("new_email", (email) => {
-            console.log("📬 New email received:", email);
-            // Show toast notification
-            toast("📨 New Mail Received", {
-                position: "top-center",
-                autoClose: 2000,
-                hideProgressBar: true,
-                closeOnClick: false,
-                pauseOnHover: false,
-                draggable: false,
-                closeButton: false,
-                style: {
-                    height: "22px",
-                    fontSize: "16px",
-                    background: "#FFE135",
-                    color: "#000000",
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginTop: "5px",
-                },
-            });
-            dispatch(getAllEmailbyUser({
-                page: 1,
-                limit: 10,
-                status: "received_status=true",
-            }));
-        });
-
-        return () => {
-            socket.off("new_email");
-        };
-    }, []);
-
 
     useEffect(() => {
         setStarredEmails(emails?.filter((email) => email?.star_status).map((email) => email?._id));
@@ -221,12 +179,12 @@ const Inbox = () => {
                             }`}
                         />
                     </button>
-                    <button
-                        className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
+                    <MyButton
+                        label="Compose Email"
                         onClick={() => setIsModalOpen(true)}
-                    >
-                        Compose Email
-                    </button>
+                        type={sidenavColor === "white" ? "black" : sidenavColor || "midnight"}
+                    />
+
                     <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                 </div>
                 <div className="flex items-center gap-3 p-3 relative mr-5">

@@ -11,10 +11,14 @@ import {setCurrentPage, setLimit, setSkip} from "../../store/client/clientSlice"
 import {findClient} from "../../store/client";
 import EditClientModal from "../../model/EditClientModal";
 import DeleteClientModal from "../../model/DeleteClientModal";
+import {useMaterialTailwindController} from "../../context";
+import {cardHeaderColorMap} from "../../context/theme";
 
 const Index = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     const [search, setSearch] = useState("");
     const [selectedClient, setSelectedClient] = useState(null);
@@ -48,7 +52,6 @@ const Index = () => {
         setSelectedClient(null);
     };
 
-
     useEffect(() => {
         dispatch(
             findClient({
@@ -80,18 +83,20 @@ const Index = () => {
                 <MyButton
                     onClick={() => navigate("/dashboard/client/create")}
                     label="+ Add New Client"
-                    type="primary"
+                    type="sidenav"
                     className="w-full sm:w-auto"
                 />
             </div>
 
             <Card>
                 <CardHeader
-                    variant="gradient"
-                    color="gray"
+                    color={cardHeaderColorMap[sidenavColor] || "gray"}
                     className="mb-8 p-6 flex items-center justify-between"
                 >
-                    <Typography variant="h6" color="white">
+                    <Typography
+                        variant="h6"
+                        color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                    >
                         Client Table
                     </Typography>
                 </CardHeader>

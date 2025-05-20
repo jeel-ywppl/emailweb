@@ -11,12 +11,16 @@ import {Box, TablePagination} from "@mui/material";
 import {setCurrentPage, setLimit, setSkip} from "../../store/email/emailSlice";
 import Loader from "../../componets/Loader";
 import {RotateCcw} from "lucide-react";
+import MyButton from "../../componets/MyButton";
+import { useMaterialTailwindController } from "../../context";
 
 const Trash = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {emails, totalEmails, currentPage, limit, isLoading, isError, errorMessage} =
         useAppSelector((state) => state.email);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmails, setSelectedEmails] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(null);
@@ -167,12 +171,11 @@ const Trash = () => {
                             }`}
                         />
                     </button>
-                    <button
-                        className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
+                    <MyButton
+                        label="Compose Email"
                         onClick={() => setIsModalOpen(true)}
-                    >
-                        Compose Email
-                    </button>
+                        type={sidenavColor === "white" ? "black" : sidenavColor || "midnight"}
+                    />
                     <ComposeEmailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                 </div>
                 <div className="flex items-center gap-3 p-3 relative">

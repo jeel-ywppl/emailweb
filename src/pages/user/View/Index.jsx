@@ -2,17 +2,22 @@ import {Tab, TabPanel, Tabs, TabsBody, TabsHeader} from "@material-tailwind/reac
 import {ChevronLeft} from "lucide-react";
 import {useCallback, useEffect, useState} from "react";
 import {Link, useNavigate, useParams} from "react-router-dom";
-import { useAppDispatch } from "../../../store";
-import { getUser } from "../../../store/user";
+import {useAppDispatch} from "../../../store";
+import {getUser} from "../../../store/user";
 import UserDetailsHeader from "./UserDetailsHeader";
 import UserBasicInfo from "./UserBasicInfo";
 import UserSecurityInfo from "./UserSecurityInfo";
-import Permission from "../../../pages/Permission"
+import Permission from "../../../pages/Permission";
+import { useMaterialTailwindController } from "../../../context";
 
 const UserView = () => {
     const {id} = useParams();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
+
+    const isWhite = sidenavColor === "white";
 
     const [activeTab, setActiveTab] = useState("basic");
     const [userData, setUserData] = useState(null);
@@ -51,47 +56,48 @@ const UserView = () => {
                 <TabsHeader
                     className="bg-transparent border border-gray-200 dark:border-gray-700 max-w-md"
                     indicatorProps={{
-                        className: "bg-black shadow-md rounded-md",
+                        className: `shadow-md rounded-md `,
+                        style: {
+                            backgroundColor:
+                                sidenavColor === "white"
+                                    ? "#fff"
+                                    : sidenavColor === "midnight"
+                                    ? "#1e293b"
+                                    : sidenavColor,
+                        },
                     }}
                 >
-                    <Tab
-                        value="basic"
-                        onClick={() => setActiveTab("basic")}
-                        className={`text-sm font-medium ${
-                            activeTab === "basic" ? "text-white" : "text-black"
-                        }`}
-                    >
-                        Basic Info
-                    </Tab>
-                    <Tab
-                        value="security"
-                        onClick={() => setActiveTab("security")}
-                        className={`text-sm font-medium ${
-                            activeTab === "security" ? "text-white" : "text-black"
-                        }`}
-                    >
-                        Security
-                    </Tab>
-                    <Tab
-                        value="permission"
-                        onClick={() => setActiveTab("permission")}
-                        className={`text-sm font-medium ${
-                            activeTab === "permission" ? "text-white" : "text-black"
-                        }`}
-                    >
-                        Permission
-                    </Tab>
+                    {["basic", "security", "permission"].map((tab) => (
+                        <Tab
+                            key={tab}
+                            value={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`text-sm font-medium ${
+                                activeTab === tab
+                                    ? isWhite
+                                        ? "text-black"
+                                        : "text-white"
+                                    : "text-black dark:text-white"
+                            }`}
+                        >
+                            {tab === "add_records"
+                                ? "Add Records"
+                                : tab === "open_dkim"
+                                ? "Open DKIM"
+                                : "Check DNS"}
+                        </Tab>
+                    ))}
                 </TabsHeader>
 
                 <TabsBody>
                     <TabPanel value="basic" className="mt-6 space-y-6">
-                        <UserBasicInfo user={userData}/>
+                        <UserBasicInfo user={userData} />
                     </TabPanel>
                     <TabPanel value="security" className="mt-6 space-y-6">
-                        <UserSecurityInfo user={userData}/>
+                        <UserSecurityInfo user={userData} />
                     </TabPanel>
                     <TabPanel value="permission" className="mt-6 space-y-6">
-                        <Permission user={userData}/>
+                        <Permission user={userData} />
                     </TabPanel>
                 </TabsBody>
             </Tabs>

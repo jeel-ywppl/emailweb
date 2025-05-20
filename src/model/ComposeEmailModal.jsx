@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import PropTypes from "prop-types";
 import {XMarkIcon} from "@heroicons/react/24/outline";
-import {Dialog, Button, IconButton} from "@material-tailwind/react";
+import {Dialog, IconButton} from "@material-tailwind/react";
 import RecipientInput from "../componets/ComposeEmail/RecipientInput";
 import SubjectInput from "../componets/ComposeEmail/SubjectInput";
 import TextEditor from "../componets/ComposeEmail/TextEditor";
@@ -11,6 +11,7 @@ import {useAppDispatch, useAppSelector} from "../store";
 import {deleteDraft, getAllDraftsbyUser, getDraftById, updateDraft} from "../store/draft";
 import {getAllEmailbyUser, sendMail} from "../store/email";
 import {TrashIcon} from "lucide-react";
+import MyButton from "../componets/MyButton";
 
 const ComposeEmailModal = ({isOpen, onClose, draft_id, forwardData}) => {
     const dispatch = useAppDispatch();
@@ -85,6 +86,89 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id, forwardData}) => {
             .map((r) => (typeof r === "object" && r.email ? r.email : r))
             ?.filter((email) => typeof email === "string" && email.trim() !== "");
 
+    // const handleSubmit = (actionType) => {
+    //     if (isSending) return;
+
+    //     setIsSending(true);
+
+    //     const recipientEmailsTo = extractEmails(recipients);
+    //     const recipientEmailsCc = extractEmails(ccRecipients);
+    //     const recipientEmailsBcc = extractEmails(bccRecipients);
+
+    //     if (
+    //         recipientEmailsTo.length === 0 &&
+    //         recipientEmailsCc.length === 0 &&
+    //         recipientEmailsBcc.length === 0 &&
+    //         actionType === "send"
+    //     ) {
+    //         setIsSending(false);
+    //         return;
+    //     }
+
+    //     const formData = new FormData();
+
+    //     recipientEmailsTo.forEach((email, index) =>
+    //         formData.append(`recipient_emails_to[${index}]`, email),
+    //     );
+    //     recipientEmailsCc.forEach((email, index) =>
+    //         formData.append(`recipient_emails_cc[${index}]`, email),
+    //     );
+    //     recipientEmailsBcc.forEach((email, index) =>
+    //         formData.append(`recipient_emails_bcc[${index}]`, email),
+    //     );
+
+    //     formData.append("subject", subject);
+    //     formData.append("body", body);
+
+    //     attachments
+    //         .filter((file) => file instanceof File)
+    //         .forEach((file) => {
+    //             formData.append("files", file);
+    //         });
+
+    //     if (actionType === "save" && draft_id) {
+    //         formData.append("draft_id", draft_id);
+    //     }
+
+    //     const formDataLog = {};
+    //     formData.forEach((value, key) => {
+    //         if (key === "files" && value.name) {
+    //             if (!formDataLog[key]) formDataLog[key] = [];
+    //             formDataLog[key].push(value.name);
+    //         } else {
+    //             formDataLog[key] = value;
+    //         }
+    //     });
+
+    //     formData.append("is_reply", actionType === "send" && forwardData ? "false" : "true");
+    //     if (forwardData?.id) {
+    //         formData.append("email_id", forwardData?.id);
+    //     }
+
+    //     const action = actionType === "send" ? sendMail(formData) : updateDraft(formData);
+
+    //     dispatch(action)
+    //         .unwrap()
+    //         .then(() => {
+    //             if (actionType === "send") {
+    //                 dispatch(getAllEmailbyUser({}));
+    //                 if (draft_id) {
+    //                     dispatch(deleteDraft({draft_ids: [draft_id]}));
+    //                 }
+    //             } else {
+    //                 dispatch(getAllDraftsbyUser({}));
+    //             }
+    //             resetForm();
+    //             onClose();
+    //         })
+    //         .catch((error) => {
+    //             console.error("Failed to send email:", error);
+    //         })
+    //         .finally(() => {
+    //             setIsSending(false);
+    //         });
+    // };
+
     const handleSubmit = (actionType) => {
         if (isSending) return;
 
@@ -106,44 +190,46 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id, forwardData}) => {
 
         const formData = new FormData();
 
-        recipientEmailsTo.forEach((email, index) =>
-            formData.append(`recipient_emails_to[${index}]`, email),
-        );
-        recipientEmailsCc.forEach((email, index) =>
-            formData.append(`recipient_emails_cc[${index}]`, email),
-        );
-        recipientEmailsBcc.forEach((email, index) =>
-            formData.append(`recipient_emails_bcc[${index}]`, email),
-        );
+        // Append recipient emails without using bracket notation
+        recipientEmailsTo.forEach((email) => formData.append("recipient_emails_to[]", email));
+        recipientEmailsCc.forEach((email) => formData.append("recipient_emails_cc[]", email));
+        recipientEmailsBcc.forEach((email) => formData.append("recipient_emails_bcc[]", email));
 
         formData.append("subject", subject);
         formData.append("body", body);
 
+        // Append attachments (Files)
         attachments
             .filter((file) => file instanceof File)
             .forEach((file) => {
                 formData.append("files", file);
             });
 
+        // Draft ID if saving
         if (actionType === "save" && draft_id) {
             formData.append("draft_id", draft_id);
         }
 
-        const formDataLog = {};
-        formData.forEach((value, key) => {
-            if (key === "files" && value.name) {
-                if (!formDataLog[key]) formDataLog[key] = [];
-                formDataLog[key].push(value.name);
-            } else {
-                formDataLog[key] = value;
-            }
-        });
-
+        // is_reply and email_id (for reply/forward)
         formData.append("is_reply", actionType === "send" && forwardData ? "false" : "true");
+
         if (forwardData?.id) {
             formData.append("email_id", forwardData?.id);
         }
 
+        // Log the full FormData
+        console.log("📦 FormData Payload:");
+        for (let [key, value] of formData.entries()) {
+            if (value instanceof File) {
+                console.log(
+                    `${key}: File -> name: ${value.name}, size: ${value.size}, type: ${value.type}`,
+                );
+            } else {
+                console.log(`${key}: ${value}`);
+            }
+        }
+
+        // Send or save
         const action = actionType === "send" ? sendMail(formData) : updateDraft(formData);
 
         dispatch(action)
@@ -161,7 +247,7 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id, forwardData}) => {
                 onClose();
             })
             .catch((error) => {
-                console.error("Failed to send email:", error);
+                console.error("❌ Failed to send email:", error);
             })
             .finally(() => {
                 setIsSending(false);
@@ -307,18 +393,13 @@ const ComposeEmailModal = ({isOpen, onClose, draft_id, forwardData}) => {
                 <AttachmentInput attachments={attachments} setAttachments={setAttachments} />
             </div>
             <div className="flex justify-end mt-4 items-baseline">
-                <Button
-                    color="primary1"
+                <MyButton
+                    type="sidenav"
                     onClick={() => handleSubmit("send")}
                     disabled={isLoading || isSending}
+                    label={isLoading || isSending ? "Sending..." : "Send"}
                     className="px-5 py-2 rounded-lg font-medium"
-                >
-                    {isSending ? (
-                        <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                        "Send"
-                    )}
-                </Button>
+                />
             </div>
         </Dialog>
     );
@@ -330,8 +411,8 @@ ComposeEmailModal.propTypes = {
     draft_id: PropTypes.string,
     forwardData: PropTypes.shape({
         subject: PropTypes.string,
-        content: PropTypes.string, 
-        id: PropTypes.string, 
+        content: PropTypes.string,
+        id: PropTypes.string,
         createdAt: PropTypes.string,
         user: PropTypes.shape({
             name: PropTypes.string,

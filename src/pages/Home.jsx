@@ -20,6 +20,8 @@ import {findClientWithoutFilter} from "../store/client";
 import useCheckAccess from "../utils/useCheckAccess";
 import {useNavigate} from "react-router-dom";
 import Loader from "../componets/Loader";
+import { useMaterialTailwindController } from "../context";
+import { getBgColorClass } from "../context/theme";
 
 const timeOptions = [
     {label: "All", value: "all"},
@@ -33,6 +35,9 @@ const Home = () => {
     const dispatch = useAppDispatch();
     const checkAccess = useCheckAccess();
     const navigate = useNavigate();
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
+    const bgColorClass = getBgColorClass(sidenavColor);
     const {chart, isLoading} = useAppSelector((state) => state.chart);
 
     const {noFilterClient} = useAppSelector((state) => state.client);
@@ -128,7 +133,7 @@ const Home = () => {
                         className="bg-white border border-gray-300 rounded-lg p-6 flex items-center justify-between"
                     >
                         <div className="flex items-center space-x-4">
-                            <div className="text-white bg-black border rounded p-2 ">
+                            <div className={`text-white ${bgColorClass} border rounded p-2`}>
                                 {box.icon}
                             </div>
                             <div>

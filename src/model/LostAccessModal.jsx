@@ -5,11 +5,14 @@ import {useEffect, useState, useCallback} from "react";
 import {Dialog} from "@material-tailwind/react";
 import RecovryOTPVerify from "./RecovryOTPVerify";
 import MyButton from "../componets/MyButton";
+import {useMaterialTailwindController} from "../context";
 
 const LostAccessModal = ({open, onClose, email, user, set2FAEnabled, is2FAEnabled}) => {
     const dispatch = useAppDispatch();
     const [loading, setLoading] = useState(false);
     const [showVerifyModal, setShowVerifyModal] = useState(false);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     const handleContinue = useCallback(async () => {
         setLoading(true);
@@ -62,7 +65,7 @@ const LostAccessModal = ({open, onClose, email, user, set2FAEnabled, is2FAEnable
                         label={loading ? "Processing..." : "Continue"}
                         onClick={handleContinue}
                         disabled={loading}
-                        type="primary"
+                        type="sidenav"
                     />
                 </div>
             </Dialog>

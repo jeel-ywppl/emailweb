@@ -8,19 +8,22 @@ import renderDNSInfo from "./View/renderDNSInfo";
 import {Tabs, TabsHeader, TabsBody, Tab, TabPanel} from "@material-tailwind/react";
 import {Globe} from "lucide-react";
 import PropTypes from "prop-types";
-
+import {useMaterialTailwindController} from "../../../../context";
 
 const tabData = [
-    {label: "Overview", value: "overview", render: (data) => renderOverview({ dnsCheckData: data })},
-    {label: "MX Records", value: "mx", render: (data) => renderMXRecords({ dnsCheckData: data })},
-    {label: "SPF", value: "spf", render: (data) => renderSPFRecord({ dnsCheckData: data })},
-    {label: "DMARC", value: "dmarc", render: (data) => renderDMARCRecord({ dnsCheckData: data })},
-    {label: "DKIM", value: "dkim", render: (data) => renderDKIMRecords({ dnsCheckData: data })},
-    {label: "DNS Info", value: "dns", render: (data) => renderDNSInfo({ dnsCheckData: data })},
+    {label: "Overview", value: "overview", render: (data) => renderOverview({dnsCheckData: data})},
+    {label: "MX Records", value: "mx", render: (data) => renderMXRecords({dnsCheckData: data})},
+    {label: "SPF", value: "spf", render: (data) => renderSPFRecord({dnsCheckData: data})},
+    {label: "DMARC", value: "dmarc", render: (data) => renderDMARCRecord({dnsCheckData: data})},
+    {label: "DKIM", value: "dkim", render: (data) => renderDKIMRecords({dnsCheckData: data})},
+    {label: "DNS Info", value: "dns", render: (data) => renderDNSInfo({dnsCheckData: data})},
 ];
 
 const DNSResults = ({dnsCheckData}) => {
-    console.log("🦆 dnsCheckdata", dnsCheckData);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
+
+    const isWhite = sidenavColor === "white";
 
     const [activeTab, setActiveTab] = useState("overview");
 
@@ -39,16 +42,29 @@ const DNSResults = ({dnsCheckData}) => {
                     <TabsHeader
                         className="bg-gray-100 rounded-lg mb-6"
                         indicatorProps={{
-                            className: "bg-white shadow text-dns-purple",
+                            className: `shadow-md rounded-md `,
+                            style: {
+                                backgroundColor:
+                                    sidenavColor === "white"
+                                        ? "#fff"
+                                        : sidenavColor === "midnight"
+                                        ? "#1e293b"
+                                        : sidenavColor,
+                            },
                         }}
                     >
                         {tabData.map(({label, value}) => (
                             <Tab
                                 key={value}
                                 value={value}
-                                className={({isActive}) =>
-                                    isActive ? "text-purple-300 font-semibold" : "text-gray-600"
-                                }
+                                onClick={() => setActiveTab(value)}
+                                className={`text-sm font-medium ${
+                                    activeTab === value
+                                        ? isWhite
+                                            ? "text-black"
+                                            : "text-white"
+                                        : "text-black dark:text-white"
+                                }`}
                             >
                                 {label}
                             </Tab>
@@ -60,7 +76,6 @@ const DNSResults = ({dnsCheckData}) => {
                             <TabPanel key={value} value={value}>
                                 {render(dnsCheckData)}
                                 {console.log("🍏 dnsCheckData", dnsCheckData)}
-
                             </TabPanel>
                         ))}
                     </TabsBody>
@@ -80,6 +95,5 @@ DNSResults.propTypes = {
         dnsInfo: PropTypes.object,
     }).isRequired,
 };
-
 
 export default DNSResults;

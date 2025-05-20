@@ -10,14 +10,16 @@ import {findRoleWithoutFilter} from "../store/roles";
 import {Autocomplete, TextField} from "@mui/material";
 import {findCompanyWithoutFilter} from "../store/company";
 import MyButton from "../componets/MyButton";
+import {useMaterialTailwindController} from "../context";
 
 const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
     const dispatch = useAppDispatch();
     const [showPassword, setShowPassword] = useState(false);
     const {noFilterData} = useAppSelector((state) => state.domain);
     const {noFilterRole} = useAppSelector((state) => state.roles);
-
     const {noFilterCompany} = useAppSelector((state) => state.company);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     useEffect(() => {
         dispatch(findCompanyWithoutFilter());
@@ -333,25 +335,6 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="flex items-center">
-                                    <input
-                                        name="acceptTerms"
-                                        type="checkbox"
-                                        className="h-4 w-4 shrink-0 text-dark  border-gray-300 rounded"
-                                    />
-                                    <label
-                                        htmlFor="acceptTerms"
-                                        className="ml-3 block text-sm text-gray-600"
-                                    >
-                                        I accept the{" "}
-                                        <a
-                                            href="javascript:void(0);"
-                                            className="text-dark font-semibold hover:underline ml-1"
-                                        >
-                                            Terms and Conditions
-                                        </a>
-                                    </label>
-                                </div>
                             </div>
 
                             <div className="mt-8">
@@ -360,7 +343,11 @@ const RegisterNewUser = ({closeModal, handleNewUserRegistration}) => {
                                     htmlType="submit"
                                     fullWidth
                                     disabled={isSubmitting}
-                                    type="primary"
+                                    type={
+                                        sidenavColor === "white"
+                                            ? "black"
+                                            : sidenavColor || "primary"
+                                    }
                                 />
                             </div>
                         </form>

@@ -11,6 +11,8 @@ import {RotateCcw, Trash2Icon} from "lucide-react";
 import {deleteDraft, getAllDraftsbyUser} from "../../store/draft";
 import {changeEmailStatus} from "../../store/email";
 import {setCurrentPage, setLimit, setSkip} from "../../store/draft/draftSlice";
+import MyButton from "../../componets/MyButton";
+import { useMaterialTailwindController } from "../../context";
 
 const Draft = () => {
     const dispatch = useAppDispatch();
@@ -23,6 +25,8 @@ const Draft = () => {
         isError,
         errorMessage,
     } = useAppSelector((state) => state.draft);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmails, setSelectedEmails] = useState([]);
@@ -161,14 +165,11 @@ const Draft = () => {
                             }`}
                         />
                     </button>
-                    <button
-                        className="p-2.5 bg-primary1 text-white rounded-lg font-semibold hover:bg-secondary2 shadow-lg"
-                        onClick={() => {
-                            setIsModalOpen(true);
-                        }}
-                    >
-                        Compose Email
-                    </button>
+                    <MyButton
+                        label="Compose Email"
+                        onClick={() => setIsModalOpen(true)}
+                        type={sidenavColor === "white" ? "black" : sidenavColor || "midnight"}
+                    />
                     <ComposeEmailModal
                         isOpen={isModalOpen}
                         onClose={() => {

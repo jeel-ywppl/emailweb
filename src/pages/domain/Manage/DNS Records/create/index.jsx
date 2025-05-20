@@ -1,5 +1,6 @@
-import {Button, Card, Input, Option, Select} from "@material-tailwind/react";
+import { Card, Input, Option, Select} from "@material-tailwind/react";
 import PropTypes from "prop-types";
+import MyButton from "../../../../../componets/MyButton";
 
 const DnsForm = ({
     values,
@@ -98,31 +99,30 @@ const DnsForm = ({
                         onChange={handleChange}
                         onBlur={handleBlur}
                     />
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
+                    <MyButton
+                        htmlType="submit"
+                        type="sidenav"
                         disabled={isSubmitting}
-                    >
-                        {isSubmitting
-                            ? "Submitting..."
-                            : editingRecord
-                            ? "Update Record"
-                            : "Add Record"}
-                    </Button>
+                        isLoading={isSubmitting}
+                        label={
+                            isSubmitting
+                                ? "Submitting..."
+                                : editingRecord
+                                ? "Update Record"
+                                : "Add Record"
+                        }
+                    />
 
                     {editingRecord && (
-                        <Button
-                            type="button"
-                            variant="outlined"
-                            color="red"
+                        <MyButton
+                            htmlType="button"
+                            type="outlineGray"
+                            label="Cancel"
                             onClick={() => {
                                 resetForm();
                                 setEditingRecord(null);
                             }}
-                        >
-                            Cancel
-                        </Button>
+                        />
                     )}
                 </div>
             </form>
@@ -148,7 +148,7 @@ DnsForm.propTypes = {
     resetForm: PropTypes.func,
     handleSubmit: PropTypes.func,
     isSubmitting: PropTypes.bool,
-    editingRecord: PropTypes.object, 
+    editingRecord: PropTypes.object,
     setEditingRecord: PropTypes.func,
 };
 

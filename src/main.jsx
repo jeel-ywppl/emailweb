@@ -6,15 +6,20 @@ import {ThemeProvider} from "@material-tailwind/react";
 import {MaterialTailwindControllerProvider} from "./context/index.jsx";
 import {Provider} from "react-redux";
 import store from "./store/index.js";
+import "react-toastify/dist/ReactToastify.css"; 
+import { ToastContainer } from "react-toastify";
 
 createRoot(document.getElementById("root")).render(
-    <BrowserRouter>
-        <Provider store={store}>
-            <ThemeProvider>
-                <MaterialTailwindControllerProvider>
-                    <App />
-                </MaterialTailwindControllerProvider>
-            </ThemeProvider>
-        </Provider>
-    </BrowserRouter>,
+    <Provider store={store}>
+        <BrowserRouter>
+            <MaterialTailwindControllerProvider>
+                <ThemeProvider>
+                    <>
+                        <App />
+                        <ToastContainer position="top-right" autoClose={3000} />
+                    </>
+                </ThemeProvider>
+            </MaterialTailwindControllerProvider>
+        </BrowserRouter>
+    </Provider>,
 );

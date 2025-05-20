@@ -20,10 +20,14 @@ import CreateRoleModal from "../../model/CreateRoleModal";
 import DeleteRoleModal from "../../model/DeleteRoleModal";
 import UserTableRow from "./Table Row/Index";
 import Loader from "../../componets/Loader";
+import {useMaterialTailwindController} from "../../context";
+import {cardHeaderColorMap} from "../../context/theme";
 
 const Roles = () => {
     const dispatch = useAppDispatch();
     const checkAccess = useCheckAccess();
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
     const [search, setSearch] = useState("");
     const [selectedCompanyId, setSelectedCompanyId] = useState("");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -133,18 +137,20 @@ const Roles = () => {
                     <MyButton
                         label="+ Add New Role"
                         onClick={openCreateModal}
-                        type="primary"
+                        type="sidenav"
                         className="w-full sm:w-auto"
                     />
                 )}
             </div>
             <Card>
                 <CardHeader
-                    variant="gradient"
-                    color="gray"
-                    className="mb-8 p-6 flex items-center gap-4 justify-between"
+                    color={cardHeaderColorMap[sidenavColor] || "gray"}
+                    className="mb-8 p-6 flex items-center justify-between"
                 >
-                    <Typography variant="h6" color="white">
+                    <Typography
+                        variant="h6"
+                        color={cardHeaderColorMap[sidenavColor] === "white" ? "black" : "white"}
+                    >
                         Role Table
                     </Typography>
                 </CardHeader>
@@ -183,7 +189,7 @@ const Roles = () => {
                                     <UserTableRow
                                         item={item}
                                         index={(currentPage - 1) * limit + index}
-                                        key={index * Math.random()}
+                                        key={item._id} // Use a unique identifier
                                         openEditModal={openEditModal}
                                         openDeleteModal={openDeleteModal}
                                     />

@@ -83,7 +83,7 @@ const OpenDkim = () => {
                 <MyButton
                     onClick={handleGenerate}
                     disabled={isLoading}
-                    type="primary"
+                    type="sidenav"
                     label={isLoading ? "Generating..." : "Generate DKIM Record"}
                 />
             </div>

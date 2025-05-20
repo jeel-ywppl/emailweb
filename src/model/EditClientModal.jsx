@@ -6,11 +6,14 @@ import {EyeIcon, EyeOffIcon} from "lucide-react";
 import {Dialog, Input} from "@material-tailwind/react";
 import PropTypes from "prop-types";
 import MyButton from "../componets/MyButton";
-import { editClientValidationSchema } from "../validation/editClientValidationSchema";
+import {editClientValidationSchema} from "../validation/editClientValidationSchema";
+import {useMaterialTailwindController} from "../context";
 
 const EditClientModal = ({clientData, isOpen, onClose, setIsEditModalOpen}) => {
     const dispatch = useAppDispatch();
     const [showPassword, setShowPassword] = useState(false);
+    const [controller] = useMaterialTailwindController();
+    const {sidenavColor} = controller;
 
     const togglePasswordVisibility = () => {
         setShowPassword((prev) => !prev);
@@ -166,7 +169,7 @@ const EditClientModal = ({clientData, isOpen, onClose, setIsEditModalOpen}) => {
                             label={isSubmitting ? "Creating..." : "Create Client"}
                             htmlType="submit"
                             disabled={isSubmitting}
-                            type="primary"
+                            type="sidenav"
                         />
                     </div>
                 </form>

@@ -12,6 +12,7 @@ import permissionReducers from "./permissions/permissionSlice";
 import moduleReducers from "./modules/modualSlice";
 import clientReducers from "./client/clientSlice";
 import chartReducers from "./charts/chartSlice"
+import envReducers from "./ENV/EnvSlice"
 
 const reducers = {
     auth: authReducer,
@@ -26,6 +27,7 @@ const reducers = {
     modules: moduleReducers,
     client: clientReducers,
     chart: chartReducers,
+    env: envReducers
 };
 
 export const rootReducer = combineReducers(reducers);
